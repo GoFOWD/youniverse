@@ -111,17 +111,7 @@ function App() {
         )}
 
         {step === 'loading' && (
-          <motion.div
-            key="loading"
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.8 }}
-            className="w-full"
-          >
-            <LoadingView />
-          </motion.div>
+          <LoadingView key="loading" />
         )}
 
         {step === 'result' && (

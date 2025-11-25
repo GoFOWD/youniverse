@@ -149,6 +149,25 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
         animate={{ opacity: 1 }}
       />
       
+      {/* Video Background for Result Screen */}
+      {step === 'result' && (
+        <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0">
+          <video
+            className="w-full h-full object-cover"
+            autoPlay
+            muted
+            playsInline
+            loop
+            style={{ filter: 'blur(8px)' }}
+          >
+            <source src="/assets/surface.mp4" type="video/mp4" />
+          </video>
+          
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
+      )}
+      
       {/* Noise Overlay */}
       <div className="noise-overlay" />
       
