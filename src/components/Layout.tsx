@@ -106,13 +106,14 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
       // For questions - use interpolated colors
       const normalizedProgress = Math.min(Math.max(progress, 0), 100) / 100;
       
-      const darkStart = '#0f172a';
-      const darkMid = '#134e4a';
-      const mediumStart = '#1e3a3e';
-      const mediumMid = '#0d5a5f';
-      const brightStart = '#06b6d4';
-      const brightMid = '#2563eb';
-      const brightEnd = '#0f766e';
+      // Much darker colors for abyss feel (Q1-8)
+      const darkStart = '#020617';   // Almost black slate
+      const darkMid = '#0a1f1f';     // Very dark teal
+      const mediumStart = '#1e3a3e'; // transition
+      const mediumMid = '#0d5a5f';   // teal-900
+      const brightStart = '#06b6d4';  // cyan-500
+      const brightMid = '#2563eb';    // blue-600
+      const brightEnd = '#0f766e';    // teal-700
       
       let fromColor, viaColor, toColor;
       
@@ -142,7 +143,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
     <div className="relative min-h-screen w-full overflow-hidden text-white">
       {/* Dynamic Background Layer */}
       <motion.div
-        className="absolute inset-0 animate-gradient transition-colors duration-[4000ms]"
+        className={`absolute inset-0 transition-colors duration-[4000ms] ${progress > 44 ? 'animate-gradient' : ''}`}
         style={getGradientStyle()}
         initial={false}
         animate={{ opacity: 1 }}
@@ -150,6 +151,93 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
       
       {/* Noise Overlay */}
       <div className="noise-overlay" />
+      
+      {/* Underwater Texture for Landing Screen */}
+      {step === 'landing' && (
+        <>
+          {/* Subtle water caustics */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={`caustic-landing-${i}`}
+                className="absolute rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${100 + Math.random() * 150}px`,
+                  height: `${100 + Math.random() * 150}px`,
+                  background: `radial-gradient(circle, 
+                    rgba(47, 99, 100, 0.3) 0%, 
+                    rgba(47, 99, 100, 0.1) 40%,
+                    transparent 70%)`,
+                  filter: 'blur(25px)',
+                }}
+                animate={{
+                  opacity: [0.2, 0.5, 0.2],
+                  scale: [0.8, 1.2, 0.8],
+                  x: ['-30px', '30px', '-30px'],
+                  y: ['-20px', '20px', '-20px'],
+                }}
+                transition={{
+                  duration: 8 + Math.random() * 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: Math.random() * 4,
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* Floating particles for depth */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={`depth-particle-${i}`}
+                className="absolute bg-teal-300/20 rounded-full blur-sm"
+                style={{
+                  width: `${2 + Math.random() * 3}px`,
+                  height: `${2 + Math.random() * 3}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  y: [0, -20, 0],
+                  x: [0, Math.random() * 10 - 5, 0],
+                  opacity: [0.3, 0.6, 0.3],
+                }}
+                transition={{
+                  duration: 4 + Math.random() * 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: Math.random() * 3,
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* Water distortion overlay */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(47, 99, 100, 0.03) 2px,
+                rgba(47, 99, 100, 0.03) 4px
+              )`,
+            }}
+            animate={{
+              backgroundPosition: ['0px 0px', '0px 20px'],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        </>
+      )}
       
       {/* Light Rays from Surface - Sunlight Effect */}
       {progress > 38 && (
