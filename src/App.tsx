@@ -8,7 +8,7 @@ import ResultView from './components/ResultView';
 import ProgressBar from './components/ProgressBar';
 import { audioManager } from './utils/audioManager';
 
-// Mock Data
+// Mock Data - 18 Questions (Placeholders)
 const questions = [
   {
     id: 1,
@@ -19,24 +19,15 @@ const questions = [
       { id: 'c', text: "잠들어 있는 거대한 고래" },
     ]
   },
-  {
-    id: 2,
-    question: "수면 위로 올라가려는데, 무언가 발목을 잡습니다.",
+  ...Array.from({ length: 17 }, (_, i) => ({
+    id: i + 2,
+    question: `질문 ${i + 2}: Lorem ipsum dolor sit amet?`,
     options: [
-      { id: 'a', text: "해초가 엉켜있다" },
-      { id: 'b', text: "인어가 말을 건다" },
-      { id: 'c', text: "무거운 잠수 장비" },
+      { id: 'a', text: `선택지 A - ${i + 2}` },
+      { id: 'b', text: `선택지 B - ${i + 2}` },
+      { id: 'c', text: `선택지 C - ${i + 2}` },
     ]
-  },
-  {
-    id: 3,
-    question: "드디어 수면 위로 올라왔습니다. 하늘의 색은?",
-    options: [
-      { id: 'a', text: "보랏빛 새벽" },
-      { id: 'b', text: "황금빛 일출" },
-      { id: 'c', text: "푸른 아침" },
-    ]
-  }
+  }))
 ];
 
 function App() {
@@ -85,7 +76,7 @@ function App() {
   };
 
   return (
-    <Layout step={step}>
+    <Layout step={step} progress={progress}>
       <AnimatePresence mode="wait">
         {step === 'landing' && (
           <motion.div
