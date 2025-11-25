@@ -11,26 +11,69 @@ interface LayoutProps {
   className?: string;
 }
 
+// Helper function to interpolate between two hex colors
+const interpolateColor = (color1: string, color2: string, factor: number): string => {
+  const c1 = parseInt(color1.substring(1), 16);
+  const c2 = parseInt(color2.substring(1), 16);
+  
+  const r1 = (c1 >> 16) & 0xff;
+  const g1 = (c1 >> 8) & 0xff;
+  const b1 = c1 & 0xff;
+  
+  const r2 = (c2 >> 16) & 0xff;
+  const g2 = (c2 >> 8) & 0xff;
+  const b2 = c2 & 0xff;
+  
+  const r = Math.round(r1 + (r2 - r1) * factor);
+  const g = Math.round(g1 + (g2 - g1) * factor);
+  const b = Math.round(b1 + (b2 - b1) * factor);
+  
+  // Ensure proper 6-digit hex format with leading zeros
+  const toHex = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
 const getBackgroundGradient = (step: Step, progress: number = 0) => {
   switch (step) {
     case 'landing':
       return 'from-[#1a3a3b] via-[#0f2829] to-[#0a1f20]'; // Darker deep sea version of #2F6364
     case 'question':
-      // Smooth gradient transition from Q1-18
-      if (progress < 38) {
-        // Questions 1-7: Very dark ocean
-        return 'from-slate-900 via-teal-950 to-slate-900';
-      } else if (progress < 50) {
-        // Question 8: Transition phase - blend between dark and bright
-        return 'from-slate-800 via-teal-900 to-cyan-950';
+      // Continuous gradient interpolation based on progress (0-100)
+      // Stage 1 (0-50%): Very dark ocean -> Medium dark
+      // Stage 2 (50-100%): Medium dark -> Bright surface
+      
+      const normalizedProgress = Math.min(Math.max(progress, 0), 100) / 100;
+      
+      // Define color stops
+      const darkStart = '#0f172a'; // slate-900
+      const darkMid = '#134e4a';   // teal-950
+      const mediumStart = '#1e3a3e'; // transition
+      const mediumMid = '#0d5a5f';   // teal-900
+      const brightStart = '#06b6d4';  // cyan-500
+      const brightMid = '#2563eb';    // blue-600
+      const brightEnd = '#0f766e';    // teal-700
+      
+      let fromColor, viaColor, toColor;
+      
+      if (normalizedProgress < 0.5) {
+        // First half: dark -> medium
+        const factor = normalizedProgress * 2; // 0 to 1
+        fromColor = interpolateColor(darkStart, mediumStart, factor);
+        viaColor = interpolateColor(darkMid, mediumMid, factor);
+        toColor = interpolateColor(darkStart, mediumStart, factor);
       } else {
-        // Questions 9-18: Brighter rising
-        return 'from-cyan-500 via-blue-600 to-teal-700';
+        // Second half: medium -> bright
+        const factor = (normalizedProgress - 0.5) * 2; // 0 to 1
+        fromColor = interpolateColor(mediumStart, brightStart, factor);
+        viaColor = interpolateColor(mediumMid, brightMid, factor);
+        toColor = interpolateColor(mediumStart, brightEnd, factor);
       }
+      
+      return `from-[${fromColor}] via-[${viaColor}] to-[${toColor}]`;
     case 'loading':
-      return 'from-blue-400 via-cyan-500 to-teal-600'; // Brighter Transition
+      return 'from-blue-400 via-cyan-500 to-teal-600';
     case 'result':
-      return 'from-orange-300 via-rose-300 to-indigo-400'; // Sunrise
+      return 'from-orange-300 via-rose-300 to-indigo-400';
     default:
       return 'from-[#1a3a3b] via-[#0f2829] to-[#0a1f20]';
   }
@@ -43,12 +86,64 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
   
   // Light intensity increases as we approach surface
   const lightIntensity = progress / 100;
+  
+  // Get gradient colors for inline style
+  const getGradientStyle = () => {
+    // For landing, loading, and result - use predefined colors
+    if (step === 'landing') {
+      return {
+        background: 'linear-gradient(to bottom right, #1a3a3b, #0f2829, #0a1f20)'
+      };
+    } else if (step === 'loading') {
+      return {
+        background: 'linear-gradient(to bottom right, rgb(96 165 250), rgb(6 182 212), rgb(20 184 166))'
+      };
+    } else if (step === 'result') {
+      return {
+        background: 'linear-gradient(to bottom right, rgb(253 186 116), rgb(251 113 133), rgb(129 140 248))'
+      };
+    } else if (step === 'question') {
+      // For questions - use interpolated colors
+      const normalizedProgress = Math.min(Math.max(progress, 0), 100) / 100;
+      
+      const darkStart = '#0f172a';
+      const darkMid = '#134e4a';
+      const mediumStart = '#1e3a3e';
+      const mediumMid = '#0d5a5f';
+      const brightStart = '#06b6d4';
+      const brightMid = '#2563eb';
+      const brightEnd = '#0f766e';
+      
+      let fromColor, viaColor, toColor;
+      
+      if (normalizedProgress < 0.5) {
+        const factor = normalizedProgress * 2;
+        fromColor = interpolateColor(darkStart, mediumStart, factor);
+        viaColor = interpolateColor(darkMid, mediumMid, factor);
+        toColor = interpolateColor(darkStart, mediumStart, factor);
+      } else {
+        const factor = (normalizedProgress - 0.5) * 2;
+        fromColor = interpolateColor(mediumStart, brightStart, factor);
+        viaColor = interpolateColor(mediumMid, brightMid, factor);
+        toColor = interpolateColor(mediumStart, brightEnd, factor);
+      }
+      
+      return {
+        background: `linear-gradient(to bottom right, ${fromColor}, ${viaColor}, ${toColor})`
+      };
+    }
+    
+    return {
+      background: 'linear-gradient(to bottom right, #1a3a3b, #0f2829, #0a1f20)'
+    };
+  };
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-white">
       {/* Dynamic Background Layer */}
       <motion.div
-        className={`absolute inset-0 bg-gradient-to-br ${getBackgroundGradient(step, progress)} animate-gradient transition-colors duration-[2000ms]`}
+        className="absolute inset-0 animate-gradient transition-colors duration-[4000ms]"
+        style={getGradientStyle()}
         initial={false}
         animate={{ opacity: 1 }}
       />
