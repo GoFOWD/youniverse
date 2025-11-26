@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// 1. 질문 테이블 (제공된 questions.json 기반)
+model Question {
+  id        Int      @id @default(autoincrement())
+  category  String?  // P, E, S, M, A
+  text      String
+  choices   String[] // ["A 텍스트", "B 텍스트", "C 텍스트"]
+  
+  choiceScores ChoiceScore[]
+}
+
+// 2. 선택지 점수 테이블 (제공된 choices.json 기반)
+model ChoiceScore {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  choice     String   // "A", "B", "C"
+  energy     Int
+  positivity Int
+  curiosity  Int
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+// 3. 결과 콘텐츠 매핑 테이블 (Ocean-Season 조합)
+model ResultMapping {
+  id          Int      @id @default(autoincrement())
+  ocean       String   // e.g. "인도양"
+  season      String   // e.g. "초여름"
+  title       String   // 결과 제목
+  description String   // 결과 상세 설명
+  advice      String?  // 조언
+  hashtag     String[] // 해시태그 배열
+
+  @@unique([ocean, season]) // 중복 방지
+}
+
+// 4. 사용자 응답 기록 (영구 저장)
+model UserResponse {
+  id           BigInt   @id @default(autoincrement())
+  
+  // 핵심: 세션 스토리지의 상세 기록(시작/종료 시간 포함)을 그대로 저장
+  // 예: [{ questionId: 1, choice: "A", startTime: 171..., endTime: 171... }, ...]
+  user_answers Json     
+  
+  final_ocean  String
+  final_season String
+  final_code   String   // e.g. "인도양-초여름"
+  
+  // 계산된 정규화 점수 { energy: 1, positivity: 2, curiosity: 0 }
+  score        Json     
+  
+  created_at   DateTime @default(now())
+}

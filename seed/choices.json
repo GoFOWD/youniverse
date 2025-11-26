@@ -1,0 +1,80 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2867
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 [\
+  \{ "questionId": 1, "choice": "A", "energy": 0, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 1, "choice": "B", "energy": -1, "positivity": -1, "curiosity": 0 \},\
+  \{ "questionId": 1, "choice": "C", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+\
+  \{ "questionId": 2, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 2, "choice": "B", "energy": 0, "positivity": 1, "curiosity": 1 \},\
+  \{ "questionId": 2, "choice": "C", "energy": -1, "positivity": 0, "curiosity": 1 \},\
+\
+  \{ "questionId": 3, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 3, "choice": "B", "energy": 0, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 3, "choice": "C", "energy": -1, "positivity": 0, "curiosity": 0 \},\
+\
+  \{ "questionId": 4, "choice": "A", "energy": 0,  "positivity": -1, "curiosity": 0 \},\
+  \{ "questionId": 4, "choice": "B", "energy": -1, "positivity": -1, "curiosity": 0 \},\
+  \{ "questionId": 4, "choice": "C", "energy": 1,  "positivity": -1, "curiosity": 1 \},\
+\
+  \{ "questionId": 5, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 5, "choice": "B", "energy": 0, "positivity": 0, "curiosity": 0 \},\
+  \{ "questionId": 5, "choice": "C", "energy": -1, "positivity": 0, "curiosity": -1 \},\
+\
+  \{ "questionId": 6, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 \},\
+  \{ "questionId": 6, "choice": "B", "energy": -1, "positivity": 0, "curiosity": -1 \},\
+  \{ "questionId": 6, "choice": "C", "energy": 0, "positivity": 1, "curiosity": 1 \},\
+\
+  \{ "questionId": 7, "choice": "A", "energy": -1, "positivity": 1, "curiosity": -1 \},\
+  \{ "questionId": 7, "choice": "B", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 7, "choice": "C", "energy": 0, "positivity": 1, "curiosity": 0 \},\
+\
+  \{ "questionId": 8, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 \},\
+  \{ "questionId": 8, "choice": "B", "energy": 0, "positivity": 0, "curiosity": 1 \},\
+  \{ "questionId": 8, "choice": "C", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+\
+  \{ "questionId": 9, "choice": "A", "energy": 0, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 9, "choice": "B", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 9, "choice": "C", "energy": -1, "positivity": 1, "curiosity": 1 \},\
+\
+  \{ "questionId": 10, "choice": "A", "energy": 0, "positivity": 0, "curiosity": 1 \},\
+  \{ "questionId": 10, "choice": "B", "energy": -1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 10, "choice": "C", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+\
+  \{ "questionId": 11, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 11, "choice": "B", "energy": -1, "positivity": 0, "curiosity": -1 \},\
+  \{ "questionId": 11, "choice": "C", "energy": -1, "positivity": 1, "curiosity": -1 \},\
+\
+  \{ "questionId": 12, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 12, "choice": "B", "energy": -1, "positivity": 0, "curiosity": -1 \},\
+  \{ "questionId": 12, "choice": "C", "energy": -1, "positivity": 0, "curiosity": 1 \},\
+\
+  \{ "questionId": 13, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 \},\
+  \{ "questionId": 13, "choice": "B", "energy": 0, "positivity": 1, "curiosity": -1 \},\
+  \{ "questionId": 13, "choice": "C", "energy": 1, "positivity": 0, "curiosity": 0 \},\
+\
+  \{ "questionId": 14, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 14, "choice": "B", "energy": 1, "positivity": 0, "curiosity": 1 \},\
+  \{ "questionId": 14, "choice": "C", "energy": 0, "positivity": 0, "curiosity": 0 \},\
+\
+  \{ "questionId": 15, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 15, "choice": "B", "energy": 0, "positivity": 0, "curiosity": 0 \},\
+  \{ "questionId": 15, "choice": "C", "energy": 0, "positivity": 1, "curiosity": 0 \},\
+\
+  \{ "questionId": 16, "choice": "A", "energy": -1, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 16, "choice": "B", "energy": -1, "positivity": -1, "curiosity": 0 \},\
+  \{ "questionId": 16, "choice": "C", "energy": 0, "positivity": 0, "curiosity": 0 \},\
+\
+  \{ "questionId": 17, "choice": "A", "energy": 0, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 17, "choice": "B", "energy": 1, "positivity": 1, "curiosity": 1 \},\
+  \{ "questionId": 17, "choice": "C", "energy": -1, "positivity": 1, "curiosity": -1 \},\
+\
+  \{ "questionId": 18, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 \},\
+  \{ "questionId": 18, "choice": "B", "energy": 0, "positivity": 1, "curiosity": 0 \},\
+  \{ "questionId": 18, "choice": "C", "energy": 0, "positivity": 1, "curiosity": -1 \}\
+]}
