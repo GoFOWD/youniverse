@@ -3,15 +3,27 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+interface ResultData {
+  resultCode: string;
+  ocean: string;
+  season: string;
+  score: any;
+  title: string;
+  description: string;
+  advice?: string;
+  hashtag?: string[];
+}
+
 interface ResultViewProps {
+  result: ResultData;
   onRestart: () => void;
 }
 
-const ResultView: React.FC<ResultViewProps> = ({ onRestart }) => {
+const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
   return (
     <div className="flex flex-col items-center space-y-10 w-full relative z-20">
       {/* Sun Glow Effect */}
-      <motion.div 
+      <motion.div
         className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-orange-400/30 blur-[100px] rounded-full pointer-events-none"
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -25,21 +37,36 @@ const ResultView: React.FC<ResultViewProps> = ({ onRestart }) => {
         transition={{ delay: 0.2, duration: 0.8 }}
       >
         <div className="space-y-3">
-          <h3 className="text-orange-100/80 text-sm tracking-[0.3em] uppercase font-medium">New Year, New Dawn</h3>
+          <h3 className="text-orange-100/80 text-sm tracking-[0.3em] uppercase font-medium">
+            {result.ocean} - {result.season}
+          </h3>
           <h2 className="text-4xl md:text-5xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-100 via-white to-rose-100 drop-shadow-sm">
-            고요한 심해의 등대
+            {result.title}
           </h2>
         </div>
-        
+
         <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-200/30 to-transparent" />
-        
-        <p className="text-orange-50/90 leading-loose font-light text-lg">
-          당신은 깊고 어두운 바다 속에서도 길을 잃지 않는 빛을 품고 있습니다. 
-          <br/>
-          새해에는 당신의 그 따뜻한 빛이 수면 위로 떠올라, 
-          <br/>
-          더 넓은 세상을 비추는 찬란한 태양이 되기를 바랍니다.
-        </p>
+
+        <div className="text-orange-50/90 leading-loose font-light text-lg whitespace-pre-wrap">
+          {result.description}
+        </div>
+
+        {result.advice && (
+          <div className="mt-4 p-4 bg-white/5 rounded-xl border border-white/10">
+            <p className="text-sm text-orange-200/80 font-medium mb-2">ADVICE</p>
+            <p className="text-orange-50/80 text-sm">{result.advice}</p>
+          </div>
+        )}
+
+        {result.hashtag && result.hashtag.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2 mt-4">
+            {result.hashtag.map((tag, idx) => (
+              <span key={idx} className="px-3 py-1 rounded-full bg-white/10 text-xs text-orange-100/70">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
       </motion.div>
 
       <div className="flex flex-col w-full space-y-4">
@@ -51,7 +78,7 @@ const ResultView: React.FC<ResultViewProps> = ({ onRestart }) => {
         >
           결과 공유하기
         </motion.button>
-        
+
         <motion.button
           onClick={onRestart}
           whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(251, 146, 60, 0.4)" }}
