@@ -10,8 +10,18 @@ interface LayoutProps {
   children: React.ReactNode;
   step: Step;
   progress?: number; // 0 to 100
+  ocean?: string; // For result screen video
   className?: string;
 }
+
+// Ocean video mapping
+const OceanVideoMap: Record<string, string> = {
+  '태평양': 'pacific1.mp4',
+  '대서양': 'atlantic1.mp4',
+  '인도양': 'indian1.mp4',
+  '남극해': 'southern1.mp4',
+  '북극해': 'arctic1.mp4',
+};
 
 // Helper function to interpolate between two hex colors
 const interpolateColor = (color1: string, color2: string, factor: number): string => {
@@ -37,7 +47,7 @@ const interpolateColor = (color1: string, color2: string, factor: number): strin
 
 
 
-const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className = '' }) => {
+const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, className = '' }) => {
   // Calculate bubble density based on progress (more bubbles as we rise)
   const bubbleCount = Math.round(20 + (progress / 100) * 30); // 20 to 50 bubbles
   const bubbleSpeed = 10 + (progress / 100) * 10; // Faster as we rise
@@ -103,6 +113,8 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
     setMounted(true);
   }, []);
 
+  const videoFile = ocean ? OceanVideoMap[ocean] : null;
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-white">
       {/* Dynamic Background Layer */}
@@ -114,21 +126,37 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
       />
       
       {/* Video Background for Result Screen */}
-      {step === 'result' && (
+      {step === 'result' && videoFile && (
         <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0">
-          <video
+          <motion.video
+            key={videoFile} // Force reload when video changes
             className="w-full h-full object-cover"
             autoPlay
             muted
             playsInline
-            loop
-            style={{ filter: 'blur(8px)' }}
+            // Loop removed to stop at last frame
+            onEnded={(e) => {
+              e.currentTarget.pause();
+            }}
+            initial={{ filter: 'blur(0px)' }}
+            animate={{ filter: 'blur(8px)' }}
+            transition={{ delay: 4.5, duration: 1.5, ease: "easeInOut" }}
           >
-            <source src="/assets/surface.mp4" type="video/mp4" />
-          </video>
+            <source src={`/assets/${videoFile}`} type="video/mp4" />
+          </motion.video>
           
-          {/* Dark overlay for readability */}
-          <div className="absolute inset-0 bg-black/60" />
+          {/* Dark overlay for readability - delayed appearance handled in ResultView or here? 
+              User wants video to show, then result page. 
+              Let's keep overlay but maybe animate it? 
+              Actually, ResultView has the glass panel. 
+              Let's keep a light overlay here for contrast when content appears.
+          */}
+          <motion.div 
+            className="absolute inset-0 bg-black/40" 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 4.5, duration: 1 }}
+          />
         </div>
       )}
       
