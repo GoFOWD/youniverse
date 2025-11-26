@@ -34,6 +34,7 @@ function App() {
   const [step, setStep] = useState<'landing' | 'question' | 'loading' | 'result'>('landing');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleStart = () => {
     audioManager.init();
@@ -42,6 +43,9 @@ function App() {
   };
 
   const handleAnswer = (answerId: string) => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+
     audioManager.playBubble();
     const newAnswers = [...answers, answerId];
     setAnswers(newAnswers);
@@ -50,11 +54,13 @@ function App() {
       setTimeout(() => {
         audioManager.playSwoosh();
         setCurrentQuestionIndex(prev => prev + 1);
+        setIsTransitioning(false);
       }, 500); // Wait for exit animation
     } else {
       setStep('loading');
       setTimeout(() => {
         setStep('result');
+        setIsTransitioning(false);
       }, 4000); // Simulate loading time
     }
   };
