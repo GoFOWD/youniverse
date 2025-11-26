@@ -166,7 +166,7 @@ export default function ClientApp() {
   } : null;
 
   return (
-    <Layout step={step} progress={progress}>
+    <Layout step={step} progress={progress} ocean={result?.ocean}>
       <AnimatePresence mode="wait">
         {step === 'landing' && (
           <motion.div

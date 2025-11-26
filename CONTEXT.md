@@ -1,10 +1,274 @@
 # 프로젝트 작업 컨텍스트 (Backend Integration Complete)
 
-> **작성일**: 2025-11-26  
-> **작업자**: Backend Developer  
-> **상태**: ✅ Backend & Frontend Integration Complete
+> **최종 업데이트**: 2025-11-26  
+> **작업자**: Frontend Developer (User Feedback Feature)  
+> **상태**: ✅ Backend & Frontend Integration Complete + 🆕 User Feedback UI Ready
 
 ---
+
+## 🆕 최신 업데이트 (2025-11-26) - 사용자 피드백 기능
+
+### 📊 추가된 기능: 사용자 만족도 평가 시스템
+
+결과 페이지(`ResultView.tsx`)에 사용자 피드백 수집 기능이 추가되었습니다.
+
+#### 기능 개요
+1. **별점 평가 (0-5점)**: 테스트 전반에 대한 만족도 평가
+2. **코멘트 입력**: 자유로운 의견 작성 (최대 500자, 선택사항)
+3. **제출 후 감사 메시지**: 제출 완료 시 UI 변경
+
+#### 프론트엔드 구현 상태
+- **파일**: `src/components/ResultView.tsx`
+- **상태 관리**:
+  ```typescript
+  const [rating, setRating] = useState<number>(0);        // 0-5
+  const [comment, setComment] = useState<string>('');     // 최대 500자
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  ```
+- **현재 동작**: 제출 시 `console.log()`로 데이터 출력 (백엔드 미연동)
+
+#### 전송 데이터 구조
+```typescript
+{
+  resultCode: string,    // 예: "태평양-여름"
+  rating: number,        // 1-5 (0은 미선택 상태)
+  comment: string,       // 사용자 코멘트 (빈 문자열 가능)
+  timestamp: number      // Date.now()
+}
+```
+
+**예시**:
+```json
+{
+  "resultCode": "태평양-여름",
+  "rating": 4,
+  "comment": "질문이 흥미로웠고 결과도 정확했어요!",
+  "timestamp": 1732612345678
+}
+```
+
+---
+
+### 🔌 백엔드 통합 가이드 (Backend AI Agent용)
+
+#### 1. 필요한 작업
+
+##### A. Prisma 스키마에 새 테이블 추가
+`prisma/schema.prisma`에 피드백 데이터를 저장할 모델을 추가합니다.
+
+**제안하는 모델 이름**: `UserFeedback`, `Feedback`, `TestFeedback` 등 (자유롭게 선택)
+
+**필수 필드**:
+```prisma
+model [모델명] {
+  id          BigInt   @id @default(autoincrement())
+  resultCode  String   // "태평양-여름" 형식
+  rating      Int      // 1-5
+  comment     String?  // 선택적 코멘트 (nullable)
+  timestamp   BigInt   // 제출 시간 (밀리초)
+  createdAt   DateTime @default(now())
+  
+  // 선택적: 인덱스 추가 (조회 성능 향상)
+  @@index([resultCode])
+  @@index([rating])
+}
+```
+
+##### B. API 엔드포인트 생성
+**제안하는 경로**: 
+- `/api/feedback`
+- `/api/test/feedback`
+- `/api/user/feedback`
+- 또는 원하는 다른 경로
+
+**메서드**: `POST`
+
+**요청 본문** (프론트엔드에서 전송):
+```typescript
+{
+  resultCode: string,    // 예: "태평양-여름"
+  rating: number,        // 1-5
+  comment: string,       // 빈 문자열 가능
+  timestamp: number      // Date.now()
+}
+```
+
+**응답 형식** (제안):
+```typescript
+// 성공
+{
+  success: true,
+  message?: string  // 선택사항
+}
+
+// 실패
+{
+  success: false,
+  error: string
+}
+```
+
+**구현 예시** (경로는 자유롭게 변경 가능):
+```typescript
+// src/app/api/[선택한경로]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+
+export async function POST(req: NextRequest) {
+  try {
+    const { resultCode, rating, comment, timestamp } = await req.json();
+    
+    // 유효성 검사
+    if (!resultCode || !rating || rating < 1 || rating > 5) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid data' },
+        { status: 400 }
+      );
+    }
+    
+    // DB 저장 (모델명은 실제 정의한 이름으로 변경)
+    await prisma.[모델명].create({
+      data: {
+        resultCode,
+        rating,
+        comment: comment || '',
+        timestamp: BigInt(timestamp),
+      },
+    });
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Feedback submission error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+##### C. 프론트엔드 연동
+`src/components/ResultView.tsx`의 `handleFeedbackSubmit()` 함수를 수정합니다.
+
+**현재 코드** (29-42행):
+```typescript
+const handleFeedbackSubmit = () => {
+  if (rating === 0) {
+    alert('별점을 선택해주세요!');
+    return;
+  }
+
+  const feedbackData = {
+    resultCode: `${result.ocean}-${result.season}`,
+    rating,
+    comment,
+    timestamp: Date.now(),
+  };
+
+  console.log('📊 User Feedback:', feedbackData);
+  setIsSubmitted(true);
+};
+```
+
+**수정 후** (API 엔드포인트 경로를 실제 생성한 경로로 변경):
+```typescript
+const handleFeedbackSubmit = async () => {
+  if (rating === 0) {
+    alert('별점을 선택해주세요!');
+    return;
+  }
+
+  const feedbackData = {
+    resultCode: `${result.ocean}-${result.season}`,
+    rating,
+    comment,
+    timestamp: Date.now(),
+  };
+
+  try {
+    const res = await fetch('/api/[실제경로]', {  // ← 여기를 실제 경로로 변경
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(feedbackData),
+    });
+    
+    const data = await res.json();
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Feedback submission failed');
+    }
+    
+    setIsSubmitted(true);
+  } catch (error) {
+    console.error('Feedback error:', error);
+    alert('피드백 제출에 실패했습니다. 다시 시도해주세요.');
+  }
+};
+```
+
+#### 2. 데이터베이스 마이그레이션
+스키마 변경 후 실행:
+```bash
+npx prisma db push
+npx prisma generate
+```
+
+#### 3. 관리자 페이지 (선택사항)
+피드백 데이터를 조회할 수 있는 Admin API를 추가할 수 있습니다:
+- 전체 피드백 조회
+- 통계 (평균 별점, 결과별 만족도 등)
+- 필터링 (날짜, 별점, 결과 코드 등)
+
+---
+
+### 📝 주요 파일 변경 사항
+
+#### 프론트엔드 (이미 완료)
+- `src/components/ResultView.tsx`
+  - 피드백 상태 관리 추가
+  - 별점 UI 구현
+  - 코멘트 입력 필드 추가
+  - 제출 핸들러 구현 (현재 console.log만)
+
+#### 백엔드 (작업 필요)
+- `prisma/schema.prisma` - 피드백 모델 추가
+- `src/app/api/[경로]/route.ts` - API 엔드포인트 생성
+- `src/components/ResultView.tsx` - API 호출 코드 추가 (handleFeedbackSubmit 수정)
+
+---
+
+### ⚠️ 중요 사항
+
+1. **필수 필드**: `resultCode`, `rating`, `timestamp`
+2. **선택 필드**: `comment` (빈 문자열 허용)
+3. **유효성 검사**: rating은 1-5 범위 확인
+4. **에러 처리**: API 호출 실패 시 사용자 알림
+5. **중복 제출 방지**: `isSubmitted` 상태로 제어
+6. **타임스탬프**: `Date.now()` 사용 (밀리초 단위)
+
+---
+
+### 🔄 작업 순서
+
+1. **백엔드 개발자**: 
+   - Prisma 모델 정의 (이름 자유)
+   - API 엔드포인트 생성 (경로 자유)
+   - DB 마이그레이션
+
+2. **프론트엔드 연동**:
+   - `ResultView.tsx`의 `handleFeedbackSubmit()` 함수에서
+   - `fetch('/api/[실제경로]')` 부분을 실제 생성한 경로로 변경
+   - `async/await` 추가
+
+3. **테스트**:
+   - 별점 선택 후 제출
+   - 콘솔에서 네트워크 요청 확인
+   - DB에 데이터 저장 확인
+
+---
+
+
+
 
 ## 📋 작업 완료 요약
 
