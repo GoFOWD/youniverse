@@ -50,7 +50,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
     // For landing, loading, and result - use predefined colors
     if (step === 'landing') {
       return {
-        background: 'linear-gradient(to bottom right, #1a3a3b, #0f2829, #0a1f20)'
+        background: 'linear-gradient(to bottom right, #0a1a1f, #050f12, #020a0d)'
       };
     } else if (step === 'loading') {
       return {
@@ -64,11 +64,11 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
       // For questions - use interpolated colors
       const normalizedProgress = Math.min(Math.max(progress, 0), 100) / 100;
       
-      // Much darker colors for abyss feel (Q1-8)
-      const darkStart = '#020617';   // Almost black slate
-      const darkMid = '#0a1f1f';     // Very dark teal
-      const mediumStart = '#1e3a3e'; // transition
-      const mediumMid = '#0d5a5f';   // teal-900
+      // Much darker colors for abyss feel (Q1-3: 0-16.67%)
+      const darkStart = '#000000';   // Pure black for deepest ocean
+      const darkMid = '#030d0f';     // Almost black with hint of teal
+      const mediumStart = '#0f1f22'; // Very dark transition
+      const mediumMid = '#0a3a3f';   // Dark teal
       const brightStart = '#06b6d4';  // cyan-500
       const brightMid = '#2563eb';    // blue-600
       const brightEnd = '#0f766e';    // teal-700
@@ -93,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
     }
     
     return {
-      background: 'linear-gradient(to bottom right, #1a3a3b, #0f2829, #0a1f20)'
+      background: 'linear-gradient(to bottom right, #0a1a1f, #050f12, #020a0d)'
     };
   };
 
