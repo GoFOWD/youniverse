@@ -33,51 +33,7 @@ const interpolateColor = (color1: string, color2: string, factor: number): strin
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
 
-const getBackgroundGradient = (step: Step, progress: number = 0) => {
-  switch (step) {
-    case 'landing':
-      return 'from-[#1a3a3b] via-[#0f2829] to-[#0a1f20]'; // Darker deep sea version of #2F6364
-    case 'question':
-      // Continuous gradient interpolation based on progress (0-100)
-      // Stage 1 (0-50%): Very dark ocean -> Medium dark
-      // Stage 2 (50-100%): Medium dark -> Bright surface
-      
-      const normalizedProgress = Math.min(Math.max(progress, 0), 100) / 100;
-      
-      // Define color stops
-      const darkStart = '#0f172a'; // slate-900
-      const darkMid = '#134e4a';   // teal-950
-      const mediumStart = '#1e3a3e'; // transition
-      const mediumMid = '#0d5a5f';   // teal-900
-      const brightStart = '#06b6d4';  // cyan-500
-      const brightMid = '#2563eb';    // blue-600
-      const brightEnd = '#0f766e';    // teal-700
-      
-      let fromColor, viaColor, toColor;
-      
-      if (normalizedProgress < 0.5) {
-        // First half: dark -> medium
-        const factor = normalizedProgress * 2; // 0 to 1
-        fromColor = interpolateColor(darkStart, mediumStart, factor);
-        viaColor = interpolateColor(darkMid, mediumMid, factor);
-        toColor = interpolateColor(darkStart, mediumStart, factor);
-      } else {
-        // Second half: medium -> bright
-        const factor = (normalizedProgress - 0.5) * 2; // 0 to 1
-        fromColor = interpolateColor(mediumStart, brightStart, factor);
-        viaColor = interpolateColor(mediumMid, brightMid, factor);
-        toColor = interpolateColor(mediumStart, brightEnd, factor);
-      }
-      
-      return `from-[${fromColor}] via-[${viaColor}] to-[${toColor}]`;
-    case 'loading':
-      return 'from-blue-400 via-cyan-500 to-teal-600';
-    case 'result':
-      return 'from-orange-300 via-rose-300 to-indigo-400';
-    default:
-      return 'from-[#1a3a3b] via-[#0f2829] to-[#0a1f20]';
-  }
-};
+
 
 const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className = '' }) => {
   // Calculate bubble density based on progress (more bubbles as we rise)
@@ -138,6 +94,12 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
       background: 'linear-gradient(to bottom right, #1a3a3b, #0f2829, #0a1f20)'
     };
   };
+
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-white">
@@ -362,36 +324,38 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, className
       )}
       
       {/* Interactive Particles */}
-      <ParticleOverlay />
+      {mounted && <ParticleOverlay />}
       
       {/* Floating Particles (Background Depth) - Dynamic Count */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(bubbleCount)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute bg-white rounded-full opacity-20"
-            initial={{ 
-              x: Math.random() * window.innerWidth, 
-              y: window.innerHeight + 100,
-              scale: Math.random() * 0.5 + 0.2
-            }}
-            animate={{ 
-              y: -100,
-              x: `calc(${Math.random() * 100}vw)`
-            }}
-            transition={{ 
-              duration: Math.random() * bubbleSpeed + bubbleSpeed, 
-              repeat: Infinity, 
-              ease: "linear",
-              delay: Math.random() * 5
-            }}
-            style={{
-              width: Math.random() * 4 + 2 + 'px',
-              height: Math.random() * 4 + 2 + 'px',
-            }}
-          />
-        ))}
-      </div>
+      {mounted && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[...Array(bubbleCount)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute bg-white rounded-full opacity-20"
+              initial={{ 
+                x: Math.random() * window.innerWidth, 
+                y: window.innerHeight + 100,
+                scale: Math.random() * 0.5 + 0.2
+              }}
+              animate={{ 
+                y: -100,
+                x: `calc(${Math.random() * 100}vw)`
+              }}
+              transition={{ 
+                duration: Math.random() * bubbleSpeed + bubbleSpeed, 
+                repeat: Infinity, 
+                ease: "linear",
+                delay: Math.random() * 5
+              }}
+              style={{
+                width: Math.random() * 4 + 2 + 'px',
+                height: Math.random() * 4 + 2 + 'px',
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Main Content Container */}
       <main className={`relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 mx-auto max-w-md w-full ${className}`}>

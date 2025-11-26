@@ -9,6 +9,7 @@ class AudioManager {
   init() {
     if (this.context) return;
     
+    if (typeof window === 'undefined') return;
     const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
     this.context = new AudioContextClass();
     this.masterGain = this.context.createGain();
