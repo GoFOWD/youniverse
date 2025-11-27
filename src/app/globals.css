@@ -12,16 +12,18 @@
 }
 
 @layer utilities {
+  /* Glass morphism panel - Used in: QuestionView, ResultView */
   .glass-panel {
     @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
   }
   
+  /* Subtle text shadow for readability - Used in: various text elements */
   .text-shadow-sm {
     text-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
 }
 
-/* Custom Background Animation */
+/* Custom Background Animation - Used in: Layout.tsx for dynamic gradient backgrounds */
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -33,7 +35,7 @@
   animation: gradient-shift 15s ease infinite;
 }
 
-/* Noise Overlay */
+/* Noise Overlay - Subtle film grain texture applied globally in Layout.tsx */
 .noise-overlay {
   position: fixed;
   top: 0;

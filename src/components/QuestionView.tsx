@@ -78,14 +78,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
                 scale: 1.02,
                 backgroundColor: "rgba(255, 255, 255, 0.15)",
                 borderColor: "rgba(255, 255, 255, 0.3)",
-                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.3)" // Add explicit hover shadow to override CSS if needed
+                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.3)"
               } : {}}
               whileTap={!selectedOptionId ? { scale: 0.98 } : {}}
-              className="group w-full p-6 rounded-2xl border text-white text-lg font-light transition-all duration-300 hover:shadow-xl text-left relative overflow-visible" // overflow-visible for particles
-              style={{
-                borderWidth: '1px',
-                boxShadow: isSelected ? 'none' : undefined // Force inline style removal if animation lags
-              }}
+              className="group w-full p-6 rounded-2xl border text-white text-lg font-light transition-all duration-300 hover:shadow-xl text-left relative overflow-visible"
             >
               <span className={`relative z-10 transition-all duration-300 ${isSelected ? 'font-medium text-teal-200' : 'group-hover:font-normal'}`}>
                 {option.text}
@@ -95,15 +91,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
               {!selectedOptionId && (
                 <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
                   <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute -left-full top-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
                 </div>
               )}
 
               {/* BURST EFFECT */}
               {isSelected && (
                 <>
-                  {/* Particle Explosion - More intense */}
-                  {[...Array(16)].map((_, i) => (
+                  {/* Particle Explosion */}
+                  {[...Array(12)].map((_, i) => (
                     <motion.div
                       key={i}
                       className="absolute w-2 h-2 bg-cyan-200 rounded-full"

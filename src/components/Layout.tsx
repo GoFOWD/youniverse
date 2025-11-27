@@ -107,11 +107,8 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
     };
   };
 
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  // SSR check for window-dependent rendering
+  const isBrowser = typeof window !== 'undefined';
 
   const videoFile = ocean ? OceanVideoMap[ocean] : null;
 
@@ -168,7 +165,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
         <>
           {/* Subtle water caustics */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(4)].map((_, i) => (
               <motion.div
                 key={`caustic-landing-${i}`}
                 className="absolute rounded-full"
@@ -201,7 +198,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
           
           {/* Floating particles for depth */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(15)].map((_, i) => (
+            {[...Array(10)].map((_, i) => (
               <motion.div
                 key={`depth-particle-${i}`}
                 className="absolute bg-teal-300/20 rounded-full blur-sm"
@@ -316,7 +313,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
           />
           
           {/* Caustic light patterns (shimmering water surface reflections) */}
-          {[...Array(12)].map((_, i) => {
+          {[...Array(8)].map((_, i) => {
             const isNearSurface = progress > 77;
             const movementRange = isNearSurface ? 40 : 20;
             
@@ -353,39 +350,8 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
         </div>
       )}
       
-      {/* Interactive Particles */}
-      {mounted && <ParticleOverlay />}
-      
-      {/* Floating Particles (Background Depth) - Dynamic Count */}
-      {mounted && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(bubbleCount)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute bg-white rounded-full opacity-20"
-              initial={{ 
-                x: Math.random() * window.innerWidth, 
-                y: window.innerHeight + 100,
-                scale: Math.random() * 0.5 + 0.2
-              }}
-              animate={{ 
-                y: -100,
-                x: `calc(${Math.random() * 100}vw)`
-              }}
-              transition={{ 
-                duration: Math.random() * bubbleSpeed + bubbleSpeed, 
-                repeat: Infinity, 
-                ease: "linear",
-                delay: Math.random() * 5
-              }}
-              style={{
-                width: Math.random() * 4 + 2 + 'px',
-                height: Math.random() * 4 + 2 + 'px',
-              }}
-            />
-          ))}
-        </div>
-      )}
+      {/* Interactive Particles - Dynamic count based on progress */}
+      {isBrowser && <ParticleOverlay count={bubbleCount} />}
 
       {/* Main Content Container */}
       <main className={`relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 mx-auto max-w-md w-full ${className}`}>
