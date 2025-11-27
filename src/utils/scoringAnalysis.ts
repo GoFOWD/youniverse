@@ -1,122 +1,116 @@
+// 선택지 점수 데이터 분석 스크립트
+const choiceScores = [
+    { "questionId": 1, "choice": "A", "energy": 0, "positivity": 1, "curiosity": 0 },
+    { "questionId": 1, "choice": "B", "energy": -1, "positivity": -1, "curiosity": 0 },
+    { "questionId": 1, "choice": "C", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 2, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 2, "choice": "B", "energy": 0, "positivity": 1, "curiosity": 1 },
+    { "questionId": 2, "choice": "C", "energy": -1, "positivity": 0, "curiosity": 1 },
+    { "questionId": 3, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 3, "choice": "B", "energy": 0, "positivity": 1, "curiosity": 0 },
+    { "questionId": 3, "choice": "C", "energy": -1, "positivity": 0, "curiosity": 0 },
+    { "questionId": 4, "choice": "A", "energy": 0, "positivity": -1, "curiosity": 0 },
+    { "questionId": 4, "choice": "B", "energy": -1, "positivity": -1, "curiosity": 0 },
+    { "questionId": 4, "choice": "C", "energy": 1, "positivity": -1, "curiosity": 1 },
+    { "questionId": 5, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 5, "choice": "B", "energy": 0, "positivity": 0, "curiosity": 0 },
+    { "questionId": 5, "choice": "C", "energy": -1, "positivity": 0, "curiosity": -1 },
+    { "questionId": 6, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 },
+    { "questionId": 6, "choice": "B", "energy": -1, "positivity": 0, "curiosity": -1 },
+    { "questionId": 6, "choice": "C", "energy": 0, "positivity": 1, "curiosity": 1 },
+    { "questionId": 7, "choice": "A", "energy": -1, "positivity": 1, "curiosity": -1 },
+    { "questionId": 7, "choice": "B", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 7, "choice": "C", "energy": 0, "positivity": 1, "curiosity": 0 },
+    { "questionId": 8, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 },
+    { "questionId": 8, "choice": "B", "energy": 0, "positivity": 0, "curiosity": 1 },
+    { "questionId": 8, "choice": "C", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 9, "choice": "A", "energy": 0, "positivity": 1, "curiosity": 0 },
+    { "questionId": 9, "choice": "B", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 9, "choice": "C", "energy": -1, "positivity": 1, "curiosity": 1 },
+    { "questionId": 10, "choice": "A", "energy": 0, "positivity": 0, "curiosity": 1 },
+    { "questionId": 10, "choice": "B", "energy": -1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 10, "choice": "C", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 11, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 11, "choice": "B", "energy": -1, "positivity": 0, "curiosity": -1 },
+    { "questionId": 11, "choice": "C", "energy": -1, "positivity": 1, "curiosity": -1 },
+    { "questionId": 12, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 12, "choice": "B", "energy": -1, "positivity": 0, "curiosity": -1 },
+    { "questionId": 12, "choice": "C", "energy": -1, "positivity": 0, "curiosity": 1 },
+    { "questionId": 13, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 },
+    { "questionId": 13, "choice": "B", "energy": 0, "positivity": 1, "curiosity": -1 },
+    { "questionId": 13, "choice": "C", "energy": 1, "positivity": 0, "curiosity": 0 },
+    { "questionId": 14, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 14, "choice": "B", "energy": 1, "positivity": 0, "curiosity": 1 },
+    { "questionId": 14, "choice": "C", "energy": 0, "positivity": 0, "curiosity": 0 },
+    { "questionId": 15, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 15, "choice": "B", "energy": 0, "positivity": 0, "curiosity": 0 },
+    { "questionId": 15, "choice": "C", "energy": 0, "positivity": 1, "curiosity": 0 },
+    { "questionId": 16, "choice": "A", "energy": -1, "positivity": 1, "curiosity": 0 },
+    { "questionId": 16, "choice": "B", "energy": -1, "positivity": -1, "curiosity": 0 },
+    { "questionId": 16, "choice": "C", "energy": 0, "positivity": 0, "curiosity": 0 },
+    { "questionId": 17, "choice": "A", "energy": 0, "positivity": 1, "curiosity": 0 },
+    { "questionId": 17, "choice": "B", "energy": 1, "positivity": 1, "curiosity": 1 },
+    { "questionId": 17, "choice": "C", "energy": -1, "positivity": 1, "curiosity": -1 },
+    { "questionId": 18, "choice": "A", "energy": 1, "positivity": 1, "curiosity": 1 },
+    { "questionId": 18, "choice": "B", "energy": 0, "positivity": 1, "curiosity": 0 },
+    { "questionId": 18, "choice": "C", "energy": 0, "positivity": 1, "curiosity": -1 }
+];
 
-import { ChoiceScore } from '@/lib/score';
+// P+C 분포 분석
+function analyzeSeasonDistribution() {
+    const pcScores: number[] = [];
 
-interface MinMax {
-    min: number;
-    max: number;
-}
-
-interface ReachabilityResult {
-    oceanReachability: Record<string, boolean>;
-    seasonReachability: Record<string, boolean>;
-    totalCombinations: number;
-    reachableCombinations: number;
-    unreachable: string[];
-}
-
-// Ocean Map (from score.ts)
-// "-2": "남극해", "-1": "북극해", "0": "대서양", "1": "인도양", "2": "태평양"
-// Normalization: >=8 (2), >=3 (1), >-3 (0), >-8 (-1), else (-2)
-const OCEAN_THRESHOLDS = {
-    '태평양': { min: 8, max: Infinity },
-    '인도양': { min: 3, max: 7 },
-    '대서양': { min: -2, max: 2 },
-    '북극해': { min: -7, max: -3 },
-    '남극해': { min: -Infinity, max: -8 },
-};
-
-// Season Map (from score.ts)
-// "-2": "겨울", "-1": "가을", "0": "봄", "1": "여름", "2": "여름"
-// Normalization: >=8 (2), >=3 (1), >-3 (0), >-8 (-1), else (-2)
-const SEASON_THRESHOLDS = {
-    '여름': { min: 3, max: Infinity }, // Covers both 1 and 2
-    '봄': { min: -2, max: 2 },
-    '가을': { min: -7, max: -3 },
-    '겨울': { min: -Infinity, max: -8 },
-};
-
-export function calculateMinMaxScores(choiceScores: ChoiceScore[]): { energy: MinMax; positivity: MinMax } {
-    // Group by questionId
-    const questions: Record<number, ChoiceScore[]> = {};
-    choiceScores.forEach(cs => {
-        if (!questions[cs.questionId]) questions[cs.questionId] = [];
-        questions[cs.questionId].push(cs);
+    // 각 선택지의 P+C 계산
+    choiceScores.forEach(score => {
+        pcScores.push(score.positivity + score.curiosity);
     });
 
-    let minE = 0, maxE = 0;
-    let minP = 0, maxP = 0;
+    // 통계 계산
+    const sum = pcScores.reduce((a, b) => a + b, 0);
+    const mean = sum / pcScores.length;
+    const sortedScores = [...pcScores].sort((a, b) => a - b);
+    const min = sortedScores[0];
+    const max = sortedScores[sortedScores.length - 1];
 
-    Object.values(questions).forEach(choices => {
-        // For each question, user picks ONE choice.
-        // So we find the min and max contribution of this question to the total score.
+    console.log('=== P+C 선택지 분포 분석 ===');
+    console.log(`평균: ${mean.toFixed(2)}`);
+    console.log(`최소: ${min}, 최대: ${max}`);
+    console.log(`범위: ${min} ~ ${max}`);
 
-        const energies = choices.map(c => c.energy);
-        const positivities = choices.map(c => c.positivity);
+    // 18개 질문 모두 선택했을 때 가능한 최소/최대
+    console.log(`\n=== 18개 질문 응답 시 가능한 P+C 범위 ===`);
+    console.log(`이론적 최소: ${min * 18}`);
+    console.log(`이론적 최대: ${max * 18}`);
 
-        minE += Math.min(...energies);
-        maxE += Math.max(...energies);
+    // 실제 분포 시뮬레이션 (랜덤 샘플링)
+    const simulations = 10000;
+    const results: number[] = [];
 
-        minP += Math.min(...positivities);
-        maxP += Math.max(...positivities);
-    });
-
-    return {
-        energy: { min: minE, max: maxE },
-        positivity: { min: minP, max: maxP },
-    };
-}
-
-export function checkReachability(choiceScores: ChoiceScore[]): ReachabilityResult {
-    const { energy, positivity } = calculateMinMaxScores(choiceScores);
-
-    const oceanReachability: Record<string, boolean> = {};
-    const seasonReachability: Record<string, boolean> = {};
-    const unreachable: string[] = [];
-    let reachableCount = 0;
-
-    // Check Oceans
-    Object.entries(OCEAN_THRESHOLDS).forEach(([ocean, range]) => {
-        // To be reachable, the global Max must be >= range.min AND global Min must be <= range.max
-        // Actually, strictly speaking, the range [minE, maxE] must OVERLAP with [range.min, range.max]
-        const isReachable = Math.max(energy.min, range.min) <= Math.min(energy.max, range.max);
-        oceanReachability[ocean] = isReachable;
-    });
-
-    // Check Seasons
-    Object.entries(SEASON_THRESHOLDS).forEach(([season, range]) => {
-        const isReachable = Math.max(positivity.min, range.min) <= Math.min(positivity.max, range.max);
-        seasonReachability[season] = isReachable;
-    });
-
-    // Calculate Combinations (5 Oceans * 4 Seasons = 20)
-    // Note: This simple check assumes independence between Energy and Positivity.
-    // In reality, if Choice A gives (+E, +P) and Choice B gives (-E, -P), you might not be able to get (+E, -P).
-    // But for a "Basic Reachability" check, this is a good first step. 
-    // A full exhaustive search of 3^12 combinations is possible (531,441), but might be heavy for client-side.
-    // Let's stick to independent range overlap for now as a "Necessary Condition".
-
-    let oceanCount = 0;
-    let seasonCount = 0;
-
-    for (const [ocean, reachable] of Object.entries(oceanReachability)) {
-        if (reachable) oceanCount++;
-        else unreachable.push(`Ocean: ${ocean}`);
+    for (let i = 0; i < simulations; i++) {
+        let totalPC = 0;
+        for (let q = 1; q <= 18; q++) {
+            const questionChoices = choiceScores.filter(s => s.questionId === q);
+            const randomChoice = questionChoices[Math.floor(Math.random() * questionChoices.length)];
+            totalPC += randomChoice.positivity + randomChoice.curiosity;
+        }
+        results.push(totalPC);
     }
 
-    for (const [season, reachable] of Object.entries(seasonReachability)) {
-        if (reachable) seasonCount++;
-        else unreachable.push(`Season: ${season}`);
-    }
+    results.sort((a, b) => a - b);
+    const q1 = results[Math.floor(simulations * 0.25)];
+    const q2 = results[Math.floor(simulations * 0.50)];
+    const q3 = results[Math.floor(simulations * 0.75)];
 
-    // Total "Independent" Combinations
-    // If we want to be strict about 20 specific outcomes, we need to verify the cross product.
-    // But usually, if you can reach all Oceans and all Seasons, you can likely reach most combinations unless questions are highly correlated.
+    console.log(`\n=== 10,000회 시뮬레이션 결과 (사분위수) ===`);
+    console.log(`Q1 (25%): ${q1}`);
+    console.log(`Q2 (50%, 중앙값): ${q2}`);
+    console.log(`Q3 (75%): ${q3}`);
 
-    return {
-        oceanReachability,
-        seasonReachability,
-        totalCombinations: 20,
-        reachableCombinations: oceanCount * seasonCount, // Approximation
-        unreachable,
-    };
+    console.log(`\n=== 권장 계절 임계값 (심리학적 균형) ===`);
+    console.log(`겨울 (Winter): P+C <= ${q1}`);
+    console.log(`가을 (Autumn): ${q1 + 1} <= P+C <= ${q2}`);
+    console.log(`봄 (Spring): ${q2 + 1} <= P+C <= ${q3}`);
+    console.log(`여름 (Summer): P+C >= ${q3 + 1}`);
 }
+
+analyzeSeasonDistribution();
