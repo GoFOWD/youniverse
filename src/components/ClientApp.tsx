@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Layout from './Layout';
+import SplashView from './SplashView';
 import LandingView from './LandingView';
 import QuestionView from './QuestionView';
 import LoadingView from './LoadingView';
@@ -38,7 +39,7 @@ interface ResultData {
 }
 
 export default function ClientApp() {
-  const [step, setStep] = useState<'landing' | 'question' | 'loading' | 'result'>('landing');
+  const [step, setStep] = useState<'splash' | 'landing' | 'question' | 'loading' | 'result'>('splash');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<UserAnswerDetail[]>([]);
@@ -122,6 +123,10 @@ export default function ClientApp() {
       questionStartTime.current = Date.now();
     }
   }, [step, currentQuestionIndex]);
+
+  const handleSplashComplete = () => {
+    setStep('landing');
+  };
 
   const handleStart = () => {
     if (questions.length === 0) return; // Wait for questions
@@ -227,6 +232,10 @@ export default function ClientApp() {
   return (
     <Layout step={step} progress={progress} ocean={result?.ocean}>
       <AnimatePresence mode="wait">
+        {step === 'splash' && (
+          <SplashView key="splash" onComplete={handleSplashComplete} />
+        )}
+
         {step === 'landing' && (
           <motion.div
             key="landing"

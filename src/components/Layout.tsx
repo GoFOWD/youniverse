@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import ParticleOverlay from './ParticleOverlay';
 
-type Step = 'landing' | 'question' | 'loading' | 'result';
+type Step = 'splash' | 'landing' | 'question' | 'loading' | 'result';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -57,6 +57,12 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
   
   // Get gradient colors for inline style
   const getGradientStyle = () => {
+    // For splash screen - pure black
+    if (step === 'splash') {
+      return {
+        background: '#000000'
+      };
+    }
     // For landing, loading, and result - use predefined colors
     if (step === 'landing') {
       return {
