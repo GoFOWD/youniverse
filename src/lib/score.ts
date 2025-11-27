@@ -66,18 +66,18 @@ export function calculateFinalScore(
 
     const ocean = OceanMap[nE];
 
-    // Season Calculation (P + C) for balanced distribution
-    // Based on 10,000 simulation quartile analysis:
-    // Q1=9 (25%), Q2=11 (50%), Q3=13 (75%)
+    // Season Calculation (E + P + C) for balanced distribution
+    // Based on 10,000 simulation quartile analysis of composite score:
+    // Q1=9 (25%), Q2=13 (50%), Q3=17 (75%)
     // Thresholds ensure ~25% distribution per season
-    const seasonScore = P + C;
+    const seasonScore = E + P + C;
     let season = "";
 
     if (seasonScore <= 9) {
         season = "겨울";  // Winter: Bottom 25%
-    } else if (seasonScore <= 11) {
-        season = "가을";  // Autumn: 25-50%
     } else if (seasonScore <= 13) {
+        season = "가을";  // Autumn: 25-50%
+    } else if (seasonScore <= 17) {
         season = "봄";    // Spring: 50-75%
     } else {
         season = "여름";  // Summer: Top 25%
