@@ -279,8 +279,9 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
                     rgba(200, 230, 255, ${lightIntensity * 0.08}) 60%,
                     transparent 100%)`,
                   filter: 'blur(20px)',
-                  transform: `rotate(${-2 + i * 0.5}deg)`,
+                  transform: `rotate(${-2 + i * 0.5}deg) translateZ(0)`, // Hardware acceleration
                   transformOrigin: 'top center',
+                  willChange: 'transform, opacity', // Hint to browser
                 }}
                 animate={{
                   opacity: [0.6, 1, 0.6],
@@ -307,6 +308,8 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
                 rgba(255, 240, 180, ${lightIntensity * 0.15}) 30%,
                 transparent 70%)`,
               filter: 'blur(40px)',
+              transform: 'translateZ(0)', // Hardware acceleration
+              willChange: 'opacity, transform',
             }}
             animate={{
               opacity: progress > 77 ? [0.5, 1, 0.5] : [0.7, 1, 0.7],
@@ -338,6 +341,8 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
                     rgba(255, 248, 220, ${lightIntensity * 0.2}) 40%,
                     transparent 70%)`,
                   filter: 'blur(15px)',
+                  transform: 'translateZ(0)', // Hardware acceleration
+                  willChange: 'transform, opacity',
                 }}
                 animate={{
                   opacity: [0, lightIntensity * 0.8, 0],
