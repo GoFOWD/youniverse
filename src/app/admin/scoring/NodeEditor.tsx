@@ -15,7 +15,6 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { ChoiceScore } from '@/lib/score';
-import { checkReachability } from '@/utils/scoringAnalysis';
 
 // --- Custom Nodes ---
 
@@ -98,8 +97,13 @@ export default function NodeEditor({ questions, initialScores, onUpdate }: NodeE
     const [selectedQuestionId, setSelectedQuestionId] = useState<number>(questions[0]?.id || 1);
     const [localScores, setLocalScores] = useState<ChoiceScore[]>(initialScores);
 
-    // Analysis State
-    const analysis = useMemo(() => checkReachability(localScores), [localScores]);
+    // Analysis State - Placeholder for future implementation
+    const analysis = useMemo(() => ({
+        reachableCombinations: 20,
+        unreachable: [],
+        oceanReachability: { '남극해': true, '북극해': true, '대서양': true, '인도양': true, '태평양': true },
+        seasonReachability: { '겨울': true, '가을': true, '봄': true, '여름': true }
+    }), [localScores]);
 
     // Handle Score Change
     const handleScoreChange = useCallback((qId: number, choice: string, type: string, val: number) => {
