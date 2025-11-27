@@ -26,14 +26,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
     if (selectedOptionId) return; // Prevent multiple clicks
     setSelectedOptionId(id);
     
-    // Delay to allow animation to play
-    setTimeout(() => {
-      onAnswer(id);
-      // Reset state after transition (optional, but good practice if component remounts or stays)
-      // In this app flow, the parent likely changes the question prop, so we might need to reset effect
-      // But since key changes on QuestionView or parent re-renders, it might be auto-reset.
-      // We'll rely on the component unmounting or prop change.
-    }, 600);
+    // Call onAnswer immediately so sound plays right away
+    onAnswer(id);
+    // State will be reset by useEffect when question changes
   };
 
   // Reset selection when question changes
@@ -107,28 +102,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
               {/* BURST EFFECT */}
               {isSelected && (
                 <>
-                  {/* Fast Shockwave Ring */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl border-4 border-white/60"
-                    initial={{ scale: 1, opacity: 1 }}
-                    animate={{ scale: 1.8, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                  />
-                  {/* Main Burst Ring */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl border-2 border-cyan-300/50"
-                    initial={{ scale: 1, opacity: 1 }}
-                    animate={{ scale: 1.5, opacity: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                  />
-                  {/* Secondary Burst Ring */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl border border-teal-200/30"
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1.4, opacity: 0 }}
-                    transition={{ delay: 0.05, duration: 0.4, ease: "easeOut" }}
-                  />
-                  
                   {/* Particle Explosion - More intense */}
                   {[...Array(16)].map((_, i) => (
                     <motion.div

@@ -157,7 +157,7 @@ export default function ClientApp() {
         audioManager.playSwoosh();
         setCurrentQuestionIndex(prev => prev + 1);
         setIsTransitioning(false);
-      }, 200);
+      }, 800); // Increased delay to allow burst animation to complete
     } else {
       // Last question answered
       setStep('loading');
