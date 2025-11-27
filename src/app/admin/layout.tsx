@@ -12,6 +12,7 @@ export default function AdminLayout({
     const pathname = usePathname();
     const router = useRouter();
     const [isChecking, setIsChecking] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Check authentication on mount and pathname change
     useEffect(() => {
@@ -63,10 +64,42 @@ export default function AdminLayout({
     ];
 
     return (
-        <div className="min-h-screen bg-black text-green-500 font-mono flex">
-            {/* Sidebar */}
-            <aside className="w-64 border-r border-green-800 p-6 flex flex-col">
-                <h1 className="text-2xl font-bold mb-8 text-green-500 tracking-tighter">
+        <div className="min-h-screen bg-black text-green-500 font-mono flex flex-col lg:flex-row">
+            {/* Mobile Header with Hamburger Menu */}
+            <div className="lg:hidden flex items-center justify-between p-4 border-b border-green-800">
+                <h1 className="text-xl font-bold text-green-500 tracking-tighter">
+                    <span className="mr-2 animate-pulse">█</span>
+                    ADMIN_CONSOLE
+                </h1>
+                <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="p-2 border border-green-700 text-green-500 hover:bg-green-900/20"
+                    aria-label="Toggle menu"
+                >
+                    {isMobileMenuOpen ? (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    ) : (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    )}
+                </button>
+            </div>
+
+            {/* Sidebar - Hidden on mobile by default, shown as overlay when menu is open */}
+            <aside className={`
+                fixed lg:static inset-0 z-50 lg:z-auto
+                w-full lg:w-64 
+                bg-black lg:bg-transparent
+                border-r border-green-800 
+                p-6 flex flex-col
+                transition-transform duration-300 ease-in-out
+                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
+                {/* Desktop Header (hidden on mobile) */}
+                <h1 className="hidden lg:block text-2xl font-bold mb-8 text-green-500 tracking-tighter">
                     <span className="mr-2 animate-pulse">█</span>
                     ADMIN_CONSOLE
                 </h1>
@@ -78,6 +111,7 @@ export default function AdminLayout({
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
                                 className={`block px-4 py-2 border-l-2 transition-all ${isActive
                                     ? 'border-green-500 bg-green-900/20 text-green-400 font-bold'
                                     : 'border-transparent text-green-700 hover:text-green-500 hover:border-green-800'
@@ -95,10 +129,26 @@ export default function AdminLayout({
                 >
                     [ LOGOUT ]
                 </button>
+
+                {/* Close button for mobile */}
+                <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="lg:hidden mt-4 px-4 py-2 border border-green-700 text-green-500 hover:bg-green-900/20 uppercase text-sm text-center"
+                >
+                    Close Menu
+                </button>
             </aside>
 
+            {/* Overlay for mobile menu */}
+            {isMobileMenuOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 bg-black/80 z-40"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Main Content */}
-            <main className="flex-1 p-8 overflow-y-auto bg-black">
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-black">
                 {children}
             </main>
         </div>

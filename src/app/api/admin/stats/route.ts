@@ -1,14 +1,55 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        // 1. Total Users
+        // Get pagination parameters from query string
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '10');
+        const skip = (page - 1) * limit;
+
+        // Get filter parameters
+        const ocean = searchParams.get('ocean');
+        const season = searchParams.get('season');
+        const rating = searchParams.get('rating');
+        const timeRange = searchParams.get('timeRange');
+
+        // Helper function to get date based on time range
+        const getTimeRangeDate = (range: string | null) => {
+            if (!range) return null;
+            const now = new Date();
+            switch (range) {
+                case '24h':
+                    return new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                case '7d':
+                    return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                case '30d':
+                    return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                default:
+                    return null;
+            }
+        };
+
+        // Build where clause for filters
+        const where: any = {};
+        if (ocean) where.final_ocean = ocean;
+        if (season) where.final_season = season;
+        if (rating) where.rating = parseInt(rating);
+        const timeRangeDate = getTimeRangeDate(timeRange);
+        if (timeRangeDate) where.created_at = { gte: timeRangeDate };
+
+        // 1. Total Users (unfiltered)
         const totalUsers = await prisma.userResponse.count();
 
-        // 2. Recent Answers (Last 10) - Renamed to avoid conflict
+        // 2. Total count for pagination (with filters)
+        const totalRecords = await prisma.userResponse.count({ where });
+
+        // 3. Recent Answers with pagination and filters
         const rawRecentAnswers = await prisma.userResponse.findMany({
-            take: 10,
+            where,
+            skip,
+            take: limit,
             orderBy: { created_at: 'desc' },
         });
 
@@ -205,6 +246,7 @@ export async function GET() {
         return NextResponse.json({
             totalUsers: totalUsers.toString(),
             recentAnswers: serializedAnswers,
+            totalRecords,
             dailyTraffic: serializedDailyTraffic,
             hourlyTraffic: serializedHourlyTraffic,
             oceanDistribution: serializedOceanDistribution,
