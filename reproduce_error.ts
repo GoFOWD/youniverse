@@ -19,6 +19,7 @@ async function main() {
     console.log(`Fetched ${choiceScoresData.length} choice scores.`);
 
     const choiceDB = choiceScoresData.map(cs => ({
+        id: cs.id,
         questionId: cs.questionId,
         choice: cs.choice,
         energy: cs.energy,

@@ -25,6 +25,7 @@ export async function POST(request: Request) {
 
         // Map Prisma result to the interface expected by calculateFinalScore
         const choiceDB: ChoiceScore[] = choiceScoresData.map(cs => ({
+            id: cs.id,
             questionId: cs.questionId,
             choice: cs.choice,
             energy: cs.energy,
