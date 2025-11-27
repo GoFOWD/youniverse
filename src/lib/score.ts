@@ -65,7 +65,22 @@ export function calculateFinalScore(
     const nC = normalize(C);
 
     const ocean = OceanMap[nE];
-    const season = SeasonMap[nP];
+
+    // Season Calculation (P + C) for balanced distribution
+    // Thresholds: Winter <= -5, Autumn <= -1, Spring <= 4, Summer >= 5
+    const seasonScore = P + C;
+    let season = "";
+
+    if (seasonScore <= -5) {
+        season = "겨울";
+    } else if (seasonScore <= -1) {
+        season = "가을";
+    } else if (seasonScore <= 4) {
+        season = "봄";
+    } else {
+        season = "여름";
+    }
+
     const code = `${ocean}-${season}`;
 
     return {
