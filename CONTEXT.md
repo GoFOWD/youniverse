@@ -1,12 +1,44 @@
-# 프로젝트 작업 컨텍스트 (Backend Integration Complete)
+# 프로젝트 작업 컨텍스트 (Deployment Fixes Applied)
 
 > **최종 업데이트**: 2025-11-27  
-> **작업자**: Frontend Developer (UI Optimization)  
-> **상태**: ✅ Backend & Frontend Integration Complete + 🆕 User Feedback UI Ready + ⚡ UI Performance Optimized
+> **작업자**: Frontend Developer (Deployment Fixes)  
+> **상태**: ✅ Vercel Deployment Issues Fixed (Video, Flickering, Scroll) + ⚡ UI Performance Optimized
 
 ---
 
-## 🆕 최신 업데이트 (2025-11-27) - UI 코드 최적화
+## 🆕 최신 업데이트 (2025-11-27) - Vercel 배포 이슈 수정
+
+### 🛠️ 배포 관련 버그 수정 및 최적화
+
+Vercel 배포 후 발견된 크로스 브라우징 및 모바일 호환성 문제를 해결했습니다.
+
+#### 1. Chrome 브라우저 비디오 재생 문제
+- **증상**: 결과 페이지 진입 전 비디오가 재생되지 않고 검은 화면이 유지됨.
+- **원인**: 비디오 리소스 로딩 지연 및 자동 재생 정책.
+- **해결**: `ResultView.tsx`의 비디오 태그에 `preload="auto"` 속성 추가.
+
+#### 2. Samsung Internet 브라우저 화면 깜빡임
+- **증상**: 빛 효과가 나올 때 화면 전체가 깜빡거리는 현상.
+- **원인**: SVG 기반의 `noise-overlay` 필터와 복잡한 CSS 블러 효과가 모바일 브라우저(특히 삼성 인터넷) 렌더링 엔진과 충돌.
+- **해결**: 
+  - `globals.css`에서 `.noise-overlay` 스타일 제거 (SVG 필터 비활성화).
+  - `Layout.tsx`의 Light Ray 애니메이션 개수 및 복잡도 감소.
+
+#### 3. 모바일 스크롤 발생 문제
+- **증상**: 화면 높이가 짧은 모바일 기기에서 불필요한 스크롤이 발생.
+- **원인**: `min-h-screen` (100vh) 사용 시 모바일 브라우저의 주소창 영역까지 포함되어 실제 뷰포트보다 커짐.
+- **해결**: 
+  - `Layout.tsx`의 최상위 컨테이너 높이를 `h-[100dvh]` (Dynamic Viewport Height)로 변경.
+  - `globals.css`의 `body`에 `overflow: hidden` 추가하여 스크롤 강제 차단.
+
+#### 4. 빌드 오류 수정
+- **증상**: `reactflow` 모듈을 찾을 수 없어 빌드 실패.
+- **원인**: 코드에서는 사용되나 `package.json` 의존성에 누락됨.
+- **해결**: `reactflow` 패키지 설치 및 의존성 추가 완료.
+
+---
+
+## 📋 이전 업데이트 (2025-11-27) - UI 코드 최적화
 
 ### ⚡ UI 성능 최적화 작업 완료
 

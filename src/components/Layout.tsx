@@ -17,10 +17,10 @@ interface LayoutProps {
 // Ocean video mapping
 const OceanVideoMap: Record<string, string> = {
   '태평양': 'pacific1.mp4',
-  '대서양': 'atlantic1.mp4',
+  '대서양': 'Atlantic1.mp4',
   '인도양': 'indian1.mp4',
   '남극해': 'southern1.mp4',
-  '북극해': 'arctic1.mp4',
+  '북극해': 'Arctic1.mp4',
 };
 
 // Helper function to interpolate between two hex colors
@@ -74,7 +74,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       };
     } else if (step === 'result') {
       return {
-        background: 'linear-gradient(to bottom right, rgb(253 186 116), rgb(251 113 133), rgb(129 140 248))'
+        background: 'transparent'
       };
     } else if (step === 'question') {
       // For questions - use interpolated colors
@@ -119,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
   const videoFile = ocean ? OceanVideoMap[ocean] : null;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden text-white">
+    <div className={`relative h-[100dvh] w-full ${step === 'result' ? 'overflow-y-auto' : 'overflow-hidden'} text-white`}>
       {/* Dynamic Background Layer */}
       <motion.div
         className={`absolute inset-0 transition-colors duration-[4000ms] ${progress > 44 ? 'animate-gradient' : ''}`}
@@ -130,13 +130,14 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       
       {/* Video Background for Result Screen */}
       {step === 'result' && videoFile && (
-        <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0">
+        <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0 bg-black">
           <motion.video
             key={videoFile} // Force reload when video changes
             className="w-full h-full object-cover"
             autoPlay
             muted
             playsInline
+            preload="auto"
             // Loop removed to stop at last frame
             onEnded={(e) => {
               e.currentTarget.pause();
@@ -163,8 +164,8 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
         </div>
       )}
       
-      {/* Noise Overlay */}
-      <div className="noise-overlay" />
+      {/* Noise Overlay - Removed to fix Samsung Internet flickering */}
+      {/* <div className="noise-overlay" /> */}
       
       {/* Underwater Texture for Landing Screen */}
       {step === 'landing' && (
@@ -254,10 +255,10 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       )}
       
       {/* Light Rays from Surface - Sunlight Effect */}
-      {progress > 38 && (
+      {progress > 38 && step !== 'result' && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Volumetric God Rays */}
-          {[...Array(8)].map((_, i) => {
+          {/* Volumetric God Rays - Reduced count for performance */}
+          {[...Array(5)].map((_, i) => {
             // Enhanced effects for questions 14+ (progress > 77%)
             const isNearSurface = progress > 77;
             const pulseIntensity = isNearSurface ? 1.5 : 1;
@@ -318,8 +319,8 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
             }}
           />
           
-          {/* Caustic light patterns (shimmering water surface reflections) */}
-          {[...Array(8)].map((_, i) => {
+          {/* Caustic light patterns (shimmering water surface reflections) - Reduced count */}
+          {[...Array(5)].map((_, i) => {
             const isNearSurface = progress > 77;
             const movementRange = isNearSurface ? 40 : 20;
             
@@ -357,10 +358,10 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       )}
       
       {/* Interactive Particles - Dynamic count based on progress */}
-      {isBrowser && <ParticleOverlay count={bubbleCount} />}
+      {isBrowser && step !== 'result' && <ParticleOverlay count={bubbleCount} />}
 
       {/* Main Content Container */}
-      <main className={`relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 mx-auto max-w-md w-full ${className}`}>
+      <main className={`relative z-10 flex flex-col items-center ${step === 'result' ? 'justify-start min-h-full' : 'justify-center h-full'} px-4 py-8 mx-auto max-w-md w-full ${className}`}>
         {children}
       </main>
     </div>

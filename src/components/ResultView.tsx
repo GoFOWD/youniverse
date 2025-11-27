@@ -66,25 +66,18 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
 
   return (
     <div className="flex flex-col items-center space-y-10 w-full relative z-20">
-      {/* Sun Glow Effect */}
-      <motion.div
-        className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-orange-400/30 blur-[100px] rounded-full pointer-events-none"
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2 }}
-      />
 
       <motion.div
-        className="glass-panel p-10 rounded-3xl w-full text-center space-y-8 border-orange-200/20 bg-gradient-to-b from-orange-50/10 to-rose-50/5 backdrop-blur-xl shadow-[0_0_40px_rgba(251,146,60,0.2)]"
+        className="glass-panel p-10 rounded-3xl w-full text-center space-y-8 border border-white/30 bg-gradient-to-b from-white/15 via-white/10 to-white/5 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_60px_rgba(251,146,60,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)]"
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 5.0, duration: 1.0 }} // Delayed to show 5s video intro
       >
         <div className="space-y-3">
-          <h3 className="text-orange-100/80 text-sm tracking-[0.3em] uppercase font-medium">
+          <h3 className="text-white/95 text-sm tracking-[0.3em] uppercase font-medium drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]">
             {result.ocean} - {result.season}
           </h3>
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-100 via-white to-rose-100 drop-shadow-sm">
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
             {result.title}
           </h2>
         </div>
@@ -92,20 +85,20 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
         <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-200/30 to-transparent" />
 
         {result.advice && (
-          <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-            <p className="text-sm text-orange-200/80 font-medium mb-2">ADVICE</p>
-            <p className="text-orange-50/80 text-sm">{result.advice}</p>
+          <div className="p-4 bg-white/10 rounded-xl border border-white/25 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
+            <p className="text-sm text-white/95 font-medium mb-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">ADVICE</p>
+            <p className="text-white/95 text-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">{result.advice}</p>
           </div>
         )}
 
-        <div className="text-orange-50/90 leading-loose font-light text-lg whitespace-pre-wrap">
+        <div className="text-white/95 leading-loose font-normal text-lg whitespace-pre-wrap drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] bg-black/10 p-4 rounded-xl">
           {result.description}
         </div>
 
         {result.hashtag && result.hashtag.length > 0 && (
           <div className="flex flex-wrap justify-center gap-2 mt-4">
             {result.hashtag.map((tag, idx) => (
-              <span key={idx} className="px-3 py-1 rounded-full bg-white/10 text-xs text-orange-100/70">
+              <span key={idx} className="px-3 py-1 rounded-full bg-white/15 text-xs text-white/90 border border-white/20 backdrop-blur-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
                 #{tag}
               </span>
             ))}
@@ -115,14 +108,14 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
 
       {/* Feedback Section */}
       <motion.div
-        className="glass-panel p-8 rounded-3xl w-full border-orange-200/20 bg-gradient-to-b from-orange-50/10 to-rose-50/5 backdrop-blur-xl"
+        className="glass-panel p-8 rounded-3xl w-full border border-white/30 bg-gradient-to-b from-white/15 via-white/10 to-white/5 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_60px_rgba(251,146,60,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)]"
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 6.0, duration: 0.8 }}
       >
         {!isSubmitted ? (
           <div className="space-y-6">
-            <h3 className="text-xl font-serif text-white text-center">
+            <h3 className="text-xl font-serif text-white text-center drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]">
               테스트가 어떠셨나요?
             </h3>
 
@@ -177,7 +170,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
                 maxLength={500}
                 rows={4}
                 placeholder="예: 질문이 흥미로웠어요 / 결과가 정확했어요 / 더 개선되면 좋을 점 등"
-                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-orange-100/40 focus:outline-none focus:border-orange-300/50 transition-colors resize-none"
+                className="w-full p-4 rounded-xl bg-white/10 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white/50 focus:bg-white/15 transition-colors resize-none backdrop-blur-sm"
                 aria-label="피드백 코멘트"
               />
               <p className="text-xs text-orange-200/60 text-right">
@@ -199,14 +192,15 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', duration: 0.5 }}
+              className="text-center"
             >
-              <p className="text-2xl mb-2">✨</p>
-              <p className="text-lg text-white font-medium mb-1">
+              <div className="text-2xl mb-2">✨</div>
+              <div className="text-lg text-white font-medium mb-1">
                 소중한 의견 감사합니다!
-              </p>
-              <p className="text-sm text-orange-100/70">
+              </div>
+              <div className="text-sm text-orange-100/70">
                 더 나은 서비스를 만드는 데 큰 도움이 됩니다
-              </p>
+              </div>
             </motion.div>
           </div>
         )}
