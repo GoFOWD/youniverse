@@ -1,12 +1,69 @@
 # 프로젝트 작업 컨텍스트 (Backend Integration Complete)
 
-> **최종 업데이트**: 2025-11-26  
-> **작업자**: Frontend Developer (User Feedback Feature)  
-> **상태**: ✅ Backend & Frontend Integration Complete + 🆕 User Feedback UI Ready
+> **최종 업데이트**: 2025-11-27  
+> **작업자**: Frontend Developer (UI Optimization)  
+> **상태**: ✅ Backend & Frontend Integration Complete + 🆕 User Feedback UI Ready + ⚡ UI Performance Optimized
 
 ---
 
-## 🆕 최신 업데이트 (2025-11-26) - 사용자 피드백 기능
+## 🆕 최신 업데이트 (2025-11-27) - UI 코드 최적화
+
+### ⚡ UI 성능 최적화 작업 완료
+
+사용자 인터페이스 관련 애니메이션 코드의 중복 및 불필요한 부분을 정리하여 성능을 개선했습니다.
+
+#### 최적화 내용
+
+**삭제된 파일 (1개):**
+- `src/components/DepthIndicator.tsx` - 사용되지 않는 컴포넌트 제거
+
+**수정된 파일 (5개):**
+
+1. **`src/components/ParticleOverlay.tsx`**
+   - 동적 버블 개수 지원 (`count` prop 추가)
+   - Layout에서 progress에 따라 버블 개수 제어 가능
+
+2. **`src/components/Layout.tsx`**
+   - SSR 처리 개선 (`mounted` state → `typeof window !== 'undefined'`)
+   - 중복된 floating particles 로직 제거 (ParticleOverlay로 통합)
+   - Landing 화면 효과 간소화:
+     - Caustics: 6개 → 4개
+     - Depth particles: 15개 → 10개
+   - Light ray caustic patterns: 12개 → 8개
+   - 코드 약 40라인 감소
+
+3. **`src/components/QuestionView.tsx`**
+   - Shimmer 효과 제거 (Ripple/Glow만 유지)
+   - Burst 파티클: 16개 → 12개
+   - 불필요한 inline style 제거
+
+4. **`src/components/ProgressBar.tsx`**
+   - Wave 레이어 간소화: 4개 → 2개
+   - Wave Layer 2 및 Top edge wave 제거
+   - 관련 keyframes 정리
+   - 코드 약 40라인 감소
+
+5. **`src/app/globals.css`**
+   - 유틸리티 클래스 및 애니메이션에 주석 추가
+   - 각 클래스의 사용처 명시
+
+#### 성능 개선 효과
+
+- **코드 감소**: 약 150-200 라인
+- **렌더링 요소**: 30-40% 감소
+- **애니메이션 레이어**: 최적화로 GPU 부하 감소
+- **유지보수성**: 중복 로직 제거 및 주석 추가
+
+#### 주요 원칙
+
+- ✅ **기능 유지**: 사용자 경험은 동일하게 유지
+- ✅ **성능 개선**: 렌더링 부하만 감소
+- ✅ **백엔드 보호**: 백엔드 로직 미변경
+- ✅ **코드 품질**: 가독성 및 유지보수성 향상
+
+---
+
+## 📋 이전 업데이트 (2025-11-26) - 사용자 피드백 기능
 
 ### 📊 추가된 기능: 사용자 만족도 평가 시스템
 
@@ -538,9 +595,16 @@ npm run dev
 - `src/app/api/admin/results/[id]/route.ts` - 결과 수정 (관리자)
 - `src/middleware.ts` - 관리자 인증 미들웨어
 
-### Frontend
+### Frontend (2025-11-27 최적화 완료)
 - `src/components/ClientApp.tsx` - 메인 테스트 로직
-- `src/components/ResultView.tsx` - 결과 화면
+- `src/components/ResultView.tsx` - 결과 화면 + 사용자 피드백 UI
+- `src/components/Layout.tsx` - 레이아웃 & 배경 애니메이션 (최적화됨)
+- `src/components/QuestionView.tsx` - 질문 화면 (애니메이션 최적화)
+- `src/components/ProgressBar.tsx` - 진행 바 (wave 효과 간소화)
+- `src/components/ParticleOverlay.tsx` - 파티클 오버레이 (동적 개수 지원)
+- `src/components/LandingView.tsx` - 랜딩 화면
+- `src/components/LoadingView.tsx` - 로딩 화면
+- `src/app/globals.css` - 글로벌 스타일 (주석 추가됨)
 
 ### Reference Data
 - `seed/choices.json` - 선택지 점수 원본 데이터 (참고용)
@@ -562,6 +626,12 @@ npm run dev
 ### 결과 매핑
 - Ocean-Season 조합은 `@@unique` 제약으로 중복 방지
 - 총 20개 조합 (5 × 4) 필수
+
+### UI 컴포넌트 최적화 (2025-11-27)
+- **ParticleOverlay**: `count` prop을 통해 동적 버블 개수 제어
+- **Layout**: 중복 파티클 로직 제거됨, ParticleOverlay를 통해 통합 관리
+- **애니메이션 효과**: 성능 최적화를 위해 레이어 수 감소 (기능은 동일)
+- **DepthIndicator**: 삭제된 컴포넌트, 사용하지 말 것
 
 ---
 

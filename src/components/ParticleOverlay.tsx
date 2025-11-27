@@ -3,11 +3,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const ParticleOverlay: React.FC = () => {
+interface ParticleOverlayProps {
+  count?: number; // Dynamic bubble count
+}
+
+const ParticleOverlay: React.FC<ParticleOverlayProps> = ({ count = 15 }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Floating Bubbles */}
-      {[...Array(15)].map((_, i) => (
+      {[...Array(count)].map((_, i) => (
         <FloatingBubble key={i} />
       ))}
     </div>
