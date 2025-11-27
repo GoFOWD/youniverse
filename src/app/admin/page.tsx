@@ -9,6 +9,7 @@ interface Stats {
     hourlyTraffic: { date: string; count: string }[];
     oceanDistribution: { name: string; value: number }[];
     seasonDistribution: { name: string; value: number }[];
+    averageResponseTimes?: { [key: number]: number };
     analytics?: {
         dropoutRate: string;
         dropoutCount: string;
@@ -212,9 +213,30 @@ export default function AdminDashboard() {
                                     className="drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]"
                                 />
 
-                                {/* X-Axis Labels (First and Last) */}
-                                <text x="0" y="105" fontSize="3" fill="#15803d">{new Date(data[0].date).toLocaleDateString()}</text>
-                                <text x="100" y="105" fontSize="3" fill="#15803d" textAnchor="end">{new Date(data[data.length - 1].date).toLocaleDateString()}</text>
+                                {/* X-Axis Labels (More detailed) */}
+                                {data.map((d, i) => {
+                                    // Show labels at start, middle, and end
+                                    if (i === 0 || i === Math.floor(data.length / 2) || i === data.length - 1) {
+                                        const x = (i / (data.length - 1 || 1)) * 100;
+                                        const date = new Date(d.date);
+                                        const label = trafficMode === 'hourly'
+                                            ? date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                                            : date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+                                        return (
+                                            <text
+                                                key={i}
+                                                x={x}
+                                                y="105"
+                                                fontSize="2.5"
+                                                fill="#15803d"
+                                                textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}
+                                            >
+                                                {label}
+                                            </text>
+                                        );
+                                    }
+                                    return null;
+                                })}
                             </svg>
                         );
                     })()}
@@ -250,8 +272,10 @@ export default function AdminDashboard() {
                             const total = data.reduce((acc, curr) => acc + curr.value, 0);
                             let currentAngle = 0;
 
-                            // Hacker Colors
-                            const colors = ['#22c55e', '#16a34a', '#15803d', '#166534', '#14532d'];
+                            // Distinct vibrant colors for better visibility
+                            const colors = distributionMode === 'ocean'
+                                ? ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'] // Ocean: Red, Orange, Green, Blue, Purple
+                                : ['#60a5fa', '#34d399', '#fbbf24', '#f87171']; // Season: Blue, Green, Yellow, Red
 
                             return (
                                 <div className="relative w-48 h-48">
@@ -463,15 +487,33 @@ export default function AdminDashboard() {
                                         </thead>
                                         <tbody className="divide-y divide-green-900">
                                             {selectedUser.user_answers && Array.isArray(selectedUser.user_answers) ? (
-                                                selectedUser.user_answers.map((ans: any, idx: number) => (
-                                                    <tr key={idx}>
-                                                        <td className="px-3 py-2 text-green-600">#{ans.questionId}</td>
-                                                        <td className="px-3 py-2 text-white font-bold">{ans.choice}</td>
-                                                        <td className="px-3 py-2 text-right text-gray-500">
-                                                            {ans.endTime - ans.startTime}ms
-                                                        </td>
-                                                    </tr>
-                                                ))
+                                                selectedUser.user_answers.map((ans: any, idx: number) => {
+                                                    const responseTime = ans.endTime - ans.startTime;
+                                                    const avgTime = stats?.averageResponseTimes?.[ans.questionId] || responseTime;
+                                                    const ratio = responseTime / avgTime;
+
+                                                    // Color indicator: green (fast), yellow (normal), red (slow)
+                                                    let indicator = '🟢'; // Fast
+                                                    let colorClass = 'text-green-400';
+                                                    if (ratio > 1.5) {
+                                                        indicator = '🔴'; // Slow
+                                                        colorClass = 'text-red-400';
+                                                    } else if (ratio > 1.2) {
+                                                        indicator = '🟡'; // Normal
+                                                        colorClass = 'text-yellow-400';
+                                                    }
+
+                                                    return (
+                                                        <tr key={idx}>
+                                                            <td className="px-3 py-2 text-green-600">#{ans.questionId}</td>
+                                                            <td className="px-3 py-2 text-white font-bold">{ans.choice}</td>
+                                                            <td className={`px-3 py-2 text-right ${colorClass} flex items-center justify-end gap-2`}>
+                                                                <span>{indicator}</span>
+                                                                <span>{responseTime}ms</span>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
                                             ) : (
                                                 <tr>
                                                     <td colSpan={3} className="px-3 py-2 text-center text-gray-500">Log corrupted or missing.</td>

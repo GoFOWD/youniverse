@@ -155,13 +155,61 @@ export async function GET() {
             percentage: dropoutCount > 0 ? ((d._count.questionProgress / dropoutCount) * 100).toFixed(2) : '0'
         }));
 
+        // 7. Calculate Average Response Time per Question
+        const allResponses = await prisma.userResponse.findMany({
+            where: { isDropout: false },
+            select: { user_answers: true }
+        });
+
+        const questionResponseTimes: { [key: number]: number[] } = {};
+
+        allResponses.forEach(response => {
+            const answers = response.user_answers as any;
+            if (Array.isArray(answers)) {
+                answers.forEach((ans: any) => {
+                    if (ans.questionId && ans.startTime && ans.endTime) {
+                        const responseTime = ans.endTime - ans.startTime;
+                        if (!questionResponseTimes[ans.questionId]) {
+                            questionResponseTimes[ans.questionId] = [];
+                        }
+                        questionResponseTimes[ans.questionId].push(responseTime);
+                    }
+                });
+            }
+        });
+
+        const averageResponseTimes: { [key: number]: number } = {};
+        Object.keys(questionResponseTimes).forEach(qId => {
+            const times = questionResponseTimes[parseInt(qId)];
+            const avg = times.reduce((sum, t) => sum + t, 0) / times.length;
+            averageResponseTimes[parseInt(qId)] = Math.round(avg);
+        });
+
+        // 8. Normalize Season Distribution (merge summer variants)
+        const normalizedSeasonDistribution = serializedSeasonDistribution.reduce((acc: any[], curr) => {
+            // Normalize season names - treat all summer variants as "여름"
+            let seasonName = curr.name;
+            if (seasonName.includes('여름')) {
+                seasonName = '여름';
+            }
+
+            const existing = acc.find(item => item.name === seasonName);
+            if (existing) {
+                existing.value += curr.value;
+            } else {
+                acc.push({ name: seasonName, value: curr.value });
+            }
+            return acc;
+        }, []);
+
         return NextResponse.json({
             totalUsers: totalUsers.toString(),
             recentAnswers: serializedAnswers,
             dailyTraffic: serializedDailyTraffic,
             hourlyTraffic: serializedHourlyTraffic,
             oceanDistribution: serializedOceanDistribution,
-            seasonDistribution: serializedSeasonDistribution,
+            seasonDistribution: normalizedSeasonDistribution,
+            averageResponseTimes: averageResponseTimes,
             // New analytics
             analytics: {
                 dropoutRate: dropoutRate.toFixed(2),
