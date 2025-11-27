@@ -600,3 +600,51 @@ npx prisma generate
 ---
 
 **Happy Coding! 🚀**
+
+---
+
+## 🛠️ Admin Page Implementation Guide (2025-11-27 Update)
+
+### 1. Technology Stack
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS (Custom "Matrix/Hacker" Theme)
+- **Database**: Prisma ORM (PostgreSQL)
+- **Charts**: Custom SVG Implementations (No external chart libraries used for performance)
+- **Icons**: Standard UTF-8 characters & CSS shapes
+
+### 2. Directory Structure
+```
+src/app/admin/
+├── layout.tsx       # Admin layout wrapper
+├── page.tsx         # Main Dashboard (Stats & Analytics)
+├── login/           # Admin Authentication
+├── questions/       # Question Management
+└── scoring/         # Scoring Rules Management
+```
+
+### 3. Key Features
+#### Dashboard (`/admin`)
+- **Real-time Analytics**:
+  - Total Users & Traffic (Daily/Hourly)
+  - Result Distribution (Ocean/Season)
+  - Dropout Rates & Funnel Analysis
+  - User Feedback (Ratings & Comments)
+- **Visualizations**:
+  - **Line Chart**: Custom SVG implementation for traffic trends.
+  - **Pie Chart**: Custom SVG implementation for result distribution.
+  - **Matrix Theme**: Green-on-black aesthetic with CRT effects.
+
+#### Data Fetching
+- **API**: `/api/admin/stats`
+- **Logic**: Aggregates data from `UserResponse` table.
+- **Optimization**: Uses `prisma.$queryRaw` for complex date grouping (Daily/Hourly traffic).
+
+### 4. Recent Improvements
+- **Dropout Tracking**: Implemented session storage and unload handlers to track dropouts.
+- **Feedback System**: Added rating and comment collection linked to `UserResponse`.
+- **Performance**: Optimized UI transitions and fixed infinite render loops in `ClientApp`.
+
+### 5. Maintenance
+- **Adding Charts**: Use the existing SVG patterns in `page.tsx` as a reference.
+- **Theming**: All admin styles are using Tailwind utility classes. Search for `text-green-500`, `bg-black`, `border-green-800`.
+

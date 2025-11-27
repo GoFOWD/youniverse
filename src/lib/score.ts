@@ -1,5 +1,6 @@
 
 export interface ChoiceScore {
+    id: number;
     questionId: number;
     choice: string;
     energy: number;

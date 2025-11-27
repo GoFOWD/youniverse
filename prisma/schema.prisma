@@ -64,5 +64,14 @@ model UserResponse {
   // 계산된 정규화 점수 { energy: 1, positivity: 2, curiosity: 0 }
   score        Json     
   
+  // 사용자 피드백 (선택 사항)
+  rating       Int?     // 1~5 별점
+  comment      String?  // 한줄 평
+  
+  // 분석 메타데이터
+  isDropout        Boolean  @default(false)  // 중도 이탈 여부
+  questionProgress Int?                      // 이탈 시점 (질문 번호)
+  isValidComment   Boolean?                  // 유효한 코멘트 여부 (스팸 필터링)
+  
   created_at   DateTime @default(now())
 }

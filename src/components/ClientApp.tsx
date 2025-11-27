@@ -34,6 +34,7 @@ interface ResultData {
   description: string;
   advice?: string;
   hashtag?: string[];
+  id?: string; // Added ID for feedback
 }
 
 export default function ClientApp() {
@@ -67,6 +68,54 @@ export default function ClientApp() {
 
     fetchQuestions();
   }, []);
+
+  // Session Storage & Dropout Detection
+  // Session Storage Restoration (Run once on mount)
+  useEffect(() => {
+    const savedIndex = sessionStorage.getItem('test_progress_index');
+    const savedAnswers = sessionStorage.getItem('test_answers');
+
+    if (savedIndex && savedAnswers) {
+      setCurrentQuestionIndex(parseInt(savedIndex));
+      setAnswers(JSON.parse(savedAnswers));
+      setStep('question');
+    }
+  }, []);
+
+  // Dropout Detection (Unload Handler)
+  useEffect(() => {
+    const handleUnload = () => {
+      // Only report dropout if test is in progress and not completed
+      if (step === 'question' && questions.length > 0) {
+        const data = {
+          answers: answers, // Send current answers
+          isDropout: true,
+          questionProgress: currentQuestionIndex + 1,
+        };
+
+        // Use fetch with keepalive for reliability on unload
+        fetch('/api/test/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          keepalive: true,
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleUnload);
+    };
+  }, [step, questions, answers, currentQuestionIndex]);
+
+  // Save progress to session storage whenever it changes
+  useEffect(() => {
+    if (step === 'question') {
+      sessionStorage.setItem('test_progress_index', currentQuestionIndex.toString());
+      sessionStorage.setItem('test_answers', JSON.stringify(answers));
+    }
+  }, [currentQuestionIndex, answers, step]);
 
   useEffect(() => {
     if (step === 'question') {
@@ -106,10 +155,14 @@ export default function ClientApp() {
         audioManager.playSwoosh();
         setCurrentQuestionIndex(prev => prev + 1);
         setIsTransitioning(false);
-      }, 500);
+      }, 200);
     } else {
       // Last question answered
       setStep('loading');
+
+      // Clear session storage on completion
+      sessionStorage.removeItem('test_progress_index');
+      sessionStorage.removeItem('test_answers');
 
       try {
         const res = await fetch('/api/test/submit', {
@@ -142,15 +195,19 @@ export default function ClientApp() {
     setCurrentQuestionIndex(0);
     setAnswers([]);
     setResult(null);
+
+    // Clear session storage
+    sessionStorage.removeItem('test_progress_index');
+    sessionStorage.removeItem('test_answers');
   };
 
   const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
 
   // Ascent Transition Variants
   const pageVariants = {
-    initial: { opacity: 0, y: 100 },
+    initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 100, transition: { duration: 0.5 } }
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: "easeInOut" as const } }
   };
 
   // Map API question format to QuestionView props
@@ -189,7 +246,7 @@ export default function ClientApp() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
             className="w-full flex flex-col items-center"
           >
             <ProgressBar progress={progress} />

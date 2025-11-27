@@ -1,24 +1,39 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { ChoiceScore } from '@/lib/score';
+import NodeEditor from '../scoring/NodeEditor'; // We will move this component later or keep it there
 
 interface Question {
     id: number;
     text: string;
     category: string;
+    choices: string[];
+    choiceScores: ChoiceScore[];
 }
 
-export default function QuestionList() {
+export default function QuestionManager() {
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'content' | 'scoring'>('content');
+    const [saving, setSaving] = useState(false);
 
+    // Fetch all questions with scores
     useEffect(() => {
-        fetch('/api/admin/questions')
+        fetch('/api/admin/scoring') // Reusing the scoring API as it returns everything we need
             .then((res) => res.json())
             .then((data) => {
+                // The scoring API returns { questions: [], choiceScores: [] } or just questions array depending on implementation
+                // Let's check the actual response structure from previous steps.
+                // Ah, the scoring API returns just 'questions' array with included choiceScores.
+                // Wait, let's verify.
+                // The GET in /api/admin/scoring/route.ts returns `questions` array.
                 setQuestions(data);
                 setLoading(false);
+                if (data.length > 0) {
+                    setSelectedQuestionId(data[0].id);
+                }
             })
             .catch((err) => {
                 console.error(err);
@@ -26,47 +41,180 @@ export default function QuestionList() {
             });
     }, []);
 
-    if (loading) return <div className="text-white">질문 로딩 중...</div>;
+    const selectedQuestion = questions.find(q => q.id === selectedQuestionId);
+
+    const handleQuestionUpdate = (updatedQ: Question) => {
+        setQuestions(questions.map(q => q.id === updatedQ.id ? updatedQ : q));
+    };
+
+    const handleScoreUpdate = (newScores: ChoiceScore[]) => {
+        if (!selectedQuestion) return;
+        // Update the selected question's scores locally
+        const updatedQuestion = { ...selectedQuestion, choiceScores: newScores };
+        handleQuestionUpdate(updatedQuestion);
+    };
+
+    const handleSave = async () => {
+        if (!selectedQuestion) return;
+        setSaving(true);
+
+        try {
+            const res = await fetch(`/api/admin/questions/${selectedQuestion.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(selectedQuestion),
+            });
+
+            if (res.ok) {
+                alert('SYSTEM UPDATE: SUCCESS');
+            } else {
+                alert('SYSTEM UPDATE: FAILED');
+            }
+        } catch (err) {
+            alert('SYSTEM ERROR: CONNECTION LOST');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) return <div className="text-green-500 font-mono p-8">INITIALIZING DATABASE...</div>;
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold text-white">질문 관리</h2>
-                {/* Add 'Create New' button here if needed later */}
+        <div className="h-[calc(100vh-100px)] flex gap-6 font-mono text-green-500">
+            {/* Left Panel: Question List */}
+            <div className="w-1/3 bg-black border border-green-800 flex flex-col">
+                <div className="p-4 border-b border-green-800 bg-green-900/10">
+                    <h2 className="text-xl font-bold uppercase tracking-widest">Questions</h2>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                    {questions.map((q) => (
+                        <button
+                            key={q.id}
+                            onClick={() => setSelectedQuestionId(q.id)}
+                            className={`w-full text-left p-4 border-b border-green-900 hover:bg-green-900/20 transition-colors ${selectedQuestionId === q.id ? 'bg-green-900/30 text-white border-l-4 border-l-green-500' : 'text-green-700'
+                                }`}
+                        >
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs font-bold">#{q.id}</span>
+                                <span className="text-xs border border-green-800 px-1 rounded text-green-600">{q.category || 'UNCATEGORIZED'}</span>
+                            </div>
+                            <div className="truncate text-sm">{q.text}</div>
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-                <table className="w-full text-left text-gray-400">
-                    <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
-                        <tr>
-                            <th className="px-6 py-3 w-16">ID</th>
-                            <th className="px-6 py-3 w-24">분류</th>
-                            <th className="px-6 py-3">질문 내용</th>
-                            <th className="px-6 py-3 w-24">작업</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-800">
-                        {questions.map((q) => (
-                            <tr key={q.id} className="hover:bg-gray-800/50">
-                                <td className="px-6 py-4">{q.id}</td>
-                                <td className="px-6 py-4">
-                                    <span className="px-2 py-1 bg-gray-800 rounded text-xs text-gray-300">
-                                        {q.category || '-'}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-white">{q.text}</td>
-                                <td className="px-6 py-4">
-                                    <Link
-                                        href={`/admin/questions/${q.id}`}
-                                        className="text-blue-400 hover:text-blue-300 font-medium"
-                                    >
-                                        수정
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            {/* Right Panel: Detail View */}
+            <div className="flex-1 bg-black border border-green-800 flex flex-col">
+                {selectedQuestion ? (
+                    <>
+                        {/* Header */}
+                        <div className="p-4 border-b border-green-800 flex justify-between items-center bg-green-900/10">
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setActiveTab('content')}
+                                    className={`px-4 py-2 text-sm font-bold uppercase transition-colors ${activeTab === 'content' ? 'bg-green-600 text-black' : 'text-green-700 hover:text-green-500'}`}
+                                >
+                                    Content
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('scoring')}
+                                    className={`px-4 py-2 text-sm font-bold uppercase transition-colors ${activeTab === 'scoring' ? 'bg-green-600 text-black' : 'text-green-700 hover:text-green-500'}`}
+                                >
+                                    Scoring Logic
+                                </button>
+                            </div>
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="px-6 py-2 border border-green-500 text-green-500 hover:bg-green-500 hover:text-black font-bold uppercase transition-colors disabled:opacity-50"
+                            >
+                                {saving ? 'SAVING...' : 'SAVE CHANGES'}
+                            </button>
+                        </div>
+
+                        {/* Content Tab */}
+                        {activeTab === 'content' && (
+                            <div className="p-8 space-y-6 overflow-y-auto">
+                                <div>
+                                    <label className="block text-xs font-bold text-green-700 uppercase mb-2">Category</label>
+                                    <input
+                                        type="text"
+                                        value={selectedQuestion.category || ''}
+                                        onChange={(e) => handleQuestionUpdate({ ...selectedQuestion, category: e.target.value })}
+                                        className="w-full p-3 bg-black border border-green-800 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-all"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-green-700 uppercase mb-2">Question Text</label>
+                                    <textarea
+                                        value={selectedQuestion.text}
+                                        onChange={(e) => handleQuestionUpdate({ ...selectedQuestion, text: e.target.value })}
+                                        rows={3}
+                                        className="w-full p-3 bg-black border border-green-800 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-all"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-green-700 uppercase mb-2">Choices</label>
+                                    <div className="space-y-3">
+                                        {selectedQuestion.choices.map((choice, index) => (
+                                            <div key={index} className="flex items-center space-x-3">
+                                                <span className="text-green-600 w-6 font-bold">{String.fromCharCode(65 + index)}</span>
+                                                <input
+                                                    type="text"
+                                                    value={choice}
+                                                    onChange={(e) => {
+                                                        const newChoices = [...selectedQuestion.choices];
+                                                        newChoices[index] = e.target.value;
+                                                        handleQuestionUpdate({ ...selectedQuestion, choices: newChoices });
+                                                    }}
+                                                    className="flex-1 p-3 bg-black border border-green-800 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-all"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Scoring Tab */}
+                        {activeTab === 'scoring' && (
+                            <div className="flex-1 overflow-hidden relative">
+                                <div className="absolute inset-0">
+                                    {/* 
+                                        NodeEditor needs to be adjusted to handle a SINGLE question focus if possible,
+                                        or we pass all questions but focus on one?
+                                        The current NodeEditor takes 'questions' and 'initialScores'.
+                                        It renders ALL questions.
+                                        For this unified view, we might want to just show the current question's node?
+                                        Or keep the full graph but center on the current question?
+                                        Let's keep the full graph for context, as reachability depends on all.
+                                        But we pass the current state.
+                                    */}
+                                    <NodeEditor
+                                        questions={questions}
+                                        // We need to construct the full list of choiceScores from all questions
+                                        initialScores={questions.flatMap(q => q.choiceScores)}
+                                        onUpdate={(newScores) => {
+                                            // This returns ALL scores. We need to update our local state.
+                                            // We need to map these scores back to their questions.
+                                            // This is a bit heavy but ensures consistency.
+                                            const updatedQuestions = questions.map(q => ({
+                                                ...q,
+                                                choiceScores: newScores.filter(s => s.questionId === q.id)
+                                            }));
+                                            setQuestions(updatedQuestions);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <div className="flex-1 flex items-center justify-center text-green-900">
+                        SELECT A MODULE TO EDIT
+                    </div>
+                )}
             </div>
         </div>
     );

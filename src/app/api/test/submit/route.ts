@@ -2,11 +2,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { calculateFinalScore, UserAnswerDetail, ChoiceScore } from '@/lib/score';
+import { validateComment } from '@/lib/commentValidator';
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
         const answers: UserAnswerDetail[] = body.answers;
+        const rating: number | null = body.rating ?? null;
+        const comment: string | null = body.comment ?? null;
+        const questionProgress: number | null = body.questionProgress ?? null;
+        const isDropout: boolean = body.isDropout ?? false;
 
         if (!answers || !Array.isArray(answers)) {
             return NextResponse.json(
@@ -19,9 +24,6 @@ export async function POST(request: Request) {
         const choiceScoresData = await prisma.choiceScore.findMany();
 
         // Map Prisma result to the interface expected by calculateFinalScore
-        // Prisma result has id, questionId, choice, energy, etc.
-        // The interface expects questionId, choice, energy, etc.
-        // They match, but we need to ensure types are correct.
         const choiceDB: ChoiceScore[] = choiceScoresData.map(cs => ({
             questionId: cs.questionId,
             choice: cs.choice,
@@ -43,20 +45,29 @@ export async function POST(request: Request) {
             },
         });
 
-        // 4. Save User Response
-        // We need to cast the score object to any or Json because Prisma expects Json
+        // 4. Validate Comment (if provided)
+        const commentValidation = validateComment(comment);
+        const isValidComment = comment ? commentValidation.isValid : null;
+
+        // 5. Save User Response
         const savedResponse = await prisma.userResponse.create({
             data: {
-                user_answers: answers as any, // Cast to any for Json compatibility
+                user_answers: answers as any,
                 final_ocean: result.ocean,
                 final_season: result.season,
                 final_code: result.code,
                 score: result.score as any,
+                rating: rating,
+                comment: comment,
+                isDropout: isDropout,
+                questionProgress: questionProgress,
+                isValidComment: isValidComment,
             },
         });
 
-        // 5. Return Result
+        // 6. Return Result
         return NextResponse.json({
+            id: savedResponse.id.toString(), // Return ID for feedback update
             resultCode: result.code,
             ocean: result.ocean,
             season: result.season,

@@ -12,6 +12,7 @@ interface ResultData {
   description: string;
   advice?: string;
   hashtag?: string[];
+  id?: string; // Added ID for feedback
 }
 
 interface ResultViewProps {
@@ -26,21 +27,41 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
   const [comment, setComment] = useState<string>('');
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
-  const handleFeedbackSubmit = () => {
+  const handleFeedbackSubmit = async () => {
     if (rating === 0) {
       alert('별점을 선택해주세요!');
       return;
     }
 
-    const feedbackData = {
-      resultCode: `${result.ocean}-${result.season}`,
-      rating,
-      comment,
-      timestamp: Date.now(),
-    };
+    if (!result.id) {
+      console.error('No result ID found');
+      alert('오류가 발생했습니다. 다시 시도해주세요.');
+      return;
+    }
 
-    console.log('📊 User Feedback:', feedbackData);
-    setIsSubmitted(true);
+    try {
+      const response = await fetch('/api/test/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: result.id,
+          rating,
+          comment,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit feedback');
+      }
+
+      console.log('📊 User Feedback Submitted');
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('피드백 전송에 실패했습니다.');
+    }
   };
 
   return (
@@ -104,7 +125,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
             <h3 className="text-xl font-serif text-white text-center">
               테스트가 어떠셨나요?
             </h3>
-            
+
             {/* Star Rating */}
             <div className="flex flex-col items-center space-y-3">
               <p className="text-sm text-orange-100/70">만족도를 평가해주세요</p>
@@ -119,11 +140,10 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
                     className="transition-transform hover:scale-110 focus:outline-none"
                   >
                     <svg
-                      className={`w-10 h-10 transition-colors ${
-                        star <= (hoverRating || rating)
+                      className={`w-10 h-10 transition-colors ${star <= (hoverRating || rating)
                           ? 'text-orange-400 fill-orange-400'
                           : 'text-orange-200/30 fill-none'
-                      }`}
+                        }`}
                       stroke="currentColor"
                       strokeWidth="2"
                       viewBox="0 0 24 24"

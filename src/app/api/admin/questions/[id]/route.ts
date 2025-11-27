@@ -31,24 +31,40 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { text, choices, category } = body; // choices is array of strings
+        const { text, choices, category, choiceScores } = body; // choiceScores is optional array
 
-        // Update Question
-        const updatedQuestion = await prisma.question.update({
-            where: { id: parseInt(id) },
-            data: {
-                text,
-                category,
-                choices, // Update the choices array in Question model
-            },
+        // Transaction to update Question and optionally ChoiceScores
+        const result = await prisma.$transaction(async (tx) => {
+            // 1. Update Question
+            const updatedQuestion = await tx.question.update({
+                where: { id: parseInt(id) },
+                data: {
+                    text,
+                    category,
+                    choices,
+                },
+            });
+
+            // 2. Update ChoiceScores if provided
+            if (choiceScores && Array.isArray(choiceScores)) {
+                for (const score of choiceScores) {
+                    if (score.id) {
+                        await tx.choiceScore.update({
+                            where: { id: score.id },
+                            data: {
+                                energy: parseInt(score.energy),
+                                positivity: parseInt(score.positivity),
+                                curiosity: parseInt(score.curiosity),
+                            },
+                        });
+                    }
+                }
+            }
+
+            return updatedQuestion;
         });
 
-        // Note: We are NOT updating ChoiceScore here yet, that will be in the Scoring section.
-        // However, if the user changes the text of a choice, we might want to ensure consistency.
-        // The current schema has 'choices' as String[] in Question, and 'choice' (A/B/C) in ChoiceScore.
-        // The 'choices' array likely corresponds to A, B, C in order.
-
-        return NextResponse.json(updatedQuestion);
+        return NextResponse.json(result);
     } catch (error) {
         console.error('Error updating question:', error);
         return NextResponse.json({ error: 'Failed to update question' }, { status: 500 });

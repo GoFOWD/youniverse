@@ -9,14 +9,31 @@ interface Stats {
     hourlyTraffic: { date: string; count: string }[];
     oceanDistribution: { name: string; value: number }[];
     seasonDistribution: { name: string; value: number }[];
+    analytics?: {
+        dropoutRate: string;
+        dropoutCount: string;
+        completedUsers: string;
+        averageRating: string;
+        commentResponseRate: string;
+        validCommentRate: string;
+        totalComments: string;
+        validComments: string;
+    };
+    dropoutAnalysis?: {
+        questionNumber: number;
+        count: number;
+        percentage: string;
+    }[];
 }
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [trafficMode, setTrafficMode] = useState<'daily' | 'hourly'>('daily');
     const [distributionMode, setDistributionMode] = useState<'ocean' | 'season'>('ocean');
     const [selectedUser, setSelectedUser] = useState<any | null>(null);
+    const [showResultContent, setShowResultContent] = useState(false);
 
     useEffect(() => {
         fetch('/api/admin/stats')
@@ -27,6 +44,7 @@ export default function AdminDashboard() {
             })
             .catch((err) => {
                 console.error(err);
+                setError(err.message || 'Failed to load data');
                 setLoading(false);
             });
     }, []);
@@ -89,203 +107,388 @@ export default function AdminDashboard() {
         return { path: pathData, color, name: item.name, value: item.value, percentage };
     }).filter(Boolean); // Remove nulls
 
+    if (loading) return <div className="text-green-500 font-mono p-8">INITIALIZING SYSTEM...</div>;
+    if (error) return <div className="text-red-500 font-mono p-8">SYSTEM ERROR: {error}</div>;
+    if (!stats) return null;
+
     return (
-        <div className="space-y-8 pb-20">
-            <h2 className="text-3xl font-bold text-white">대시보드</h2>
+        <div className="space-y-8 font-mono text-green-500">
+            <h1 className="text-4xl font-bold border-b-2 border-green-800 pb-4 tracking-tighter">
+                <span className="mr-2 animate-pulse">█</span>
+                SYSTEM_DASHBOARD
+            </h1>
 
-            {/* Top Row: Traffic & Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {/* Traffic Chart */}
-                <div className="lg:col-span-2 bg-gray-900 p-6 rounded-xl border border-gray-800">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-white text-lg font-bold">트래픽</h3>
-                        <div className="flex bg-gray-800 rounded-lg p-1">
-                            <button
-                                onClick={() => setTrafficMode('daily')}
-                                className={`px-3 py-1 rounded-md text-sm transition-colors ${trafficMode === 'daily' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
-                            >
-                                일별
-                            </button>
-                            <button
-                                onClick={() => setTrafficMode('hourly')}
-                                className={`px-3 py-1 rounded-md text-sm transition-colors ${trafficMode === 'hourly' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
-                            >
-                                시간별
-                            </button>
+            {/* Analytics Overview Section (Korean) */}
+            {stats.analytics && (
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Dropout Rate Card */}
+                    <div className="bg-black border border-green-800 p-6 hover:border-green-600 transition-colors">
+                        <div className="text-xs text-green-700 uppercase tracking-wider mb-2">중도 이탈률</div>
+                        <div className="text-3xl font-bold text-green-500 mb-1">{stats.analytics.dropoutRate}%</div>
+                        <div className="text-xs text-green-900">
+                            총 {stats.analytics.dropoutCount}명 이탈
                         </div>
                     </div>
 
-                    <div className="h-64 w-full relative">
-                        {trafficData.length > 0 ? (
-                            <svg viewBox="0 0 500 200" className="w-full h-full overflow-visible">
-                                {/* Grid Lines */}
-                                <line x1="0" y1="0" x2="500" y2="0" stroke="#333" strokeWidth="1" />
-                                <line x1="0" y1="100" x2="500" y2="100" stroke="#333" strokeWidth="1" />
-                                <line x1="0" y1="200" x2="500" y2="200" stroke="#333" strokeWidth="1" />
+                    {/* Average Rating Card */}
+                    <div className="bg-black border border-green-800 p-6 hover:border-green-600 transition-colors">
+                        <div className="text-xs text-green-700 uppercase tracking-wider mb-2">평균 별점</div>
+                        <div className="text-3xl font-bold text-green-500 mb-1">{stats.analytics.averageRating}</div>
+                        <div className="text-xs text-green-900 flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                                <span key={i} className={i < Math.round(parseFloat(stats.analytics!.averageRating)) ? 'text-green-500' : 'text-green-900'}>
+                                    ★
+                                </span>
+                            ))}
+                        </div>
+                    </div>
 
-                                {/* Line */}
-                                <polyline
-                                    fill="none"
-                                    stroke="#3b82f6"
-                                    strokeWidth="3"
-                                    points={getLinePoints(500, 200)}
-                                />
+                    {/* Comment Response Rate Card */}
+                    <div className="bg-black border border-green-800 p-6 hover:border-green-600 transition-colors">
+                        <div className="text-xs text-green-700 uppercase tracking-wider mb-2">코멘트 응답률</div>
+                        <div className="text-3xl font-bold text-green-500 mb-1">{stats.analytics.commentResponseRate}%</div>
+                        <div className="text-xs text-green-900">
+                            {stats.analytics.totalComments}개 응답
+                        </div>
+                    </div>
 
-                                {/* Points */}
-                                {trafficData.map((d, i) => {
-                                    const stepX = 500 / (trafficData.length - 1 || 1);
-                                    const x = i * stepX;
-                                    const y = 200 - (parseInt(d.count) / maxTraffic) * 200;
-                                    return (
-                                        <g key={i} className="group">
-                                            <circle cx={x} cy={y} r="4" fill="#3b82f6" className="cursor-pointer" />
-                                            {/* Tooltip */}
-                                            <g className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <rect x={x - 40} y={y - 35} width="80" height="25" rx="4" fill="#1f2937" />
-                                                <text x={x} y={y - 18} textAnchor="middle" fill="white" fontSize="10">
-                                                    {new Date(d.date).toLocaleDateString('ko-KR', trafficMode === 'hourly' ? { hour: '2-digit', minute: '2-digit' } : { month: 'short', day: 'numeric' })}: {d.count}
-                                                </text>
-                                            </g>
-                                        </g>
-                                    );
-                                })}
-                            </svg>
-                        ) : (
-                            <div className="flex items-center justify-center h-full text-gray-500">데이터 없음</div>
-                        )}
+                    {/* Valid Comment Rate Card */}
+                    <div className="bg-black border border-green-800 p-6 hover:border-green-600 transition-colors">
+                        <div className="text-xs text-green-700 uppercase tracking-wider mb-2">유효 코멘트율</div>
+                        <div className="text-3xl font-bold text-green-500 mb-1">{stats.analytics.validCommentRate}%</div>
+                        <div className="text-xs text-green-900">
+                            {stats.analytics.validComments}/{stats.analytics.totalComments} 유효
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Traffic Section (English) */}
+            <section className="bg-black border border-green-800 p-6 rounded-none shadow-[0_0_10px_rgba(0,255,0,0.1)]">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold uppercase tracking-widest">Network Traffic</h2>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setTrafficMode('daily')}
+                            className={`px-4 py-1 text-sm border ${trafficMode === 'daily' ? 'bg-green-900 border-green-500 text-white' : 'border-green-900 text-green-700 hover:text-green-500'}`}
+                        >
+                            DAILY
+                        </button>
+                        <button
+                            onClick={() => setTrafficMode('hourly')}
+                            className={`px-4 py-1 text-sm border ${trafficMode === 'hourly' ? 'bg-green-900 border-green-500 text-white' : 'border-green-900 text-green-700 hover:text-green-500'}`}
+                        >
+                            HOURLY
+                        </button>
                     </div>
                 </div>
+                <div className="h-64 w-full">
+                    {/* Simple SVG Line Chart for Traffic */}
+                    {(() => {
+                        const data = trafficMode === 'daily' ? stats.dailyTraffic : stats.hourlyTraffic;
+                        if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-green-900">NO DATA STREAM</div>;
 
-                {/* Result Distribution Pie Chart */}
-                <div className="bg-gray-900 p-6 rounded-xl border border-gray-800 flex flex-col">
+                        const maxCount = Math.max(...data.map(d => parseInt(d.count))) || 1;
+                        const points = data.map((d, i) => {
+                            const x = (i / (data.length - 1)) * 100;
+                            const y = 100 - (parseInt(d.count) / maxCount) * 100;
+                            return `${x},${y}`;
+                        }).join(' ');
+
+                        return (
+                            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+                                {/* Grid Lines */}
+                                <line x1="0" y1="25" x2="100" y2="25" stroke="#064e3b" strokeWidth="0.2" strokeDasharray="2" />
+                                <line x1="0" y1="50" x2="100" y2="50" stroke="#064e3b" strokeWidth="0.2" strokeDasharray="2" />
+                                <line x1="0" y1="75" x2="100" y2="75" stroke="#064e3b" strokeWidth="0.2" strokeDasharray="2" />
+
+                                {/* Data Line */}
+                                <polyline
+                                    fill="none"
+                                    stroke="#22c55e"
+                                    strokeWidth="1"
+                                    points={points}
+                                    vectorEffect="non-scaling-stroke"
+                                    className="drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]"
+                                />
+
+                                {/* X-Axis Labels (First and Last) */}
+                                <text x="0" y="105" fontSize="3" fill="#15803d">{new Date(data[0].date).toLocaleDateString()}</text>
+                                <text x="100" y="105" fontSize="3" fill="#15803d" textAnchor="end">{new Date(data[data.length - 1].date).toLocaleDateString()}</text>
+                            </svg>
+                        );
+                    })()}
+                </div>
+            </section>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Result Distribution */}
+                <section className="bg-black border border-green-800 p-6 rounded-none">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-white text-lg font-bold">결과 분포</h3>
-                        <div className="flex bg-gray-800 rounded-lg p-1">
+                        <h2 className="text-xl font-bold uppercase tracking-widest">Result Distribution</h2>
+                        <div className="flex gap-2">
                             <button
                                 onClick={() => setDistributionMode('ocean')}
-                                className={`px-3 py-1 rounded-md text-xs transition-colors ${distributionMode === 'ocean' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-3 py-1 text-xs border ${distributionMode === 'ocean' ? 'bg-green-900 border-green-500 text-white' : 'border-green-900 text-green-700'}`}
                             >
-                                대양
+                                OCEAN
                             </button>
                             <button
                                 onClick={() => setDistributionMode('season')}
-                                className={`px-3 py-1 rounded-md text-xs transition-colors ${distributionMode === 'season' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-3 py-1 text-xs border ${distributionMode === 'season' ? 'bg-green-900 border-green-500 text-white' : 'border-green-900 text-green-700'}`}
                             >
-                                계절
+                                SEASON
                             </button>
                         </div>
                     </div>
+                    <div className="h-64 flex items-center justify-center">
+                        {/* Reusing existing Pie Chart logic but with Hacker colors */}
+                        {(() => {
+                            const data = distributionMode === 'ocean' ? stats.oceanDistribution : stats.seasonDistribution;
+                            if (!data || data.length === 0) return <div className="text-green-900">NO DATA</div>;
 
-                    <div className="flex-1 flex items-center justify-center relative">
-                        {pieSlices.length > 0 ? (
-                            <svg viewBox="0 0 100 100" className="w-48 h-48 transform -rotate-90">
-                                {pieSlices.map((slice: any, i) => (
-                                    slice.isCircle ?
-                                        <circle key={i} cx="50" cy="50" r="50" fill={slice.color} /> :
-                                        <path key={i} d={slice.path} fill={slice.color} stroke="#111827" strokeWidth="1" />
-                                ))}
-                                {/* Center Hole for Donut Chart effect */}
-                                <circle cx="50" cy="50" r="25" fill="#111827" />
-                            </svg>
-                        ) : (
-                            <div className="text-gray-500">결과 없음</div>
-                        )}
-                    </div>
-                    {/* Legend */}
-                    <div className="mt-6 space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-                        {pieSlices.map((slice: any, i) => (
-                            <div key={i} className="flex items-center justify-between text-xs">
-                                <div className="flex items-center">
-                                    <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: slice.color }}></div>
-                                    <span className="text-gray-300">{slice.name}</span>
+                            const total = data.reduce((acc, curr) => acc + curr.value, 0);
+                            let currentAngle = 0;
+
+                            // Hacker Colors
+                            const colors = ['#22c55e', '#16a34a', '#15803d', '#166534', '#14532d'];
+
+                            return (
+                                <div className="relative w-48 h-48">
+                                    <svg viewBox="-1 -1 2 2" className="transform -rotate-90 w-full h-full">
+                                        {data.map((item, index) => {
+                                            const count = item.value;
+                                            const percentage = count / total;
+                                            const angle = percentage * Math.PI * 2;
+
+                                            // Handle 100% case
+                                            if (percentage === 1) {
+                                                return (
+                                                    <circle key={index} cx="0" cy="0" r="1" fill={colors[index % colors.length]} />
+                                                );
+                                            }
+
+                                            const x1 = Math.cos(currentAngle);
+                                            const y1 = Math.sin(currentAngle);
+                                            const x2 = Math.cos(currentAngle + angle);
+                                            const y2 = Math.sin(currentAngle + angle);
+
+                                            const largeArcFlag = percentage > 0.5 ? 1 : 0;
+
+                                            const pathData = [
+                                                `M 0 0`,
+                                                `L ${x1} ${y1}`,
+                                                `A 1 1 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                                                `Z`
+                                            ].join(' ');
+
+                                            const slice = (
+                                                <path
+                                                    key={index}
+                                                    d={pathData}
+                                                    fill={colors[index % colors.length]}
+                                                    stroke="#000"
+                                                    strokeWidth="0.02"
+                                                />
+                                            );
+                                            currentAngle += angle;
+                                            return slice;
+                                        })}
+                                    </svg>
+                                    {/* Legend */}
+                                    <div className="absolute top-0 right-[-140px] w-32 text-xs space-y-1">
+                                        {data.map((item, index) => (
+                                            <div key={index} className="flex items-center">
+                                                <span className="w-2 h-2 mr-2" style={{ backgroundColor: colors[index % colors.length] }}></span>
+                                                <span className="text-green-500">
+                                                    {item.name}
+                                                    <span className="text-green-700 ml-1">({Math.round((item.value / total) * 100)}%)</span>
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <span className="text-gray-500">{Math.round(slice.percentage * 100)}%</span>
-                            </div>
-                        ))}
+                            );
+                        })()}
                     </div>
-                </div>
+                </section>
+
+                {/* Total Users */}
+                <section className="bg-black border border-green-800 p-6 rounded-none flex flex-col justify-center items-center">
+                    <h2 className="text-xl font-bold uppercase tracking-widest mb-4">Total Subjects</h2>
+                    <div className="text-6xl font-bold text-white animate-pulse">
+                        {stats.totalUsers}
+                    </div>
+                    <div className="text-sm text-green-700 mt-2">ACTIVE RECORDS</div>
+                </section>
             </div>
 
             {/* Recent Answers */}
-            <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-                <div className="p-6 border-b border-gray-800">
-                    <h3 className="text-white text-lg font-bold">최근 응답</h3>
-                </div>
+            <section className="bg-black border border-green-800 p-6 rounded-none">
+                <h2 className="text-xl font-bold uppercase tracking-widest mb-6">Recent Transmissions</h2>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-gray-400">
-                        <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
+                    <table className="w-full text-left text-sm">
+                        <thead className="border-b border-green-800 text-green-700 uppercase">
                             <tr>
-                                <th className="px-6 py-3">날짜</th>
-                                <th className="px-6 py-3">결과</th>
-                                <th className="px-6 py-3">점수</th>
-                                <th className="px-6 py-3 w-20">작업</th>
+                                <th className="px-4 py-2">Timestamp</th>
+                                <th className="px-4 py-2">Result Code</th>
+                                <th className="px-4 py-2">Score (E/P/C)</th>
+                                <th className="px-4 py-2">Rating</th>
+                                <th className="px-4 py-2">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-800">
-                            {stats.recentAnswers.map((answer) => (
-                                <tr key={answer.id} className="hover:bg-gray-800/50 cursor-pointer" onClick={() => setSelectedUser(answer)}>
-                                    <td className="px-6 py-4">
-                                        {new Date(answer.created_at).toLocaleString('ko-KR')}
-                                    </td>
-                                    <td className="px-6 py-4 text-white font-medium">
-                                        {answer.final_code}
-                                    </td>
-                                    <td className="px-6 py-4 text-xs font-mono">
-                                        {JSON.stringify(answer.score)}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <button className="text-blue-400 hover:text-blue-300 text-sm">보기</button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {stats.recentAnswers.length === 0 && (
+                        <tbody className="divide-y divide-green-900">
+                            {stats.recentAnswers.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-4 text-center">응답 없음</td>
+                                    <td colSpan={5} className="px-4 py-8 text-center text-green-900">NO TRANSMISSIONS DETECTED</td>
                                 </tr>
+                            ) : (
+                                stats.recentAnswers.map((ans) => (
+                                    <tr key={ans.id} className="hover:bg-green-900/20 transition-colors">
+                                        <td className="px-4 py-3 font-mono text-green-600">
+                                            {new Date(ans.created_at).toLocaleString()}
+                                        </td>
+                                        <td className="px-4 py-3 text-white">
+                                            {ans.final_code}
+                                        </td>
+                                        <td className="px-4 py-3 text-green-400">
+                                            {ans.score.energy}/{ans.score.positivity}/{ans.score.curiosity}
+                                        </td>
+                                        <td className="px-4 py-3 text-yellow-500">
+                                            {ans.rating ? '★'.repeat(ans.rating) : '-'}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <button
+                                                onClick={() => { setSelectedUser(ans); setShowResultContent(false); }}
+                                                className="px-3 py-1 border border-green-600 text-green-500 hover:bg-green-600 hover:text-black text-xs uppercase transition-colors"
+                                            >
+                                                Inspect
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
                             )}
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            {/* User Detail Modal */}
+            {/* User Details Modal */}
             {selectedUser && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setSelectedUser(null)}>
-                    <div className="bg-gray-900 p-8 rounded-xl border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 className="text-2xl font-bold text-white">사용자 상세 정보</h3>
-                                <p className="text-gray-400 text-sm mt-1">{new Date(selectedUser.created_at).toLocaleString('ko-KR')}</p>
-                            </div>
-                            <button onClick={() => setSelectedUser(null)} className="text-gray-500 hover:text-white">✕</button>
+                <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+                    <div className="bg-black border-2 border-green-500 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-none shadow-[0_0_20px_rgba(0,255,0,0.2)] font-mono">
+                        <div className="p-6 border-b border-green-800 flex justify-between items-center bg-green-900/20">
+                            <h3 className="text-xl font-bold text-green-400 uppercase">Subject Details #{selectedUser.id}</h3>
+                            <button
+                                onClick={() => setSelectedUser(null)}
+                                className="text-green-600 hover:text-white text-2xl leading-none"
+                            >
+                                &times;
+                            </button>
                         </div>
-
-                        <div className="space-y-6">
+                        <div className="p-6 space-y-6">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-gray-800 p-4 rounded-lg">
-                                    <span className="text-gray-400 text-xs uppercase">결과</span>
-                                    <p className="text-xl font-bold text-white mt-1">{selectedUser.final_code}</p>
+                                <div>
+                                    <div className="text-xs text-green-700 uppercase">Result Code</div>
+                                    <div className="text-lg text-white font-bold">{selectedUser.final_code}</div>
                                 </div>
-                                <div className="bg-gray-800 p-4 rounded-lg">
-                                    <span className="text-gray-400 text-xs uppercase">점수</span>
-                                    <p className="text-sm font-mono text-white mt-1">{JSON.stringify(selectedUser.score)}</p>
+                                <div>
+                                    <div className="text-xs text-green-700 uppercase">Score Profile</div>
+                                    <div className="text-lg text-white">
+                                        E:{selectedUser.score.energy} / P:{selectedUser.score.positivity} / C:{selectedUser.score.curiosity}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div>
-                                <h4 className="text-white font-bold mb-4">응답 기록</h4>
-                                <div className="space-y-3">
-                                    {Array.isArray(selectedUser.user_answers) ? selectedUser.user_answers.map((ans: any, idx: number) => (
-                                        <div key={idx} className="bg-gray-800/50 p-3 rounded border border-gray-800 flex justify-between items-center">
-                                            <span className="text-gray-400">Q{ans.questionId}</span>
-                                            <span className="text-white font-bold">{ans.choice}</span>
-                                        </div>
-                                    )) : (
-                                        <p className="text-gray-500">상세 응답 기록이 없습니다.</p>
-                                    )}
+                            {/* Feedback Section */}
+                            <div className="border border-green-800 p-4 bg-green-900/10">
+                                <h4 className="text-sm font-bold text-green-500 uppercase mb-2">User Feedback</h4>
+                                <div className="flex items-center mb-2">
+                                    <span className="text-xs text-green-700 w-16">RATING:</span>
+                                    <span className="text-yellow-500">{selectedUser.rating ? '★'.repeat(selectedUser.rating) : 'N/A'}</span>
+                                </div>
+                                <div>
+                                    <span className="text-xs text-green-700 block mb-1">COMMENT:</span>
+                                    <p className="text-white text-sm italic">
+                                        {selectedUser.comment ? `"${selectedUser.comment}"` : "No comment provided."}
+                                    </p>
                                 </div>
                             </div>
+
+                            {/* Result Content Section */}
+                            <div className="border border-green-800 p-4">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="text-sm font-bold text-green-500 uppercase">Result Content</h4>
+                                    <button
+                                        onClick={() => setShowResultContent(!showResultContent)}
+                                        className="text-xs border border-green-700 px-2 py-1 text-green-600 hover:text-white hover:border-white transition-colors"
+                                    >
+                                        {showResultContent ? 'COLLAPSE [-]' : 'EXPAND [+]'}
+                                    </button>
+                                </div>
+
+                                {showResultContent && (
+                                    <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div>
+                                            <div className="text-xs text-green-700 uppercase">Title</div>
+                                            <div className="text-white font-bold">{selectedUser.resultTitle}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-green-700 uppercase">Description</div>
+                                            <div className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
+                                                {selectedUser.resultDescription}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs text-green-700 uppercase">Advice</div>
+                                            <div className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
+                                                {selectedUser.resultAdvice}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Answer History */}
+                            <div>
+                                <h4 className="text-sm font-bold text-green-500 uppercase mb-2">Transmission Log</h4>
+                                <div className="bg-black border border-green-900 rounded-none overflow-hidden">
+                                    <table className="w-full text-xs">
+                                        <thead className="bg-green-900/30 text-green-300">
+                                            <tr>
+                                                <th className="px-3 py-2 text-left">QID</th>
+                                                <th className="px-3 py-2 text-left">Choice</th>
+                                                <th className="px-3 py-2 text-right">Time (ms)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-green-900">
+                                            {selectedUser.user_answers && Array.isArray(selectedUser.user_answers) ? (
+                                                selectedUser.user_answers.map((ans: any, idx: number) => (
+                                                    <tr key={idx}>
+                                                        <td className="px-3 py-2 text-green-600">#{ans.questionId}</td>
+                                                        <td className="px-3 py-2 text-white font-bold">{ans.choice}</td>
+                                                        <td className="px-3 py-2 text-right text-gray-500">
+                                                            {ans.endTime - ans.startTime}ms
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={3} className="px-3 py-2 text-center text-gray-500">Log corrupted or missing.</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 border-t border-green-800 bg-green-900/10 flex justify-end">
+                            <button
+                                onClick={() => setSelectedUser(null)}
+                                className="px-6 py-2 bg-green-700 hover:bg-green-600 text-black font-bold uppercase transition-colors"
+                            >
+                                Close Terminal
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -22,36 +22,58 @@ export default function AdminLogin() {
             if (res.ok) {
                 router.push('/admin');
             } else {
-                setError('비밀번호가 올바르지 않습니다.');
+                setError('ACCESS DENIED: INVALID CREDENTIALS');
             }
         } catch (err) {
-            setError('오류가 발생했습니다.');
+            setError('SYSTEM ERROR: CONNECTION FAILED');
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black text-white">
-            <div className="w-full max-w-md p-8 space-y-6 bg-gray-900 rounded-xl border border-gray-800">
-                <h1 className="text-2xl font-bold text-center">관리자 접속</h1>
+        <div className="min-h-screen flex items-center justify-center bg-black text-green-500 font-mono">
+            <div className="w-full max-w-md p-8 space-y-6 bg-black border-2 border-green-800 shadow-[0_0_20px_rgba(0,255,0,0.2)]">
+                <div className="text-center space-y-2">
+                    <div className="text-4xl font-bold tracking-tighter">
+                        <span className="mr-2 animate-pulse">█</span>
+                        ADMIN_CONSOLE
+                    </div>
+                    <div className="text-xs text-green-700 uppercase tracking-widest">
+                        AUTHENTICATION REQUIRED
+                    </div>
+                </div>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-2">비밀번호</label>
+                        <label className="block text-xs font-bold text-green-700 uppercase mb-2 tracking-wider">
+                            [ PASSWORD ]
+                        </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-3 bg-black border border-gray-700 rounded-lg focus:ring-2 focus:ring-white focus:outline-none"
-                            placeholder="관리자 비밀번호 입력"
+                            className="w-full p-3 bg-black border border-green-800 text-green-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-all placeholder:text-green-900"
+                            placeholder="Enter access code..."
+                            autoFocus
                         />
                     </div>
-                    {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+                    {error && (
+                        <div className="p-3 border border-red-800 bg-red-900/10 text-red-500 text-xs text-center font-bold animate-pulse">
+                            {error}
+                        </div>
+                    )}
+
                     <button
                         type="submit"
-                        className="w-full py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                        className="w-full py-3 bg-green-600 text-black font-bold uppercase tracking-wider hover:bg-green-500 transition-colors border-2 border-green-600 hover:border-green-500"
                     >
-                        로그인
+                        [ AUTHENTICATE ]
                     </button>
                 </form>
+
+                <div className="text-center text-xs text-green-900 pt-4 border-t border-green-900">
+                    SYSTEM v1.0.0 | SECURE ACCESS ONLY
+                </div>
             </div>
         </div>
     );
