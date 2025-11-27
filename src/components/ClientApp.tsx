@@ -134,6 +134,9 @@ export default function ClientApp() {
     if (isTransitioning) return;
     setIsTransitioning(true);
 
+    // Play sound immediately on click
+    audioManager.playBubble();
+
     const endTime = Date.now();
     const currentQuestion = questions[currentQuestionIndex];
     // Map index 0->A, 1->B, 2->C
@@ -148,7 +151,6 @@ export default function ClientApp() {
 
     const newAnswers = [...answers, newAnswer];
     setAnswers(newAnswers);
-    audioManager.playBubble();
 
     if (currentQuestionIndex < questions.length - 1) {
       setTimeout(() => {

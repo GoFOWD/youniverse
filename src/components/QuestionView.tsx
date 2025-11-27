@@ -20,6 +20,27 @@ interface QuestionViewProps {
 }
 
 const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
+  const [selectedOptionId, setSelectedOptionId] = React.useState<string | null>(null);
+
+  const handleAnswer = (id: string) => {
+    if (selectedOptionId) return; // Prevent multiple clicks
+    setSelectedOptionId(id);
+    
+    // Delay to allow animation to play
+    setTimeout(() => {
+      onAnswer(id);
+      // Reset state after transition (optional, but good practice if component remounts or stays)
+      // In this app flow, the parent likely changes the question prop, so we might need to reset effect
+      // But since key changes on QuestionView or parent re-renders, it might be auto-reset.
+      // We'll rely on the component unmounting or prop change.
+    }, 600);
+  };
+
+  // Reset selection when question changes
+  React.useEffect(() => {
+    setSelectedOptionId(null);
+  }, [question.id]);
+
   return (
     <div className="w-full flex flex-col items-center space-y-10 relative z-20">
       <motion.div
@@ -34,28 +55,110 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
       </motion.div>
 
       <div className="w-full space-y-5">
-        {question.options.map((option, index) => (
-          <motion.button
-            key={option.id}
-            onClick={() => onAnswer(option.id)}
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
-            whileHover={{
-              scale: 1.02,
-              backgroundColor: "rgba(255, 255, 255, 0.15)",
-              borderColor: "rgba(255, 255, 255, 0.3)"
-            }}
-            whileTap={{ scale: 0.98 }}
-            className="group w-full p-6 rounded-2xl bg-white/5 border border-white/10 text-white text-lg font-light transition-all duration-300 hover:shadow-xl text-left relative overflow-hidden"
-          >
-            <span className="relative z-10 group-hover:font-normal transition-all duration-300">{option.text}</span>
+        {question.options.map((option, index) => {
+          const isSelected = selectedOptionId === option.id;
+          const isOtherSelected = selectedOptionId !== null && !isSelected;
 
-            {/* Ripple/Glow Effect on Hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="absolute -left-full top-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
-          </motion.button>
-        ))}
+          return (
+            <motion.button
+              key={option.id}
+              onClick={() => handleAnswer(option.id)}
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ 
+                x: 0, 
+                opacity: isOtherSelected ? 0.5 : 1, 
+                borderColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.1)", 
+                backgroundColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.05)",
+                scale: isSelected ? 0.95 : 1, // Slight contraction for "pop" feel
+                boxShadow: isSelected ? "none" : "0 0 0 0 rgba(0,0,0,0)"
+              }}
+              transition={{ 
+                duration: 0.4,
+                borderColor: { duration: 0.15 }, // Instant vanish
+                backgroundColor: { duration: 0.15 },
+                boxShadow: { duration: 0.15 },
+                scale: { duration: 0.2, ease: "easeIn" } // Quick contraction
+              }}
+              whileHover={!selectedOptionId ? {
+                scale: 1.02,
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                borderColor: "rgba(255, 255, 255, 0.3)",
+                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.3)" // Add explicit hover shadow to override CSS if needed
+              } : {}}
+              whileTap={!selectedOptionId ? { scale: 0.98 } : {}}
+              className="group w-full p-6 rounded-2xl border text-white text-lg font-light transition-all duration-300 hover:shadow-xl text-left relative overflow-visible" // overflow-visible for particles
+              style={{
+                borderWidth: '1px',
+                boxShadow: isSelected ? 'none' : undefined // Force inline style removal if animation lags
+              }}
+            >
+              <span className={`relative z-10 transition-all duration-300 ${isSelected ? 'font-medium text-teal-200' : 'group-hover:font-normal'}`}>
+                {option.text}
+              </span>
+
+              {/* Ripple/Glow Effect on Hover (Only if not selected) */}
+              {!selectedOptionId && (
+                <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute -left-full top-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
+                </div>
+              )}
+
+              {/* BURST EFFECT */}
+              {isSelected && (
+                <>
+                  {/* Fast Shockwave Ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl border-4 border-white/60"
+                    initial={{ scale: 1, opacity: 1 }}
+                    animate={{ scale: 1.8, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  />
+                  {/* Main Burst Ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl border-2 border-cyan-300/50"
+                    initial={{ scale: 1, opacity: 1 }}
+                    animate={{ scale: 1.5, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                  />
+                  {/* Secondary Burst Ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl border border-teal-200/30"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1.4, opacity: 0 }}
+                    transition={{ delay: 0.05, duration: 0.4, ease: "easeOut" }}
+                  />
+                  
+                  {/* Particle Explosion - More intense */}
+                  {[...Array(16)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-2 h-2 bg-cyan-200 rounded-full"
+                      style={{ 
+                        left: '50%', 
+                        top: '50%',
+                        x: '-50%',
+                        y: '-50%' 
+                      }}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ 
+                        scale: [0, 1.2, 0],
+                        opacity: [0, 1, 0],
+                        x: (Math.random() - 0.5) * 400, // Wider spread
+                        y: (Math.random() - 0.5) * 200  // Wider spread
+                      }}
+                      transition={{ 
+                        duration: 0.5, // Faster particles
+                        ease: "easeOut",
+                        delay: Math.random() * 0.05
+                      }}
+                    />
+                  ))}
+                </>
+              )}
+            </motion.button>
+          );
+        })}
       </div>
     </div>
   );
