@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ChoiceScore } from '@/lib/score';
 import NodeEditor from '../scoring/NodeEditor'; // We will move this component later or keep it there
+import ProbabilityDashboard from '@/components/admin/ProbabilityDashboard';
 
 interface Question {
     id: number;
@@ -179,26 +180,18 @@ export default function QuestionManager() {
 
                         {/* Scoring Tab */}
                         {activeTab === 'scoring' && (
-                            <div className="flex-1 overflow-hidden relative">
-                                <div className="absolute inset-0">
-                                    {/* 
-                                        NodeEditor needs to be adjusted to handle a SINGLE question focus if possible,
-                                        or we pass all questions but focus on one?
-                                        The current NodeEditor takes 'questions' and 'initialScores'.
-                                        It renders ALL questions.
-                                        For this unified view, we might want to just show the current question's node?
-                                        Or keep the full graph but center on the current question?
-                                        Let's keep the full graph for context, as reachability depends on all.
-                                        But we pass the current state.
-                                    */}
+                            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                                {/* Probability Dashboard */}
+                                <ProbabilityDashboard
+                                    choiceScores={questions.flatMap(q => q.choiceScores)}
+                                />
+
+                                {/* Node Editor */}
+                                <div className="bg-black border border-green-800 overflow-hidden" style={{ height: '600px' }}>
                                     <NodeEditor
                                         questions={questions}
-                                        // We need to construct the full list of choiceScores from all questions
                                         initialScores={questions.flatMap(q => q.choiceScores)}
                                         onUpdate={(newScores) => {
-                                            // This returns ALL scores. We need to update our local state.
-                                            // We need to map these scores back to their questions.
-                                            // This is a bit heavy but ensures consistency.
                                             const updatedQuestions = questions.map(q => ({
                                                 ...q,
                                                 choiceScores: newScores.filter(s => s.questionId === q.id)
