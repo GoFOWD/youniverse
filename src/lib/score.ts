@@ -64,20 +64,37 @@ export function calculateFinalScore(
     const nP = normalize(P);
     const nC = normalize(C);
 
-    const ocean = OceanMap[nE];
+    // Ocean Calculation with weighted score (C*3 + P*2 + E*1)
+    // Priority: Curiosity > Positivity > Energy
+    // Based on 10,000 simulation quintile analysis:
+    // 20%: ≤17, 40%: ≤23, 60%: ≤28, 80%: ≤34
+    const oceanScore = C * 3 + P * 2 + E * 1;
+    let ocean = "";
 
-    // Season Calculation (E + P + C) for balanced distribution
-    // Based on 10,000 simulation quartile analysis of composite score:
-    // Q1=9 (25%), Q2=13 (50%), Q3=17 (75%)
-    // Thresholds ensure ~25% distribution per season
-    const seasonScore = E + P + C;
+    if (oceanScore <= 17) {
+        ocean = "남극해";  // Antarctic: Bottom 20%
+    } else if (oceanScore <= 23) {
+        ocean = "북극해";  // Arctic: 20-40%
+    } else if (oceanScore <= 28) {
+        ocean = "대서양";  // Atlantic: 40-60%
+    } else if (oceanScore <= 34) {
+        ocean = "인도양";  // Indian: 60-80%
+    } else {
+        ocean = "태평양";  // Pacific: Top 20%
+    }
+
+    // Season Calculation with weighted score (E*3 + P*2 + C*1)
+    // Priority: Energy > Positivity > Curiosity
+    // Based on 10,000 simulation quartile analysis:
+    // Q1=16 (25%), Q2=25 (50%), Q3=34 (75%)
+    const seasonScore = E * 3 + P * 2 + C * 1;
     let season = "";
 
-    if (seasonScore <= 9) {
+    if (seasonScore <= 16) {
         season = "겨울";  // Winter: Bottom 25%
-    } else if (seasonScore <= 13) {
+    } else if (seasonScore <= 25) {
         season = "가을";  // Autumn: 25-50%
-    } else if (seasonScore <= 17) {
+    } else if (seasonScore <= 34) {
         season = "봄";    // Spring: 50-75%
     } else {
         season = "여름";  // Summer: Top 25%

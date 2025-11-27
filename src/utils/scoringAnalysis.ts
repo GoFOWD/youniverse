@@ -56,6 +56,84 @@ const choiceScores = [
     { "questionId": 18, "choice": "C", "energy": 0, "positivity": 1, "curiosity": -1 }
 ];
 
+// 가중치 기반 분포 분석
+function analyzeWeightedDistribution() {
+    // Ocean: C > P > E (3:2:1 가중치)
+    // Season: E > P > C (3:2:1 가중치)
+
+    console.log('=== 가중치 기반 점수 분석 ===\n');
+
+    // Ocean 점수 분석 (C*3 + P*2 + E*1)
+    console.log('--- Ocean 계산 (C*3 + P*2 + E*1) ---');
+    const oceanScores: number[] = [];
+    choiceScores.forEach(score => {
+        oceanScores.push(score.curiosity * 3 + score.positivity * 2 + score.energy * 1);
+    });
+
+    const simulations = 10000;
+    const oceanResults: number[] = [];
+
+    for (let i = 0; i < simulations; i++) {
+        let totalOcean = 0;
+        for (let q = 1; q <= 18; q++) {
+            const questionChoices = choiceScores.filter(s => s.questionId === q);
+            const randomChoice = questionChoices[Math.floor(Math.random() * questionChoices.length)];
+            totalOcean += randomChoice.curiosity * 3 + randomChoice.positivity * 2 + randomChoice.energy * 1;
+        }
+        oceanResults.push(totalOcean);
+    }
+
+    oceanResults.sort((a, b) => a - b);
+    const oQ1 = oceanResults[Math.floor(simulations * 0.20)];
+    const oQ2 = oceanResults[Math.floor(simulations * 0.40)];
+    const oQ3 = oceanResults[Math.floor(simulations * 0.60)];
+    const oQ4 = oceanResults[Math.floor(simulations * 0.80)];
+
+    console.log(`20% 분위: ${oQ1}`);
+    console.log(`40% 분위: ${oQ2}`);
+    console.log(`60% 분위: ${oQ3}`);
+    console.log(`80% 분위: ${oQ4}`);
+    console.log(`\n권장 Ocean 임계값 (5개 대양, 각 20%):`);
+    console.log(`남극해: <= ${oQ1}`);
+    console.log(`북극해: ${oQ1 + 1} ~ ${oQ2}`);
+    console.log(`대서양: ${oQ2 + 1} ~ ${oQ3}`);
+    console.log(`인도양: ${oQ3 + 1} ~ ${oQ4}`);
+    console.log(`태평양: >= ${oQ4 + 1}`);
+
+    // Season 점수 분석 (E*3 + P*2 + C*1)
+    console.log('\n--- Season 계산 (E*3 + P*2 + C*1) ---');
+    const seasonScores: number[] = [];
+    choiceScores.forEach(score => {
+        seasonScores.push(score.energy * 3 + score.positivity * 2 + score.curiosity * 1);
+    });
+
+    const seasonResults: number[] = [];
+
+    for (let i = 0; i < simulations; i++) {
+        let totalSeason = 0;
+        for (let q = 1; q <= 18; q++) {
+            const questionChoices = choiceScores.filter(s => s.questionId === q);
+            const randomChoice = questionChoices[Math.floor(Math.random() * questionChoices.length)];
+            totalSeason += randomChoice.energy * 3 + randomChoice.positivity * 2 + randomChoice.curiosity * 1;
+        }
+        seasonResults.push(totalSeason);
+    }
+
+    seasonResults.sort((a, b) => a - b);
+    const sQ1 = seasonResults[Math.floor(simulations * 0.25)];
+    const sQ2 = seasonResults[Math.floor(simulations * 0.50)];
+    const sQ3 = seasonResults[Math.floor(simulations * 0.75)];
+
+    console.log(`25% 분위: ${sQ1}`);
+    console.log(`50% 분위: ${sQ2}`);
+    console.log(`75% 분위: ${sQ3}`);
+    console.log(`\n권장 Season 임계값 (4개 계절, 각 25%):`);
+    console.log(`겨울: <= ${sQ1}`);
+    console.log(`가을: ${sQ1 + 1} ~ ${sQ2}`);
+    console.log(`봄: ${sQ2 + 1} ~ ${sQ3}`);
+    console.log(`여름: >= ${sQ3 + 1}`);
+}
+
 // E+P+C 분포 분석 (종합 점수)
 function analyzeSeasonDistribution() {
     const epcScores: number[] = [];
@@ -114,3 +192,4 @@ function analyzeSeasonDistribution() {
 }
 
 analyzeSeasonDistribution();
+analyzeWeightedDistribution();
