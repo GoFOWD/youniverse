@@ -7,6 +7,7 @@ let resultMappingCacheTime = 0;
 const RESULT_MAPPING_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // Enable Next.js response caching with revalidation
+export const dynamic = 'force-dynamic';
 export const revalidate = 30; // Revalidate every 30 seconds
 
 async function getResultMappings() {
