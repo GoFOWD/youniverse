@@ -81,10 +81,10 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-10 w-full relative z-20">
+    <div className="flex flex-col items-center space-y-4 sm:space-y-6 md:space-y-10 w-full relative z-20">
 
       <motion.div
-        className="glass-panel p-10 rounded-3xl w-full text-center space-y-8 border border-white/30 bg-gradient-to-b from-white/15 via-white/10 to-white/5 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_60px_rgba(251,146,60,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)]"
+        className="glass-panel p-6 sm:p-8 md:p-10 rounded-3xl w-full text-center space-y-6 sm:space-y-7 md:space-y-8 border border-white/30 bg-gradient-to-b from-white/15 via-white/10 to-white/5 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_60px_rgba(251,146,60,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)]"
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 5.0, duration: 1.0 }} // Delayed to show 5s video intro
@@ -124,7 +124,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
 
       {/* Feedback Section */}
       <motion.div
-        className="glass-panel p-8 rounded-3xl w-full border border-white/30 bg-gradient-to-b from-white/15 via-white/10 to-white/5 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_60px_rgba(251,146,60,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)]"
+        className="glass-panel p-6 sm:p-7 md:p-8 rounded-3xl w-full border border-white/30 bg-gradient-to-b from-white/15 via-white/10 to-white/5 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3),0_0_60px_rgba(251,146,60,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)]"
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 6.0, duration: 0.8 }}
@@ -184,7 +184,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 maxLength={500}
-                rows={4}
+                rows={3}
                 placeholder="예: 질문이 흥미로웠어요 / 결과가 정확했어요 / 더 개선되면 좋을 점 등"
                 className="w-full p-4 rounded-xl bg-white/10 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white/50 focus:bg-white/15 transition-colors resize-none backdrop-blur-sm"
                 aria-label="피드백 코멘트"
@@ -222,7 +222,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
         )}
       </motion.div>
 
-      <div className="flex flex-col w-full space-y-4">
+      <div className="flex flex-col w-full space-y-3">
         <motion.button
           onClick={() => alert('공유 기능은 준비 중입니다.')}
           whileHover={{ scale: 1.02 }}
