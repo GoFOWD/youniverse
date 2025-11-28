@@ -25,7 +25,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
   const handleAnswer = (id: string) => {
     if (selectedOptionId) return; // Prevent multiple clicks
     setSelectedOptionId(id);
-    
+
     // Call onAnswer immediately so sound plays right away
     onAnswer(id);
     // State will be reset by useEffect when question changes
@@ -44,63 +44,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.5 }}
       >
-        {/* Caustic Light Effect - Water Refraction */}
-        <motion.div
-          className="absolute inset-0 opacity-30 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at 30% 20%, rgba(100, 255, 218, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(72, 209, 204, 0.2) 0%, transparent 50%)',
-          }}
-          animate={{
-            opacity: [0.2, 0.4, 0.2],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-
-        {/* Floating Sparkles - Bioluminescent Particles */}
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-cyan-200 rounded-full shadow-[0_0_8px_2px_rgba(100,255,218,0.6)]"
-            style={{
-              left: `${15 + (i * 12)}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
-            animate={{
-              y: [0, -15, 0],
-              x: [0, Math.sin(i) * 10, 0],
-              opacity: [0.3, 1, 0.3],
-              scale: [0.8, 1.2, 0.8],
-            }}
-            transition={{
-              duration: 2.5 + (i * 0.3),
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.2,
-            }}
-          />
-        ))}
-
-        {/* Subtle Glow Pulse */}
-        <motion.div
-          className="absolute inset-0 rounded-3xl pointer-events-none"
-          style={{
-            boxShadow: '0 0 40px 10px rgba(100, 255, 218, 0.15) inset',
-          }}
-          animate={{
-            opacity: [0.5, 0.8, 0.5],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-
         <h2 className="text-2xl md:text-3xl font-serif font-medium text-white leading-relaxed drop-shadow-md relative z-10">
           {question.question}
         </h2>
@@ -116,15 +59,15 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
               key={option.id}
               onClick={() => handleAnswer(option.id)}
               initial={{ x: -20, opacity: 0 }}
-              animate={{ 
-                x: 0, 
-                opacity: isOtherSelected ? 0.5 : 1, 
-                borderColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.1)", 
+              animate={{
+                x: 0,
+                opacity: isOtherSelected ? 0.5 : 1,
+                borderColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.1)",
                 backgroundColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.05)",
                 scale: isSelected ? 0.95 : 1, // Slight contraction for "pop" feel
                 boxShadow: isSelected ? "none" : "0 0 0 0 rgba(0,0,0,0)"
               }}
-              transition={{ 
+              transition={{
                 duration: 0.4,
                 borderColor: { duration: 0.15 }, // Instant vanish
                 backgroundColor: { duration: 0.15 },
@@ -151,35 +94,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
                 </div>
               )}
 
-              {/* BURST EFFECT */}
+              {/* BURST EFFECT - Simplified to just button state change */}
               {isSelected && (
-                <>
-                  {/* Particle Explosion */}
-                  {[...Array(12)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-2 h-2 bg-cyan-200 rounded-full"
-                      style={{ 
-                        left: '50%', 
-                        top: '50%',
-                        x: '-50%',
-                        y: '-50%' 
-                      }}
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ 
-                        scale: [0, 1.2, 0],
-                        opacity: [0, 1, 0],
-                        x: (Math.random() - 0.5) * 400, // Wider spread
-                        y: (Math.random() - 0.5) * 200  // Wider spread
-                      }}
-                      transition={{ 
-                        duration: 0.5, // Faster particles
-                        ease: "easeOut",
-                        delay: Math.random() * 0.05
-                      }}
-                    />
-                  ))}
-                </>
+                <div className="absolute inset-0 bg-white/10 animate-pulse rounded-2xl pointer-events-none" />
               )}
             </motion.button>
           );

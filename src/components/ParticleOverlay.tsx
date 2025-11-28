@@ -21,7 +21,7 @@ const ParticleOverlay: React.FC<ParticleOverlayProps> = ({ count = 15, isTransit
   // Memoize the particle configurations
   // Re-run when generation changes to create fresh random particles
   const particles = useMemo(() => {
-    return [...Array(50)].map((_, i) => ({
+    return [...Array(20)].map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       delay: Math.random() * 5,
@@ -38,10 +38,10 @@ const ParticleOverlay: React.FC<ParticleOverlayProps> = ({ count = 15, isTransit
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Floating Bubbles */}
       {activeParticles.map((p) => (
-        <FloatingBubble 
+        <FloatingBubble
           key={`${p.id}-${generation}`} // Force re-mount on generation change
-          config={p} 
-          isFalling={isTransitioning} 
+          config={p}
+          isFalling={isTransitioning}
         />
       ))}
     </div>
@@ -58,7 +58,7 @@ interface BubbleConfig {
 }
 
 const FloatingBubble: React.FC<{ config: BubbleConfig; isFalling: boolean }> = ({ config, isFalling }) => {
-  
+
   const variants: Variants = {
     rising: {
       y: ['110vh', '-10vh'],
