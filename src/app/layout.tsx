@@ -2,14 +2,14 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Deep Ocean, Soft Dawn - 심리 테스트',
+  title: '너의 바다를 찾아서',
   description: '심해에서 시작되는 당신의 이야기. 18가지 질문을 통해 당신의 내면을 탐험하세요.',
   keywords: ['심리테스트', '성격테스트', '심리분석', '자기탐구', 'Deep Ocean'],
   authors: [{ name: 'GoFOWD' }],
   creator: 'GoFOWD',
   publisher: 'GoFOWD',
   openGraph: {
-    title: 'Deep Ocean, Soft Dawn - 심리 테스트',
+    title: '너의 바다를 찾아서',
     description: '심해에서 시작되는 당신의 이야기. 18가지 질문을 통해 당신의 내면을 탐험하세요.',
     type: 'website',
     locale: 'ko_KR',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Deep Ocean, Soft Dawn - 심리 테스트',
+    title: '너의 바다를 찾아서',
     description: '심해에서 시작되는 당신의 이야기',
   },
   robots: {

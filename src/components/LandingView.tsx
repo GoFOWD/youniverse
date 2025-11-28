@@ -23,13 +23,14 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
             transition={{ duration: 4, repeat: Infinity }}
           />
           <h1 className="relative text-5xl md:text-6xl font-serif font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-teal-100 to-teal-300 drop-shadow-lg">
-            Deep Ocean
+            너의 바다를
             <br />
-            <span className="text-4xl md:text-5xl font-light text-teal-100/80">Soft Dawn</span>
+            찾아서
+            {/* <span className="text-4xl md:text-5xl font-light text-teal-100/80">찾아서</span> */}
           </h1>
         </div>
         
-        <p className="text-teal-200/60 text-lg font-light tracking-[0.2em] uppercase">
+        <p className="text-teal-200/60 text-lg font-light tracking-[0.2em] uppercase" style={{ marginTop: '25px' }}>
           심해에서 시작되는 당신의 이야기
         </p>
       </motion.div>
@@ -53,6 +54,11 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           transition={{ duration: 0.3 }}
         />
       </motion.button>
+      <p className="text-teal-200/60 text-lg font-light tracking-[0.2em] uppercase" style={{ marginBottom: 0 }}>
+          당신의 모험성향과 
+          <br />
+          행동성향을 확인해 보세요
+      </p>
     </div>
   );
 };

@@ -27,6 +27,22 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
   const [comment, setComment] = useState<string>('');
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
+  // Helper function to parse text and convert **text** to <strong>text</strong>
+  const parseTextWithBold = (text: string) => {
+    // Match any text wrapped in ** **, including **text**, **[text]**, **'text'**
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+      // Extract content between ** **
+      const match = part.match(/^\*\*(.*?)\*\*$/);
+      if (match) {
+        // Remove optional brackets or quotes from the content
+        const content = match[1].replace(/^[\[']|[\]']$/g, '');
+        return <strong key={index}>{content}</strong>;
+      }
+      return <React.Fragment key={index}>{part}</React.Fragment>;
+    });
+  };
+
   const handleFeedbackSubmit = async () => {
     if (rating === 0) {
       alert('별점을 선택해주세요!');
@@ -91,9 +107,9 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
           </div>
         )}
 
-        <div className="text-white/95 leading-loose font-normal text-lg whitespace-pre-wrap drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] bg-black/10 p-4 rounded-xl">
-          {result.description}
-        </div>
+        <p className="text-white/95 leading-loose font-normal text-lg whitespace-pre-wrap drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+          {parseTextWithBold(result.description)}
+        </p>
 
         {result.hashtag && result.hashtag.length > 0 && (
           <div className="flex flex-wrap justify-center gap-2 mt-4">

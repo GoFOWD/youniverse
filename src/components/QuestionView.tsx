@@ -39,12 +39,69 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
   return (
     <div className="w-full flex flex-col items-center space-y-10 relative z-20">
       <motion.div
-        className="glass-panel p-10 rounded-3xl w-full text-center shadow-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl"
+        className="glass-panel p-10 rounded-3xl w-full text-center shadow-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl relative overflow-hidden"
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.5 }}
       >
-        <h2 className="text-2xl md:text-3xl font-serif font-medium text-white leading-relaxed drop-shadow-md">
+        {/* Caustic Light Effect - Water Refraction */}
+        <motion.div
+          className="absolute inset-0 opacity-30 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at 30% 20%, rgba(100, 255, 218, 0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(72, 209, 204, 0.2) 0%, transparent 50%)',
+          }}
+          animate={{
+            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+
+        {/* Floating Sparkles - Bioluminescent Particles */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-cyan-200 rounded-full shadow-[0_0_8px_2px_rgba(100,255,218,0.6)]"
+            style={{
+              left: `${15 + (i * 12)}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+            animate={{
+              y: [0, -15, 0],
+              x: [0, Math.sin(i) * 10, 0],
+              opacity: [0.3, 1, 0.3],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: 2.5 + (i * 0.3),
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.2,
+            }}
+          />
+        ))}
+
+        {/* Subtle Glow Pulse */}
+        <motion.div
+          className="absolute inset-0 rounded-3xl pointer-events-none"
+          style={{
+            boxShadow: '0 0 40px 10px rgba(100, 255, 218, 0.15) inset',
+          }}
+          animate={{
+            opacity: [0.5, 0.8, 0.5],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+
+        <h2 className="text-2xl md:text-3xl font-serif font-medium text-white leading-relaxed drop-shadow-md relative z-10">
           {question.question}
         </h2>
       </motion.div>
