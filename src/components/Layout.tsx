@@ -364,7 +364,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       )}
       
       {/* Interactive Particles - Dynamic count based on progress */}
-      {isBrowser && step !== 'result' && <ParticleOverlay count={bubbleCount} speedMultiplier={isTransitioning ? 5 : 1} />}
+      {isBrowser && step !== 'result' && <ParticleOverlay count={bubbleCount} isTransitioning={isTransitioning} />}
 
       {/* Main Content Container */}
       <main className={`relative z-10 flex flex-col items-center ${step === 'result' ? 'justify-start min-h-full' : 'justify-center h-full'} px-4 py-8 mx-auto max-w-md w-full ${className}`}>
