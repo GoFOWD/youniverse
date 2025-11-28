@@ -102,7 +102,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
 
         {result.advice && (
           <div className="p-4 bg-white/10 rounded-xl border border-white/25 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
-            <p className="text-sm text-white/95 font-medium mb-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">이겨울 온도를 높여줄 한가지</p>
+            <p className="text-sm text-white/95 font-medium mb-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">이 겨울 온도를 높여줄 한가지</p>
             <p className="text-white/95 text-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">{result.advice}</p>
           </div>
         )}
