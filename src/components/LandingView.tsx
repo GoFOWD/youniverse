@@ -9,7 +9,7 @@ interface LandingViewProps {
 
 const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
   return (
-    <div className="flex flex-col items-center justify-center space-y-16 text-center w-full relative z-20">
+    <div className="flex flex-col items-center justify-center space-y-8 sm:space-y-12 md:space-y-16 text-center w-full relative z-20">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -22,7 +22,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 4, repeat: Infinity }}
           />
-          <h1 className="relative text-5xl md:text-6xl font-serif font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-teal-100 to-teal-300 drop-shadow-lg">
+          <h1 className="relative text-4xl sm:text-5xl md:text-6xl font-serif font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-teal-100 to-teal-300 drop-shadow-lg">
             너의 바다를
             <br />
             찾아서
@@ -39,7 +39,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
         onClick={onStart}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="group relative px-12 py-5 bg-transparent overflow-hidden rounded-full"
+        className="group relative px-8 py-4 sm:px-10 sm:py-4 md:px-12 md:py-5 bg-transparent overflow-hidden rounded-full"
       >
         <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-teal-500/20 to-cyan-500/20 backdrop-blur-md border border-teal-500/30 group-hover:border-teal-400/50 transition-colors duration-300" />
         <div className="absolute inset-0 w-full h-full bg-teal-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

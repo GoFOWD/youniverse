@@ -367,7 +367,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       {isBrowser && step !== 'result' && <ParticleOverlay count={bubbleCount} isTransitioning={isTransitioning} />}
 
       {/* Main Content Container */}
-      <main className={`relative z-10 flex flex-col items-center ${step === 'result' ? 'justify-start min-h-full' : 'justify-center h-full'} px-4 py-8 mx-auto max-w-md w-full ${className}`}>
+      <main className={`relative z-10 flex flex-col items-center ${step === 'result' ? 'justify-start min-h-full' : 'justify-center h-full'} px-4 py-6 pb-8 sm:py-6 md:py-8 mx-auto max-w-md w-full ${className}`}>
         {children}
       </main>
     </div>
