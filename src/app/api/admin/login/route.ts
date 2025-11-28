@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 export async function POST(request: Request) {
     try {
         const { password } = await request.json();
-        const adminPassword = process.env.ADMIN_PASSWORD || 'admin1234'; // Fallback for dev
+        const adminPassword = process.env.ADMIN_PASSWORD 
 
         if (password === adminPassword) {
             // Set cookie (not httpOnly so client can read it for auth checks)
