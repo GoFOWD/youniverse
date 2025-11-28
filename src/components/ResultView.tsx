@@ -102,8 +102,8 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
 
         {result.advice && (
           <div className="p-4 bg-white/10 rounded-xl border border-white/25 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
-            <p className="text-sm text-white/95 font-medium mb-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">ADVICE</p>
-            <p className="text-white/95 text-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">{parseTextWithBold(result.advice)}</p>
+            <p className="text-sm text-white/95 font-medium mb-2 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">이겨울 온도를 높여줄 한가지</p>
+            <p className="text-white/95 text-sm drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">{result.advice}</p>
           </div>
         )}
 
@@ -150,8 +150,8 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onRestart }) => {
                   >
                     <svg
                       className={`w-10 h-10 transition-colors ${star <= (hoverRating || rating)
-                          ? 'text-orange-400 fill-orange-400'
-                          : 'text-orange-200/30 fill-none'
+                        ? 'text-orange-400 fill-orange-400'
+                        : 'text-orange-200/30 fill-none'
                         }`}
                       stroke="currentColor"
                       strokeWidth="2"

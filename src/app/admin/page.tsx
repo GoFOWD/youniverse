@@ -663,17 +663,17 @@ export default function AdminDashboard() {
                                 {showResultContent && (
                                     <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                         <div>
-                                            <div className="text-xs text-green-700 uppercase">Title</div>
+                                            <div className="text-xs text-green-700 uppercase">2026뜨거운 여름을 위한 너에게</div>
                                             <div className="text-white font-bold">{selectedUser.resultTitle}</div>
                                         </div>
                                         <div>
-                                            <div className="text-xs text-green-700 uppercase">Description</div>
+                                            <div className="text-xs text-green-700 uppercase">이번겨울이 보내는 마지막 편지</div>
                                             <div className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
                                                 {selectedUser.resultDescription}
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="text-xs text-green-700 uppercase">Advice</div>
+                                            <div className="text-xs text-green-700 uppercase">이겨울 온도를 높여줄 한가지</div>
                                             <div className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
                                                 {selectedUser.resultAdvice}
                                             </div>
