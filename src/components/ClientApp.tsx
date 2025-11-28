@@ -50,6 +50,9 @@ export default function ClientApp() {
 
   // Timing tracking
   const questionStartTime = useRef<number>(0);
+  
+  // Ref to prevent rapid clicks (more reliable than state)
+  const isProcessingAnswer = useRef<boolean>(false);
 
   useEffect(() => {
     // Fetch questions on mount (or when starting)
@@ -137,7 +140,14 @@ export default function ClientApp() {
   };
 
   const handleAnswer = async (choiceIndex: number) => {
-    if (isTransitioning) return;
+    // CRITICAL: Use ref for immediate blocking (state updates are async)
+    if (isProcessingAnswer.current || isTransitioning) {
+      console.log('⚠️ Click blocked - already processing answer');
+      return;
+    }
+    
+    // Lock immediately to prevent race conditions
+    isProcessingAnswer.current = true;
     setIsTransitioning(true);
 
     // Play sound immediately on click
@@ -169,6 +179,7 @@ export default function ClientApp() {
         setTimeout(() => {
           setIsFalling(false); // Reset bubbles to rising
           setIsTransitioning(false); // Unlock input
+          isProcessingAnswer.current = false; // Unlock ref
         }, 800);
       }, 800); 
     } else {
@@ -199,11 +210,13 @@ export default function ClientApp() {
             setTimeout(() => {
               setStep('result');
               setIsTransitioning(false);
+              isProcessingAnswer.current = false; // Unlock ref
             }, 3000);
           } catch (error) {
             console.error('Submission error:', error);
             // Handle error (maybe show an error screen or retry)
             setIsTransitioning(false);
+            isProcessingAnswer.current = false; // Unlock ref on error
           }
         })();
       }, 800); // Added delay for consistency
