@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 
 interface Stats {
     totalUsers: number;
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
             clearTimeout(debounceTimer.current);
         }
 
-        // Set debounce timer (300ms)
+        // Set debounce timer (100ms for faster response)
         debounceTimer.current = setTimeout(() => {
             setFetching(true);
 
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
                     setLoading(false);
                     setFetching(false);
                 });
-        }, 300);
+        }, 100);
     }, []);
 
     useEffect(() => {
@@ -94,72 +94,103 @@ export default function AdminDashboard() {
         setCurrentPage(1);
     }, [oceanFilter, seasonFilter, ratingFilter, timeFilter]);
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setOceanFilter('');
         setSeasonFilter('');
         setRatingFilter('');
         setTimeFilter('');
-    };
+    }, []);
+
+    // --- Chart Helpers (Optimized with useMemo) - Must be before early returns ---
+    const trafficData = useMemo(() => {
+        if (!stats) return [];
+        return trafficMode === 'daily' ? stats.dailyTraffic : stats.hourlyTraffic;
+    }, [trafficMode, stats]);
+
+    const maxTraffic = useMemo(() => {
+        if (trafficData.length === 0) return 1;
+        return Math.max(...trafficData.map(d => parseInt(d.count)), 1);
+    }, [trafficData]);
+
+    // Pie Chart Calculations
+    const distributionData = useMemo(() => {
+        if (!stats) return [];
+        return distributionMode === 'ocean' ? stats.oceanDistribution : stats.seasonDistribution;
+    }, [distributionMode, stats]);
+
+    const totalResults = useMemo(() => {
+        return distributionData.reduce((acc, curr) => acc + curr.value, 0);
+    }, [distributionData]);
+
+    const pieSlices = useMemo(() => {
+        let currentAngle = 0;
+        return distributionData.map((item, index) => {
+            const percentage = totalResults > 0 ? item.value / totalResults : 0;
+            const angle = percentage * 360;
+
+            // Avoid drawing if angle is 0
+            if (angle === 0) return null;
+
+            const x1 = 50 + 50 * Math.cos((Math.PI * currentAngle) / 180);
+            const y1 = 50 + 50 * Math.sin((Math.PI * currentAngle) / 180);
+            const x2 = 50 + 50 * Math.cos((Math.PI * (currentAngle + angle)) / 180);
+            const y2 = 50 + 50 * Math.sin((Math.PI * (currentAngle + angle)) / 180);
+
+            // Large arc flag
+            const largeArc = angle > 180 ? 1 : 0;
+
+            // If it's a full circle (100%), draw a circle instead of a path
+            if (percentage === 1) {
+                return { isCircle: true, color: `hsl(${(index * 137.5) % 360}, 70%, 50%)`, name: item.name, value: item.value, percentage };
+            }
+
+            const pathData = `M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z`;
+            const color = `hsl(${(index * 137.5) % 360}, 70%, 50%)`;
+
+            currentAngle += angle;
+            return { path: pathData, color, name: item.name, value: item.value, percentage };
+        }).filter(Boolean); // Remove nulls
+    }, [distributionData, totalResults]);
+
+    // Pagination helper
+    const totalPages = useMemo(() => {
+        if (!stats) return 0;
+        return Math.ceil(stats.totalRecords / recordsPerPage);
+    }, [stats, recordsPerPage]);
+
+    const pageNumbers = useMemo(() => {
+        const pages = [];
+        const maxVisiblePages = 6;
+
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        // Adjust start if we're near the end
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
+                    className={`px-3 py-1 border text-xs transition-colors ${currentPage === i
+                        ? 'bg-green-900 border-green-500 text-white'
+                        : 'border-green-700 text-green-500 hover:bg-green-800 hover:text-white'
+                        }`}
+                >
+                    {i}
+                </button>
+            );
+        }
+
+        return pages;
+    }, [totalPages, currentPage]);
 
     if (loading) return <div className="text-white p-8 font-mono">INITIALIZING SYSTEM...</div>;
     if (error) return <div className="text-red-500 p-8 font-mono">SYSTEM ERROR: {error}</div>;
     if (!stats) return <div className="text-red-500 p-8 font-mono">NO DATA AVAILABLE</div>;
-
-    // --- Chart Helpers ---
-    const getTrafficData = () => {
-        return trafficMode === 'daily' ? stats.dailyTraffic : stats.hourlyTraffic;
-    };
-
-    const trafficData = getTrafficData();
-    const maxTraffic = Math.max(...trafficData.map(d => parseInt(d.count)), 1);
-
-    // Line Chart Points
-    const getLinePoints = (width: number, height: number) => {
-        if (trafficData.length === 0) return '';
-        const stepX = width / (trafficData.length - 1 || 1);
-        return trafficData.map((d, i) => {
-            const x = i * stepX;
-            const y = height - (parseInt(d.count) / maxTraffic) * height;
-            return `${x},${y}`;
-        }).join(' ');
-    };
-
-    // Pie Chart Calculations
-    const getDistributionData = () => {
-        return distributionMode === 'ocean' ? stats.oceanDistribution : stats.seasonDistribution;
-    };
-
-    const distributionData = getDistributionData();
-    const totalResults = distributionData.reduce((acc, curr) => acc + curr.value, 0);
-    let currentAngle = 0;
-
-    const pieSlices = distributionData.map((item, index) => {
-        const percentage = totalResults > 0 ? item.value / totalResults : 0;
-        const angle = percentage * 360;
-
-        // Avoid drawing if angle is 0
-        if (angle === 0) return null;
-
-        const x1 = 50 + 50 * Math.cos((Math.PI * currentAngle) / 180);
-        const y1 = 50 + 50 * Math.sin((Math.PI * currentAngle) / 180);
-        const x2 = 50 + 50 * Math.cos((Math.PI * (currentAngle + angle)) / 180);
-        const y2 = 50 + 50 * Math.sin((Math.PI * (currentAngle + angle)) / 180);
-
-        // Large arc flag
-        const largeArc = angle > 180 ? 1 : 0;
-
-        // If it's a full circle (100%), draw a circle instead of a path
-        if (percentage === 1) {
-            return { isCircle: true, color: `hsl(${(index * 137.5) % 360}, 70%, 50%)`, name: item.name, value: item.value, percentage };
-        }
-
-        const pathData = `M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z`;
-        const color = `hsl(${(index * 137.5) % 360}, 70%, 50%)`;
-
-        currentAngle += angle;
-        return { path: pathData, color, name: item.name, value: item.value, percentage };
-    }).filter(Boolean); // Remove nulls
-
 
 
     return (
@@ -557,42 +588,13 @@ export default function AdminDashboard() {
                             </button>
 
                             {/* Page Numbers */}
-                            {(() => {
-                                const totalPages = Math.ceil(stats.totalRecords / recordsPerPage);
-                                const pages = [];
-                                const maxVisiblePages = 6;
-
-                                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-                                // Adjust start if we're near the end
-                                if (endPage - startPage < maxVisiblePages - 1) {
-                                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                                }
-
-                                for (let i = startPage; i <= endPage; i++) {
-                                    pages.push(
-                                        <button
-                                            key={i}
-                                            onClick={() => setCurrentPage(i)}
-                                            className={`px-3 py-1 border text-xs transition-colors ${currentPage === i
-                                                ? 'bg-green-900 border-green-500 text-white'
-                                                : 'border-green-700 text-green-500 hover:bg-green-800 hover:text-white'
-                                                }`}
-                                        >
-                                            {i}
-                                        </button>
-                                    );
-                                }
-
-                                return pages;
-                            })()}
+                            {pageNumbers}
 
                             {/* Next Button */}
                             <button
-                                onClick={() => setCurrentPage(prev => Math.min(Math.ceil(stats.totalRecords / recordsPerPage), prev + 1))}
-                                disabled={currentPage >= Math.ceil(stats.totalRecords / recordsPerPage)}
-                                className={`px-3 py-1 border text-xs uppercase transition-colors ${currentPage >= Math.ceil(stats.totalRecords / recordsPerPage)
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage >= totalPages}
+                                className={`px-3 py-1 border text-xs uppercase transition-colors ${currentPage >= totalPages
                                     ? 'border-green-900 text-green-900 cursor-not-allowed'
                                     : 'border-green-600 text-green-500 hover:bg-green-600 hover:text-black'
                                     }`}
