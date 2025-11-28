@@ -1,36 +1,56 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 interface ParticleOverlayProps {
   count?: number; // Dynamic bubble count
+  speedMultiplier?: number; // For burst effect during transition
 }
 
-const ParticleOverlay: React.FC<ParticleOverlayProps> = ({ count = 15 }) => {
+const ParticleOverlay: React.FC<ParticleOverlayProps> = ({ count = 15, speedMultiplier = 1 }) => {
+  // Memoize the particle configurations so they don't regenerate on re-renders
+  const particles = useMemo(() => {
+    return [...Array(50)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 5,
+      duration: 10 + Math.random() * 10,
+      size: 5 + Math.random() * 15,
+      xMovement: 3 + Math.random() * 2,
+    }));
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Only render the requested number of particles
+  const activeParticles = particles.slice(0, count);
+
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Floating Bubbles */}
-      {[...Array(count)].map((_, i) => (
-        <FloatingBubble key={i} />
+      {activeParticles.map((p) => (
+        <FloatingBubble key={p.id} config={p} speedMultiplier={speedMultiplier} />
       ))}
     </div>
   );
 };
 
-const FloatingBubble: React.FC = () => {
-  const randomX = Math.random() * 100;
-  const randomDelay = Math.random() * 5;
-  const randomDuration = 10 + Math.random() * 10;
-  const size = 5 + Math.random() * 15;
+interface BubbleConfig {
+  id: number;
+  left: number;
+  delay: number;
+  duration: number;
+  size: number;
+  xMovement: number;
+}
 
+const FloatingBubble: React.FC<{ config: BubbleConfig; speedMultiplier: number }> = ({ config, speedMultiplier }) => {
   return (
     <motion.div
       className="absolute bg-white/10 rounded-full backdrop-blur-[1px]"
       style={{
-        width: size,
-        height: size,
-        left: `${randomX}%`,
+        width: config.size,
+        height: config.size,
+        left: `${config.left}%`,
       }}
       initial={{ y: '110vh', opacity: 0 }}
       animate={{ 
@@ -40,19 +60,19 @@ const FloatingBubble: React.FC = () => {
       }}
       transition={{
         y: {
-          duration: randomDuration,
+          duration: config.duration / speedMultiplier, // Speed up when multiplier increases
           repeat: Infinity,
           ease: "linear",
-          delay: randomDelay
+          delay: config.delay
         },
         opacity: {
-          duration: randomDuration,
+          duration: config.duration / speedMultiplier,
           repeat: Infinity,
           times: [0, 0.2, 1],
-          delay: randomDelay
+          delay: config.delay
         },
         x: {
-          duration: 3 + Math.random() * 2,
+          duration: config.xMovement,
           repeat: Infinity,
           ease: "easeInOut"
         }

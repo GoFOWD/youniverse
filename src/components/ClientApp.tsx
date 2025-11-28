@@ -212,9 +212,9 @@ export default function ClientApp() {
 
   // Ascent Transition Variants
   const pageVariants = {
-    initial: { opacity: 0, y: 20 },
+    initial: { opacity: 0, y: '-100vh' }, // Start from top
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: "easeInOut" as const } }
+    exit: { opacity: 0, y: '100vh', transition: { duration: 0.8, ease: "easeIn" as const } } // Fall down to bottom
   };
 
   // Map API question format to QuestionView props
@@ -230,8 +230,8 @@ export default function ClientApp() {
   } : null;
 
   return (
-    <Layout step={step} progress={progress} ocean={result?.ocean}>
-      <AnimatePresence mode="wait">
+    <Layout step={step} progress={progress} ocean={result?.ocean} isTransitioning={isTransitioning}>
+      <AnimatePresence mode="popLayout">
         {step === 'splash' && (
           <SplashView key="splash" onComplete={handleSplashComplete} />
         )}
@@ -257,7 +257,7 @@ export default function ClientApp() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 0.8, ease: "easeInOut" }} // Slower, smoother transition
             className="w-full flex flex-col items-center"
           >
             <ProgressBar progress={progress} />
