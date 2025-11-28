@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Safe area insets for mobile browsers (notch, address bar, nav bar) */
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
   body {
     @apply font-sans text-slate-800 antialiased overflow-hidden;
   }
