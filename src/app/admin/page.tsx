@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface Stats {
     totalUsers: number;
@@ -10,7 +10,6 @@ interface Stats {
     hourlyTraffic: { date: string; count: string }[];
     oceanDistribution: { name: string; value: number }[];
     seasonDistribution: { name: string; value: number }[];
-    averageResponseTimes?: { [key: number]: number };
     analytics?: {
         dropoutRate: string;
         dropoutCount: string;
@@ -31,6 +30,7 @@ interface Stats {
 export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [fetching, setFetching] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [trafficMode, setTrafficMode] = useState<'daily' | 'hourly'>('daily');
     const [distributionMode, setDistributionMode] = useState<'ocean' | 'season'>('ocean');
@@ -45,30 +45,49 @@ export default function AdminDashboard() {
     const [ratingFilter, setRatingFilter] = useState<string>('');
     const [timeFilter, setTimeFilter] = useState<string>('');
 
-    useEffect(() => {
-        // Build query string with filters
-        const params = new URLSearchParams({
-            page: currentPage.toString(),
-            limit: recordsPerPage.toString(),
-        });
+    // Debounce timer
+    const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-        if (oceanFilter) params.append('ocean', oceanFilter);
-        if (seasonFilter) params.append('season', seasonFilter);
-        if (ratingFilter) params.append('rating', ratingFilter);
-        if (timeFilter) params.append('timeRange', timeFilter);
+    // Debounced fetch function
+    const fetchStats = useCallback((page: number, ocean: string, season: string, rating: string, time: string) => {
+        // Clear existing timer
+        if (debounceTimer.current) {
+            clearTimeout(debounceTimer.current);
+        }
 
-        fetch(`/api/admin/stats?${params.toString()}`)
-            .then((res) => res.json())
-            .then((data) => {
-                setStats(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error(err);
-                setError(err.message || 'Failed to load data');
-                setLoading(false);
+        // Set debounce timer (300ms)
+        debounceTimer.current = setTimeout(() => {
+            setFetching(true);
+
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: recordsPerPage.toString(),
             });
-    }, [currentPage, oceanFilter, seasonFilter, ratingFilter, timeFilter]);
+
+            if (ocean) params.append('ocean', ocean);
+            if (season) params.append('season', season);
+            if (rating) params.append('rating', rating);
+            if (time) params.append('timeRange', time);
+
+            fetch(`/api/admin/stats?${params.toString()}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setStats(data);
+                    setLoading(false);
+                    setFetching(false);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    setError(err.message || 'Failed to load data');
+                    setLoading(false);
+                    setFetching(false);
+                });
+        }, 300);
+    }, []);
+
+    useEffect(() => {
+        fetchStats(currentPage, oceanFilter, seasonFilter, ratingFilter, timeFilter);
+    }, [currentPage, oceanFilter, seasonFilter, ratingFilter, timeFilter, fetchStats]);
 
     // Reset to page 1 when filters change
     useEffect(() => {
@@ -82,8 +101,9 @@ export default function AdminDashboard() {
         setTimeFilter('');
     };
 
-    if (loading) return <div className="text-white">로딩 중...</div>;
-    if (!stats) return <div className="text-red-500">통계 로드 실패</div>;
+    if (loading) return <div className="text-white p-8 font-mono">INITIALIZING SYSTEM...</div>;
+    if (error) return <div className="text-red-500 p-8 font-mono">SYSTEM ERROR: {error}</div>;
+    if (!stats) return <div className="text-red-500 p-8 font-mono">NO DATA AVAILABLE</div>;
 
     // --- Chart Helpers ---
     const getTrafficData = () => {
@@ -140,12 +160,17 @@ export default function AdminDashboard() {
         return { path: pathData, color, name: item.name, value: item.value, percentage };
     }).filter(Boolean); // Remove nulls
 
-    if (loading) return <div className="text-green-500 font-mono p-8">INITIALIZING SYSTEM...</div>;
-    if (error) return <div className="text-red-500 font-mono p-8">SYSTEM ERROR: {error}</div>;
-    if (!stats) return null;
+
 
     return (
-        <div className="space-y-4 sm:space-y-8 font-mono text-green-500 p-4 sm:p-6 lg:p-8">
+        <div className="space-y-4 sm:space-y-8 font-mono text-green-500 p-4 sm:p-6 lg:p-8 relative">
+            {/* Loading Overlay */}
+            {fetching && (
+                <div className="fixed top-4 right-4 z-50 bg-green-900 border border-green-500 px-4 py-2 text-white text-sm animate-pulse">
+                    LOADING DATA...
+                </div>
+            )}
+
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold border-b-2 border-green-800 pb-2 sm:pb-4 tracking-tighter">
                 <span className="mr-2 animate-pulse">█</span>
                 SYSTEM_DASHBOARD
@@ -671,27 +696,13 @@ export default function AdminDashboard() {
                                             {selectedUser.user_answers && Array.isArray(selectedUser.user_answers) ? (
                                                 selectedUser.user_answers.map((ans: any, idx: number) => {
                                                     const responseTime = ans.endTime - ans.startTime;
-                                                    const avgTime = stats?.averageResponseTimes?.[ans.questionId] || responseTime;
-                                                    const ratio = responseTime / avgTime;
-
-                                                    // Color indicator: green (fast), yellow (normal), red (slow)
-                                                    let indicator = '🟢'; // Fast
-                                                    let colorClass = 'text-green-400';
-                                                    if (ratio > 1.5) {
-                                                        indicator = '🔴'; // Slow
-                                                        colorClass = 'text-red-400';
-                                                    } else if (ratio > 1.2) {
-                                                        indicator = '🟡'; // Normal
-                                                        colorClass = 'text-yellow-400';
-                                                    }
 
                                                     return (
                                                         <tr key={idx}>
                                                             <td className="px-3 py-2 text-green-600">#{ans.questionId}</td>
                                                             <td className="px-3 py-2 text-white font-bold">{ans.choice}</td>
-                                                            <td className={`px-3 py-2 text-right ${colorClass} flex items-center justify-end gap-2`}>
-                                                                <span>{indicator}</span>
-                                                                <span>{responseTime}ms</span>
+                                                            <td className="px-3 py-2 text-right text-green-400">
+                                                                {responseTime}ms
                                                             </td>
                                                         </tr>
                                                     );

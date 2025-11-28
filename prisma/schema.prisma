@@ -74,4 +74,12 @@ model UserResponse {
   isValidComment   Boolean?                  // 유효한 코멘트 여부 (스팸 필터링)
   
   created_at   DateTime @default(now())
+  
+  // Performance indexes for admin dashboard queries
+  @@index([final_ocean])
+  @@index([final_season])
+  @@index([rating])
+  @@index([created_at(sort: Desc)])
+  @@index([isDropout, rating])
+  @@index([isValidComment])
 }

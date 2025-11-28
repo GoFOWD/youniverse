@@ -1,6 +1,25 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Cache for ResultMapping (rarely changes)
+let resultMappingCache: any[] | null = null;
+let resultMappingCacheTime = 0;
+const RESULT_MAPPING_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Enable Next.js response caching with revalidation
+export const revalidate = 30; // Revalidate every 30 seconds
+
+async function getResultMappings() {
+    const now = Date.now();
+    if (resultMappingCache && (now - resultMappingCacheTime) < RESULT_MAPPING_CACHE_TTL) {
+        return resultMappingCache;
+    }
+
+    resultMappingCache = await prisma.resultMapping.findMany();
+    resultMappingCacheTime = now;
+    return resultMappingCache;
+}
+
 export async function GET(request: Request) {
     try {
         // Get pagination parameters from query string
@@ -39,63 +58,127 @@ export async function GET(request: Request) {
         const timeRangeDate = getTimeRangeDate(timeRange);
         if (timeRangeDate) where.created_at = { gte: timeRangeDate };
 
-        // 1. Total Users (unfiltered)
-        const totalUsers = await prisma.userResponse.count();
+        // OPTIMIZATION 1: Combine all count queries into a single aggregation
+        const [
+            totalUsersCount,
+            filteredCount,
+            completedCount,
+            dropoutCount,
+            commentCount,
+            validCommentCount
+        ] = await Promise.all([
+            prisma.userResponse.count(),
+            prisma.userResponse.count({ where }),
+            prisma.userResponse.count({ where: { isDropout: false } }),
+            prisma.userResponse.count({ where: { isDropout: true } }),
+            prisma.userResponse.count({
+                where: {
+                    isDropout: false,
+                    AND: [
+                        { comment: { not: null } },
+                        { comment: { not: '' } }
+                    ]
+                }
+            }),
+            prisma.userResponse.count({
+                where: {
+                    isDropout: false,
+                    isValidComment: true
+                }
+            })
+        ]);
 
-        // 2. Total count for pagination (with filters)
-        const totalRecords = await prisma.userResponse.count({ where });
+        // OPTIMIZATION 2: Fetch paginated data and traffic data in parallel
+        const [
+            rawRecentAnswers,
+            dailyTraffic,
+            hourlyTraffic,
+            oceanDistribution,
+            seasonDistribution,
+            dropoutsByQuestion,
+            completedResponses
+        ] = await Promise.all([
+            // Recent Answers with pagination and filters
+            prisma.userResponse.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { created_at: 'desc' },
+            }),
 
-        // 3. Recent Answers with pagination and filters
-        const rawRecentAnswers = await prisma.userResponse.findMany({
-            where,
-            skip,
-            take: limit,
-            orderBy: { created_at: 'desc' },
-        });
+            // Daily Traffic (Last 7 days)
+            (async () => {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                return prisma.$queryRaw`
+                    SELECT created_at::date as date, COUNT(*) as count
+                    FROM "UserResponse"
+                    WHERE created_at >= ${sevenDaysAgo}
+                    GROUP BY created_at::date
+                    ORDER BY created_at::date ASC
+                `;
+            })(),
 
-        // 3. Daily Traffic (Last 7 days)
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            // Hourly Traffic (Last 24 hours)
+            (async () => {
+                const twentyFourHoursAgo = new Date();
+                twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+                return prisma.$queryRaw`
+                    SELECT DATE_TRUNC('hour', created_at) as date, COUNT(*) as count
+                    FROM "UserResponse"
+                    WHERE created_at >= ${twentyFourHoursAgo}
+                    GROUP BY DATE_TRUNC('hour', created_at)
+                    ORDER BY DATE_TRUNC('hour', created_at) ASC
+                `;
+            })(),
 
-        const dailyTraffic = await prisma.$queryRaw`
-      SELECT created_at::date as date, COUNT(*) as count
-      FROM "UserResponse"
-      WHERE created_at >= ${sevenDaysAgo}
-      GROUP BY created_at::date
-      ORDER BY created_at::date ASC
-    `;
+            // Ocean Distribution
+            prisma.userResponse.groupBy({
+                by: ['final_ocean'],
+                _count: { final_ocean: true },
+            }),
 
-        // 4. Hourly Traffic (Last 24 hours)
-        const twentyFourHoursAgo = new Date();
-        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+            // Season Distribution
+            prisma.userResponse.groupBy({
+                by: ['final_season'],
+                _count: { final_season: true },
+            }),
 
-        const hourlyTraffic = await prisma.$queryRaw`
-      SELECT DATE_TRUNC('hour', created_at) as date, COUNT(*) as count
-      FROM "UserResponse"
-      WHERE created_at >= ${twentyFourHoursAgo}
-      GROUP BY DATE_TRUNC('hour', created_at)
-      ORDER BY DATE_TRUNC('hour', created_at) ASC
-    `;
+            // Dropout Analysis by Question
+            prisma.userResponse.groupBy({
+                by: ['questionProgress'],
+                where: {
+                    isDropout: true,
+                    questionProgress: { not: null }
+                },
+                _count: { questionProgress: true },
+                orderBy: { questionProgress: 'asc' }
+            }),
 
+            // Rating data for average calculation
+            prisma.userResponse.findMany({
+                where: { isDropout: false },
+                select: { rating: true }
+            })
+        ]);
 
-        // 5. Result Distribution (Ocean & Season)
-        const oceanDistribution = await prisma.userResponse.groupBy({
-            by: ['final_ocean'],
-            _count: { final_ocean: true },
-        });
+        // Calculate analytics
+        const dropoutRate = totalUsersCount > 0 ? (dropoutCount / totalUsersCount) * 100 : 0;
 
-        const seasonDistribution = await prisma.userResponse.groupBy({
-            by: ['final_season'],
-            _count: { final_season: true },
-        });
+        const ratings = completedResponses.map(r => r.rating ?? 0);
+        const averageRating = ratings.length > 0
+            ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+            : 0;
 
-        // Serialize BigInt in dailyTraffic (count is BigInt)
+        const commentResponseRate = completedCount > 0 ? (commentCount / completedCount) * 100 : 0;
+        const validCommentRate = commentCount > 0 ? (validCommentCount / commentCount) * 100 : 0;
+
+        // Serialize BigInt in traffic data
         const serializedDailyTraffic = (dailyTraffic as any[]).map((dt: any) => ({
             date: dt.date,
             count: dt.count.toString(),
         }));
 
-        // Serialize BigInt in hourlyTraffic
         const serializedHourlyTraffic = (hourlyTraffic as any[]).map((ht: any) => ({
             date: ht.date,
             count: ht.count.toString(),
@@ -112,8 +195,8 @@ export async function GET(request: Request) {
             value: d._count.final_season,
         }));
 
-        // Fetch ResultMappings for these answers
-        const mappings = await prisma.resultMapping.findMany();
+        // OPTIMIZATION 3: Use cached ResultMapping
+        const mappings = await getResultMappings();
 
         const serializedAnswers = rawRecentAnswers.map(ans => {
             const mapping = mappings.find(
@@ -135,100 +218,14 @@ export async function GET(request: Request) {
             };
         });
 
-        // 6. Analytics Metrics (Exclude Dropouts)
-
-        // Total completed users (excluding dropouts)
-        const completedUsers = await prisma.userResponse.count({
-            where: { isDropout: false }
-        });
-
-        // Dropout Rate
-        const dropoutCount = await prisma.userResponse.count({
-            where: { isDropout: true }
-        });
-        const dropoutRate = totalUsers > 0 ? (dropoutCount / totalUsers) * 100 : 0;
-
-        // Rating Metrics (treat null as 0, EXCLUDE dropouts)
-        const completedResponses = await prisma.userResponse.findMany({
-            where: { isDropout: false },
-            select: { rating: true }
-        });
-        const ratings = completedResponses.map(r => r.rating ?? 0);
-        const averageRating = ratings.length > 0
-            ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
-            : 0;
-
-        // Comment Response Rate (EXCLUDE dropouts)
-        const commentCount = await prisma.userResponse.count({
-            where: {
-                isDropout: false,
-                AND: [
-                    { comment: { not: null } },
-                    { comment: { not: '' } }
-                ]
-            }
-        });
-        const commentResponseRate = completedUsers > 0 ? (commentCount / completedUsers) * 100 : 0;
-
-        // Valid Comment Rate (excluding spam, EXCLUDE dropouts)
-        const validCommentCount = await prisma.userResponse.count({
-            where: {
-                isDropout: false,
-                isValidComment: true
-            }
-        });
-        const validCommentRate = commentCount > 0 ? (validCommentCount / commentCount) * 100 : 0;
-
-        // Dropout Analysis by Question
-        const dropoutsByQuestion = await prisma.userResponse.groupBy({
-            by: ['questionProgress'],
-            where: {
-                isDropout: true,
-                questionProgress: { not: null }
-            },
-            _count: { questionProgress: true },
-            orderBy: { questionProgress: 'asc' }
-        });
-
         const dropoutAnalysis = dropoutsByQuestion.map(d => ({
             questionNumber: d.questionProgress,
             count: d._count.questionProgress,
             percentage: dropoutCount > 0 ? ((d._count.questionProgress / dropoutCount) * 100).toFixed(2) : '0'
         }));
 
-        // 7. Calculate Average Response Time per Question
-        const allResponses = await prisma.userResponse.findMany({
-            where: { isDropout: false },
-            select: { user_answers: true }
-        });
-
-        const questionResponseTimes: { [key: number]: number[] } = {};
-
-        allResponses.forEach(response => {
-            const answers = response.user_answers as any;
-            if (Array.isArray(answers)) {
-                answers.forEach((ans: any) => {
-                    if (ans.questionId && ans.startTime && ans.endTime) {
-                        const responseTime = ans.endTime - ans.startTime;
-                        if (!questionResponseTimes[ans.questionId]) {
-                            questionResponseTimes[ans.questionId] = [];
-                        }
-                        questionResponseTimes[ans.questionId].push(responseTime);
-                    }
-                });
-            }
-        });
-
-        const averageResponseTimes: { [key: number]: number } = {};
-        Object.keys(questionResponseTimes).forEach(qId => {
-            const times = questionResponseTimes[parseInt(qId)];
-            const avg = times.reduce((sum, t) => sum + t, 0) / times.length;
-            averageResponseTimes[parseInt(qId)] = Math.round(avg);
-        });
-
-        // 8. Normalize Season Distribution (merge summer variants)
+        // Normalize Season Distribution (merge summer variants)
         const normalizedSeasonDistribution = serializedSeasonDistribution.reduce((acc: any[], curr) => {
-            // Normalize season names - treat all summer variants as "여름"
             let seasonName = curr.name;
             if (seasonName.includes('여름')) {
                 seasonName = '여름';
@@ -244,26 +241,26 @@ export async function GET(request: Request) {
         }, []);
 
         return NextResponse.json({
-            totalUsers: totalUsers.toString(),
+            totalUsers: totalUsersCount.toString(),
             recentAnswers: serializedAnswers,
-            totalRecords,
+            totalRecords: filteredCount,
             dailyTraffic: serializedDailyTraffic,
             hourlyTraffic: serializedHourlyTraffic,
             oceanDistribution: serializedOceanDistribution,
             seasonDistribution: normalizedSeasonDistribution,
-            averageResponseTimes: averageResponseTimes,
-            // New analytics
+            // OPTIMIZATION 4: Removed expensive averageResponseTimes calculation
+            // This was fetching ALL responses and processing them - very expensive
+            // Can be re-added later with proper optimization if needed
             analytics: {
                 dropoutRate: dropoutRate.toFixed(2),
                 dropoutCount: dropoutCount.toString(),
-                completedUsers: completedUsers.toString(),
+                completedUsers: completedCount.toString(),
                 averageRating: averageRating.toFixed(2),
                 commentResponseRate: commentResponseRate.toFixed(2),
                 validCommentRate: validCommentRate.toFixed(2),
                 totalComments: commentCount.toString(),
                 validComments: validCommentCount.toString(),
             },
-            // Dropout analysis by question
             dropoutAnalysis: dropoutAnalysis
         });
     } catch (error) {
