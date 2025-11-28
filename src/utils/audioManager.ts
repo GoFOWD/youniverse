@@ -39,36 +39,50 @@ class AudioManager {
   playSwoosh() {
     if (!this.context) return;
     
-    // White noise buffer
-    const bufferSize = this.context.sampleRate * 2;
-    const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+    const now = this.context.currentTime;
 
-    const noise = this.context.createBufferSource();
-    noise.buffer = buffer;
+    // 1. Sub-bass "Thud" for weight
+    const subOsc = this.context.createOscillator();
+    const subGain = this.context.createGain();
+    subOsc.connect(subGain);
+    subGain.connect(this.masterGain!);
 
-    const filter = this.context.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 100;
+    subOsc.type = 'sine';
+    subOsc.frequency.setValueAtTime(60, now); // Deep 60Hz thud
+    subOsc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
 
-    const gain = this.context.createGain();
-    gain.gain.value = 0.1;
+    subGain.gain.setValueAtTime(0.5, now);
+    subGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
 
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.masterGain!);
-
-    // Filter sweep
-    filter.frequency.exponentialRampToValueAtTime(2000, this.context.currentTime + 0.5);
-    filter.frequency.exponentialRampToValueAtTime(100, this.context.currentTime + 1);
+    subOsc.start(now);
+    subOsc.stop(now + 0.3);
     
-    gain.gain.linearRampToValueAtTime(0.2, this.context.currentTime + 0.5);
-    gain.gain.linearRampToValueAtTime(0, this.context.currentTime + 1);
+    // 2. Multiple overlapping bubbles (Lower pitch)
+    for (let i = 0; i < 7; i++) {
+      const osc = this.context.createOscillator();
+      const oscGain = this.context.createGain();
+      
+      osc.connect(oscGain);
+      oscGain.connect(this.masterGain!);
 
-    noise.start();
+      const startTime = now + (Math.random() * 0.2);
+      const duration = 0.1 + (Math.random() * 0.15); // Slightly longer
+      
+      osc.type = 'sine';
+      
+      // Pitch envelope: Lower range (150-400Hz instead of 400-800Hz)
+      const startFreq = 150 + (Math.random() * 250);
+      osc.frequency.setValueAtTime(startFreq, startTime);
+      osc.frequency.exponentialRampToValueAtTime(startFreq * 2.0, startTime + duration);
+      
+      // Amplitude envelope
+      oscGain.gain.setValueAtTime(0, startTime);
+      oscGain.gain.linearRampToValueAtTime(0.4, startTime + (duration * 0.1));
+      oscGain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+      
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    }
   }
 }
 
