@@ -12,6 +12,7 @@ interface LayoutProps {
   progress?: number; // 0 to 100
   ocean?: string; // For result screen video
   className?: string;
+  isTransitioning?: boolean; // New prop for burst effect
 }
 
 // Ocean video mapping
@@ -47,7 +48,7 @@ const interpolateColor = (color1: string, color2: string, factor: number): strin
 
 
 
-const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, className = '' }) => {
+const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, className = '', isTransitioning = false }) => {
   // Calculate bubble density based on progress (more bubbles as we rise)
   const bubbleCount = Math.round(20 + (progress / 100) * 30); // 20 to 50 bubbles
   const bubbleSpeed = 10 + (progress / 100) * 10; // Faster as we rise
@@ -363,7 +364,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       )}
       
       {/* Interactive Particles - Dynamic count based on progress */}
-      {isBrowser && step !== 'result' && <ParticleOverlay count={bubbleCount} />}
+      {isBrowser && step !== 'result' && <ParticleOverlay count={bubbleCount} isTransitioning={isTransitioning} />}
 
       {/* Main Content Container */}
       <main className={`relative z-10 flex flex-col items-center ${step === 'result' ? 'justify-start min-h-full' : 'justify-center h-full'} px-4 py-8 mx-auto max-w-md w-full ${className}`}>

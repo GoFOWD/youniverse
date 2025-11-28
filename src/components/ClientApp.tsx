@@ -45,6 +45,7 @@ export default function ClientApp() {
   const [answers, setAnswers] = useState<UserAnswerDetail[]>([]);
   const [result, setResult] = useState<ResultData | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isFalling, setIsFalling] = useState(false); // Controls visual falling effect
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   // Timing tracking
@@ -158,41 +159,54 @@ export default function ClientApp() {
     setAnswers(newAnswers);
 
     if (currentQuestionIndex < questions.length - 1) {
+      // Wait for burst animation (800ms), then trigger fall
       setTimeout(() => {
         audioManager.playSwoosh();
-        setCurrentQuestionIndex(prev => prev + 1);
-        setIsTransitioning(false);
-      }, 800); // Increased delay to allow burst animation to complete
-    } else {
-      // Last question answered
-      setStep('loading');
-
-      // Clear session storage on completion
-      sessionStorage.removeItem('test_progress_index');
-      sessionStorage.removeItem('test_answers');
-
-      try {
-        const res = await fetch('/api/test/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers: newAnswers }),
-        });
-
-        if (!res.ok) throw new Error('Failed to submit test');
-
-        const resultData = await res.json();
-        setResult(resultData);
-
-        // Minimum loading time for UX
+        setIsFalling(true); // Start bubble fall
+        setCurrentQuestionIndex(prev => prev + 1); // Start card fall (exit)
+        
+        // Wait for fall animation to complete (approx 800ms) before unlocking
         setTimeout(() => {
-          setStep('result');
-          setIsTransitioning(false);
-        }, 3000);
-      } catch (error) {
-        console.error('Submission error:', error);
-        // Handle error (maybe show an error screen or retry)
-        setIsTransitioning(false);
-      }
+          setIsFalling(false); // Reset bubbles to rising
+          setIsTransitioning(false); // Unlock input
+        }, 800);
+      }, 800); 
+    } else {
+      // Last question answered - also delay to show burst?
+      // For consistency, let's delay slightly or keep immediate if preferred.
+      // User didn't specify, but let's keep existing logic for now to avoid breaking submit flow.
+      setTimeout(() => {
+        setStep('loading');
+
+        // Clear session storage on completion
+        sessionStorage.removeItem('test_progress_index');
+        sessionStorage.removeItem('test_answers');
+
+        (async () => {
+          try {
+            const res = await fetch('/api/test/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ answers: newAnswers }),
+            });
+
+            if (!res.ok) throw new Error('Failed to submit test');
+
+            const resultData = await res.json();
+            setResult(resultData);
+
+            // Minimum loading time for UX
+            setTimeout(() => {
+              setStep('result');
+              setIsTransitioning(false);
+            }, 3000);
+          } catch (error) {
+            console.error('Submission error:', error);
+            // Handle error (maybe show an error screen or retry)
+            setIsTransitioning(false);
+          }
+        })();
+      }, 800); // Added delay for consistency
     }
   };
 
@@ -212,9 +226,9 @@ export default function ClientApp() {
 
   // Ascent Transition Variants
   const pageVariants = {
-    initial: { opacity: 0, y: 20 },
+    initial: { opacity: 0, y: '-100vh' }, // Start from top
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: "easeInOut" as const } }
+    exit: { opacity: 0, y: '100vh', transition: { duration: 0.8, ease: "easeIn" as const } } // Fall down to bottom
   };
 
   // Map API question format to QuestionView props
@@ -230,8 +244,8 @@ export default function ClientApp() {
   } : null;
 
   return (
-    <Layout step={step} progress={progress} ocean={result?.ocean}>
-      <AnimatePresence mode="wait">
+    <Layout step={step} progress={progress} ocean={result?.ocean} isTransitioning={isFalling}>
+      <AnimatePresence mode="popLayout">
         {step === 'splash' && (
           <SplashView key="splash" onComplete={handleSplashComplete} />
         )}
@@ -257,7 +271,7 @@ export default function ClientApp() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 0.8, ease: "easeInOut" }} // Slower, smoother transition
             className="w-full flex flex-col items-center"
           >
             <ProgressBar progress={progress} />
