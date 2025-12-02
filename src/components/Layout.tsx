@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import ParticleOverlay from './ParticleOverlay';
 
-type Step = 'splash' | 'landing' | 'question' | 'loading' | 'result';
+type Step = 'splash' | 'landing' | 'question' | 'loading' | 'ocean_transition' | 'result';
 
 interface LayoutProps {
   children: React.ReactNode;

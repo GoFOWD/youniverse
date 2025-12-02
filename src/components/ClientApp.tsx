@@ -43,7 +43,7 @@ interface ResultData {
 }
 
 export default function ClientApp() {
-  const [step, setStep] = useState<'splash' | 'landing' | 'question' | 'loading' | 'result'>('splash');
+  const [step, setStep] = useState<'splash' | 'landing' | 'question' | 'loading' | 'ocean_transition' | 'result'>('splash');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   // Use hardcoded questions directly
   const [questions] = useState<Question[]>(hardcodedQuestions);
@@ -80,7 +80,9 @@ export default function ClientApp() {
     }
   }, []);
 
-  // Dropout Detection (Unload Handler)
+  // Dropout Detection (Unload Handler) - REMOVED
+  // The user requested to remove admin connection features that might block the test.
+  /*
   useEffect(() => {
     const handleUnload = () => {
       // Only report dropout if test is in progress and not completed
@@ -106,6 +108,7 @@ export default function ClientApp() {
       window.removeEventListener('beforeunload', handleUnload);
     };
   }, [step, questions, answers, currentQuestionIndex]);
+  */
 
   // Cleanup timeouts on unmount 중도이탈률 계산 
   /*useEffect(() => { 
@@ -237,13 +240,14 @@ export default function ClientApp() {
               const data: ResultData = await res.json();
               setResult(data);
 
-              // Wait 4 seconds before showing result page
+              // Wait 3 seconds before showing result page (Ocean Transition)
+              setStep('ocean_transition');
               setTimeout(() => {
                 setStep('result');
                 setIsTransitioning(false);
                 isProcessingAnswer.current = false;
                 setIsFalling(false); // Reset falling state
-              }, 4000);
+              }, 3000);
 
             } catch (error) {
               console.error('Error submitting test:', error);
@@ -311,10 +315,17 @@ export default function ClientApp() {
         ocean={result?.ocean}
         isTransitioning={isFalling}
         backgroundComponent={
-          (step === 'question' && currentQuestionIndex === 17) ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
+          (step === 'question' && currentQuestionIndex === 17) ? <DeepSeaEffect videoSrc="/assets/main3.mp4" /> :
             step === 'landing' ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
               step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" /> :
-                null
+                step === 'ocean_transition' && result ? (
+                  <DeepSeaEffect videoSrc={`/assets/${result.ocean === '북극해' ? 'Arctic1' :
+                    result.ocean === '대서양' ? 'Atlantic1' :
+                      result.ocean === '인도양' ? 'indian1' :
+                        result.ocean === '남극해' ? 'southern1' :
+                          'pacific1' // 태평양
+                    }.mp4`} />
+                ) : null
         }
       >
         <AnimatePresence mode="popLayout">
@@ -401,6 +412,6 @@ export default function ClientApp() {
           <VerticalProgressBar progress={progress} />
         )}
       </Layout>
-    </div>
+    </div >
   );
 }

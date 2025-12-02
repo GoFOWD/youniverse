@@ -15,10 +15,10 @@ const Barometer: React.FC<BarometerProps> = ({ season }) => {
     // 겨울 (Winter): Low pressure, far left (bottom left on display)
     const getRotation = (season: string) => {
         switch (season) {
-            case '봄': return 30; // Spring - Rising (right side)
-            case '여름': return 75; // Summer - High (far right/bottom right)
-            case '가을': return -30; // Fall - Falling (left side)
-            case '겨울': return -75; // Winter - Low (far left/bottom left)
+            case '봄': return 45; // Spring - Right Top
+            case '여름': return 135; // Summer - Right Bottom
+            case '가을': return -45; // Fall - Left Top
+            case '겨울': return -135; // Winter - Left Bottom
             default: return 0;
         }
     };
@@ -39,30 +39,34 @@ const Barometer: React.FC<BarometerProps> = ({ season }) => {
                 className="absolute top-1/2 left-1/2 origin-center transition-transform duration-700"
                 style={{
                     transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-                    width: '3px',
-                    height: '0px', // Container has no height, needle is positioned absolutely
+                    width: '0px',
+                    height: '0px',
+                    zIndex: 20
                 }}
             >
                 {/* Needle shaft - extends upward from center */}
                 <div
                     className="absolute left-1/2 -translate-x-1/2 rounded-t-full shadow-lg"
                     style={{
-                        bottom: '0',
-                        width: '3px',
-                        height: '80px',
+                        bottom: '-5px', // Extend slightly below center for pivot look
+                        width: '4px',
+                        height: '50%', // Length of needle
+                        maxHeight: '70px',
                         background: 'linear-gradient(to top, #991b1b, #ef4444)',
+                        transformOrigin: 'bottom center'
                     }}
                 />
                 {/* Needle tip */}
                 <div
                     className="absolute left-1/2 -translate-x-1/2"
                     style={{
-                        bottom: '80px',
+                        bottom: 'calc(50% - 10px)', // Position tip at top of shaft
+                        marginBottom: '0px',
                         width: '0',
                         height: '0',
-                        borderLeft: '5px solid transparent',
-                        borderRight: '5px solid transparent',
-                        borderBottom: '10px solid #ef4444',
+                        borderLeft: '6px solid transparent',
+                        borderRight: '6px solid transparent',
+                        borderBottom: '12px solid #ef4444',
                     }}
                 />
             </div>

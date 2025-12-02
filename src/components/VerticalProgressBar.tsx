@@ -18,16 +18,24 @@ const VerticalProgressBar: React.FC<VerticalProgressBarProps> = ({ progress }) =
 
     return (
         <div className="fixed left-4 md:left-8 top-1/2 -translate-y-1/2 h-[70vh] w-12 z-50 flex flex-col items-center">
-            {/* Track */}
-            <div className="absolute inset-y-0 w-[2px] bg-white/20 left-1/2 -translate-x-1/2 rounded-full" />
+            {/* Track Background */}
+            <div className="absolute inset-y-0 w-[2px] bg-white/10 left-1/2 -translate-x-1/2 rounded-full" />
+
+            {/* Glowing Trail (Fills from bottom) */}
+            <motion.div
+                className="absolute bottom-0 w-[2px] bg-gradient-to-t from-cyan-500 via-teal-400 to-white left-1/2 -translate-x-1/2 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+                initial={{ height: '0%' }}
+                animate={{ height: `${progress}%` }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+            />
 
             {/* Surface Marker (Top) */}
-            <div className="absolute -top-6 text-[10px] text-cyan-300 font-bold tracking-widest uppercase text-center w-20 shadow-black/50 drop-shadow-md">
+            <div className={`absolute -top-6 text-[10px] font-bold tracking-widest uppercase text-center w-20 transition-all duration-500 ${progress >= 98 ? 'text-cyan-300 drop-shadow-[0_0_8px_rgba(103,232,249,0.8)]' : 'text-white/30'}`}>
                 Surface
             </div>
 
             {/* Abyss Marker (Bottom) */}
-            <div className="absolute -bottom-6 text-[10px] text-indigo-400 font-bold tracking-widest uppercase text-center w-20 shadow-black/50 drop-shadow-md">
+            <div className={`absolute -bottom-6 text-[10px] font-bold tracking-widest uppercase text-center w-20 transition-all duration-500 ${progress > 0 ? 'text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.8)]' : 'text-white/30'}`}>
                 Mariana
             </div>
 
@@ -44,17 +52,24 @@ const VerticalProgressBar: React.FC<VerticalProgressBarProps> = ({ progress }) =
 
             {/* Depth Markers (Layered ON TOP of the bar) */}
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none z-10">
-                {depthMarkers.map((depth, i) => (
-                    <div key={i} className="relative w-full flex items-center justify-center">
-                        {/* Tick Mark */}
-                        <div className="w-4 h-[1px] bg-white/40" />
+                {depthMarkers.map((depth, i) => {
+                    // Calculate threshold for this depth
+                    // 11000m -> 0%, 0m -> 100%
+                    const threshold = ((maxDepth - depth) / maxDepth) * 100;
+                    const isPassed = progress >= threshold;
 
-                        {/* Depth Number (Overlaying the bar/side) */}
-                        <span className="absolute left-6 text-[9px] font-mono text-white/60 font-medium drop-shadow-md">
-                            {depth.toLocaleString()}m
-                        </span>
-                    </div>
-                ))}
+                    return (
+                        <div key={i} className="relative w-full flex items-center justify-center">
+                            {/* Tick Mark */}
+                            <div className={`w-4 h-[1px] transition-all duration-500 ${isPassed ? 'bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,1)]' : 'bg-white/20'}`} />
+
+                            {/* Depth Number (Overlaying the bar/side) */}
+                            <span className={`absolute left-6 text-[9px] font-mono font-medium transition-all duration-500 ${isPassed ? 'text-cyan-300 drop-shadow-[0_0_5px_rgba(103,232,249,0.8)] scale-110' : 'text-white/40'}`}>
+                                {depth.toLocaleString()}m
+                            </span>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

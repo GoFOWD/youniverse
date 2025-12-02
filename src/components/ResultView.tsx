@@ -6,9 +6,11 @@ import ShareCard from './result/ShareCard';
 import AdPopup from './result/AdPopup';
 import StatChart from './result/StatChart';
 import Barometer from './result/Barometer';
+import Compass from './result/Compass';
 import LetterView from './result/LetterView';
 import AllOceanTypesView from './result/AllOceanTypesView';
 import CompatibilityView from './result/CompatibilityView';
+import { getPersona } from '../data/personaData';
 
 interface ResultData {
   id: string;
@@ -37,6 +39,8 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+
+  const persona = getPersona(result.ocean, result.season);
 
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -117,29 +121,54 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
               transition={{ duration: 0.8 }}
               className="space-y-16"
             >
-              {/* SECTION 2: Stat Analysis & Barometer */}
-              <section className="space-y-8">
+              {/* SECTION 2: Navigation Analysis - Split Layout */}
+              <section className="space-y-12">
                 <div className="text-center space-y-2">
-                  <h2 className="text-2xl font-serif text-white">항해 기록 (Navigation Log)</h2>
-                  <div className="w-12 h-1 bg-white/20 mx-auto rounded-full" />
+                  <h2 className="text-2xl font-serif font-bold text-white drop-shadow-lg">
+                    항해 분석 (Navigation Analysis)
+                  </h2>
+                  <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
                 </div>
 
-                <Barometer season={result.season} />
-                <StatChart scores={result.scores} />
+                {/* Block 1: Barometer + Graph */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-6">
+                  <div className="w-full max-w-[200px] transform scale-110">
+                    <Barometer season={result.season} />
+                  </div>
+                  <div className="w-full">
+                    <StatChart scores={result.scores} />
+                  </div>
+                </div>
+
+                {/* Block 2: Compass + Letter */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-6">
+                  <div className="w-full max-w-[200px] transform scale-110">
+                    <Compass score={result.scores.C} />
+                  </div>
+
+                  {/* Letter Content */}
+                  <div className="w-full text-center space-y-4 bg-black/20 p-6 rounded-xl border border-white/5">
+                    <h3 className="text-lg font-serif text-amber-100/80">To. Voyager</h3>
+                    <p className="text-white/90 leading-loose font-light whitespace-pre-wrap">
+                      {result.description}
+                    </p>
+                    {result.advice && (
+                      <div className="pt-4 border-t border-white/10">
+                        <p className="text-cyan-200/90 text-sm leading-relaxed">
+                          💡 {result.advice}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </section>
 
-              {/* SECTION 3: The Letter */}
+              {/* SECTION 3: Compatibility (Moved Up) */}
               <section>
-                <LetterView
-                  title={result.title}
-                  description={result.description}
-                  advice={result.advice}
-                  oceanName={result.ocean}
-                  seasonName={result.season}
-                />
+                <CompatibilityView ocean={result.ocean} season={result.season} />
               </section>
 
-              {/* Button to show all ocean types */}
+              {/* SECTION 4: All Ocean Types (Moved Down) */}
               <section className="flex justify-center">
                 <button
                   onClick={() => setShowAllOceans(true)}
@@ -155,11 +184,6 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
                     <span className="tracking-wide">모든 바다 유형 보기 (20 Types)</span>
                   </div>
                 </button>
-              </section>
-
-              {/* SECTION 4: Compatibility */}
-              <section>
-                <CompatibilityView ocean={result.ocean} season={result.season} />
               </section>
 
             </motion.div>
@@ -235,8 +259,8 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
           </div>
         </motion.section>
 
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

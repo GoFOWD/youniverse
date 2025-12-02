@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getPersona } from '../../data/personaData';
 
 // All 20 ocean type combinations (5 oceans × 4 seasons)
 const ALL_OCEAN_TYPES = [
@@ -63,27 +64,42 @@ const AllOceanTypesView: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                 {/* Grid of Ocean Types */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {ALL_OCEAN_TYPES.map((type, index) => (
-                        <motion.div
-                            key={`${type.ocean}-${type.season}`}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-[#8b5a2b]/20 hover:border-[#8b5a2b]/40 transition-all hover:shadow-lg"
-                        >
-                            <div className="text-center space-y-2">
-                                <h3 className="text-lg font-bold text-[#1a0f0a] font-serif">
-                                    {type.ocean}
-                                </h3>
-                                <div className="inline-block px-3 py-1 bg-[#2c1810]/90 text-[#f4e4bc] rounded-full text-xs font-medium">
-                                    {type.season}의 바다
+                    {ALL_OCEAN_TYPES.map((type, index) => {
+                        const persona = getPersona(type.ocean, type.season);
+                        return (
+                            <motion.div
+                                key={`${type.ocean}-${type.season}`}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-[#8b5a2b]/20 hover:border-[#8b5a2b]/40 transition-all hover:shadow-lg flex flex-col items-center gap-3"
+                            >
+                                {/* Animal Image */}
+                                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#8b5a2b]/20 shadow-md bg-white">
+                                    <img
+                                        src={`/assets/${persona?.image}.png`}
+                                        alt={persona?.animal}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = '/assets/ship_icon.png'; // Fallback
+                                        }}
+                                    />
                                 </div>
-                                <p className="text-xs text-[#5d4037]/80 leading-relaxed">
-                                    {type.description}
-                                </p>
-                            </div>
-                        </motion.div>
-                    ))}
+
+                                <div className="text-center space-y-2">
+                                    <h3 className="text-lg font-bold text-[#1a0f0a] font-serif">
+                                        {type.ocean}의 {type.season}
+                                    </h3>
+                                    <div className="inline-block px-3 py-1 bg-[#2c1810]/90 text-[#f4e4bc] rounded-full text-xs font-medium">
+                                        {persona?.animal || '신비로운 바다 생물'}
+                                    </div>
+                                    <p className="text-xs text-[#5d4037]/80 leading-relaxed break-keep">
+                                        {persona?.description || type.description}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
                 </div>
 
                 {/* Footer */}

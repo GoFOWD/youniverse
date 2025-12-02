@@ -21,29 +21,45 @@ const CompatibilityView: React.FC<CompatibilityViewProps> = ({ ocean, season }) 
         return matches[o] || 'Unknown Ocean';
     };
 
-    const bestMatch = getBestMatch(ocean);
+    const bestMatchOcean = getBestMatch(ocean);
+    // Assuming best match season is same or random, let's pick same season for simplicity or random
+    // For now, let's just use the same season to get a persona, or hardcode a mapping if needed.
+    // Let's use '여름' as default or same season.
+    const bestMatchSeason = season;
+
+    // Import getPersona here or pass it down? 
+    // Since it's a client component, we can import it.
+    // We need to import getPersona at the top.
+    const { getPersona } = require('../../data/personaData');
+    const bestMatchPersona = getPersona(bestMatchOcean, bestMatchSeason);
 
     return (
         <div className="w-full space-y-6 text-center">
-            <h3 className="text-xl font-serif text-white/80">함께하는 동료들 (Voyage Companions)</h3>
+            <h3 className="text-xl font-serif text-white/80">함께하는 동료 (Best Companion)</h3>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-center gap-8">
-                <div className="text-center">
-                    <div className="text-xs text-white/50 uppercase tracking-widest mb-1">나의 바다</div>
-                    <div className="text-lg font-bold text-white">{ocean}</div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
+                <div className="text-xs text-white/50 uppercase tracking-widest mb-1">최고의 동료</div>
+
+                {/* Animal Image */}
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-lg bg-black/20">
+                    <img
+                        src={`/assets/${bestMatchPersona?.image}.png`}
+                        alt={bestMatchPersona?.animal}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/assets/ship_icon.png'; // Fallback
+                        }}
+                    />
                 </div>
 
-                <div className="text-2xl text-white/30">🤝</div>
-
-                <div className="text-center">
-                    <div className="text-xs text-white/50 uppercase tracking-widest mb-1">최고의 동료</div>
-                    <div className="text-lg font-bold text-emerald-300">{bestMatch}</div>
+                <div className="text-center space-y-2">
+                    <div className="text-xl font-bold text-emerald-300">{bestMatchOcean}의 {bestMatchSeason}</div>
+                    <div className="text-lg text-white font-serif">{bestMatchPersona?.animal}</div>
+                    <p className="text-sm text-white/60 max-w-xs mx-auto leading-relaxed">
+                        {bestMatchPersona?.description}
+                    </p>
                 </div>
             </div>
-
-            <button className="w-full py-4 bg-white text-black font-bold rounded-xl shadow-lg hover:bg-gray-100 transition-all transform hover:-translate-y-1 active:translate-y-0">
-                모든 바다 유형 보기 (20 Types) 🌊
-            </button>
         </div>
     );
 };
