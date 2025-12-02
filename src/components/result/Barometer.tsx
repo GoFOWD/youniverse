@@ -34,46 +34,49 @@ const Barometer: React.FC<BarometerProps> = ({ season }) => {
                 className="w-full h-full object-cover rounded-full"
             />
 
-            {/* Needle - CSS Only, properly centered and contained */}
+            {/* Needle Container - rotates from center */}
             <div
-                className="absolute top-1/2 left-1/2 origin-center transition-transform duration-700"
+                className="absolute top-1/2 left-1/2 transition-transform duration-700 ease-out"
                 style={{
                     transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-                    width: '0px',
-                    height: '0px',
+                    transformOrigin: 'center center',
+                    width: '100%',
+                    height: '100%',
                     zIndex: 20
                 }}
             >
-                {/* Needle shaft - extends upward from center */}
+                {/* Needle - points upward (12 o'clock) when rotation is 0 */}
                 <div
-                    className="absolute left-1/2 -translate-x-1/2 rounded-t-full shadow-lg"
+                    className="absolute left-1/2 top-1/2"
                     style={{
-                        bottom: '-5px', // Extend slightly below center for pivot look
-                        width: '4px',
-                        height: '50%', // Length of needle
-                        maxHeight: '70px',
-                        background: 'linear-gradient(to top, #991b1b, #ef4444)',
-                        transformOrigin: 'bottom center'
+                        width: '3px',
+                        height: '18%', // Further reduced to stay safely within bounds
+                        background: 'linear-gradient(to top, #7c2d12, #dc2626)',
+                        transformOrigin: 'bottom center',
+                        transform: 'translate(-50%, -100%)', // Position so bottom is at center
+                        borderRadius: '2px 2px 0 0',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
                     }}
                 />
-                {/* Needle tip */}
+
+                {/* Needle tip (arrow) */}
                 <div
-                    className="absolute left-1/2 -translate-x-1/2"
+                    className="absolute left-1/2 top-1/2"
                     style={{
-                        bottom: 'calc(50% - 10px)', // Position tip at top of shaft
-                        marginBottom: '0px',
                         width: '0',
                         height: '0',
-                        borderLeft: '6px solid transparent',
-                        borderRight: '6px solid transparent',
-                        borderBottom: '12px solid #ef4444',
+                        borderLeft: '5px solid transparent',
+                        borderRight: '5px solid transparent',
+                        borderBottom: '10px solid #dc2626',
+                        transform: 'translate(-50%, calc(-100% - 18%))', // Adjusted for new needle length
+                        filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.3))'
                     }}
                 />
             </div>
 
             {/* Center cap - on top of everything */}
             <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 z-10"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 z-30"
                 style={{
                     boxShadow: '0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.3)'
                 }}

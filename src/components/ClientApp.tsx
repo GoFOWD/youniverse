@@ -240,14 +240,17 @@ export default function ClientApp() {
               const data: ResultData = await res.json();
               setResult(data);
 
-              // Wait 3 seconds before showing result page (Ocean Transition)
-              setStep('ocean_transition');
+              // Wait 4 seconds on loading page before ocean transition
               setTimeout(() => {
-                setStep('result');
-                setIsTransitioning(false);
-                isProcessingAnswer.current = false;
-                setIsFalling(false); // Reset falling state
-              }, 3000);
+                setStep('ocean_transition');
+                // Then wait 3 more seconds for ocean video before showing result
+                setTimeout(() => {
+                  setStep('result');
+                  setIsTransitioning(false);
+                  isProcessingAnswer.current = false;
+                  setIsFalling(false); // Reset falling state
+                }, 3000);
+              }, 4000);
 
             } catch (error) {
               console.error('Error submitting test:', error);
@@ -315,17 +318,16 @@ export default function ClientApp() {
         ocean={result?.ocean}
         isTransitioning={isFalling}
         backgroundComponent={
-          (step === 'question' && currentQuestionIndex === 17) ? <DeepSeaEffect videoSrc="/assets/main3.mp4" /> :
-            step === 'landing' ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
-              step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" /> :
-                step === 'ocean_transition' && result ? (
-                  <DeepSeaEffect videoSrc={`/assets/${result.ocean === '북극해' ? 'Arctic1' :
-                    result.ocean === '대서양' ? 'Atlantic1' :
-                      result.ocean === '인도양' ? 'indian1' :
-                        result.ocean === '남극해' ? 'southern1' :
-                          'pacific1' // 태평양
-                    }.mp4`} />
-                ) : null
+          step === 'landing' ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
+            step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" /> :
+              step === 'ocean_transition' && result ? (
+                <DeepSeaEffect videoSrc={`/assets/${result.ocean === '북극해' ? 'Arctic1' :
+                  result.ocean === '대서양' ? 'Atlantic1' :
+                    result.ocean === '인도양' ? 'indian1' :
+                      result.ocean === '남극해' ? 'southern1' :
+                        'pacific1' // 태평양
+                  }.mp4`} />
+              ) : null
         }
       >
         <AnimatePresence mode="popLayout">

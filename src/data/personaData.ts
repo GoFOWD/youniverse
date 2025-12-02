@@ -124,67 +124,70 @@ export const PERSONA_DATA: PersonaData[] = [
         // Pacific Fall (Sea Turtle vs Seahorse?)
         // Atlantic Winter (Lobster vs Reindeer?)
 
-        // I will use the data as provided but correct "대평양" to "태평양" and handle duplicates if they arise by just using the first match or maybe I should ask?
-        // No, I'll just put them in. The lookup will find the first one.
-        // But wait, if I have 20 types, I need 20 unique keys.
-        // Let's assume the user input has some typos.
-        // I will try to map them to the 20 combinations defined in AllOceanTypesView.
-        // Arctic: Sp, Su, Fa, Wi (All present)
-        // Atlantic: Sp, Su, Fa, Wi (All present, but Winter has 2?)
-        // Indian: Sp (Missing), Su, Fa, Wi (All present)
-        // Antarctic: Sp, Su (Missing), Fa, Wi (All present)
-        // Pacific: Sp, Su, Fa, Wi (All present, but Fall has 2?)
-
         // Maybe "Seahorse" is Indian Spring?
         // Maybe "Reindeer" is Antarctic Summer? (Reindeer in Antarctic? Unlikely. Reindeer are Arctic/Subarctic).
         // Maybe "Lobster" is...
 
         // I will just dump the data as is and add a fallback or "Unknown" if not found.
         // I'll fix "대평양" to "태평양".
+        description: "여러가지 기회가 다가오는 해마",
+        image: "북극늑대"
+    },
+    {
+        ocean: "태평양",
+        season: "가을",
         animal: "여러가지 기회가 다가오는 해마",
-        description: "금전적 시간적 투자와 기회가 서서히 다가오는 해마"
+        description: "금전적 시간적 투자와 기회가 서서히 다가오는 해마",
+        image: "해마"
     },
     {
         ocean: "대서양",
         season: "겨울", // Duplicate
         animal: "존재를 고민하는 철학가 순록",
-        description: "묵묵히 걸어서 결국엔 원하는 결과를 손에 넣는 노력파"
+        description: "묵묵히 걸어서 결국엔 원하는 결과를 손에 넣는 노력파",
+        image: "순록"
     },
     {
         ocean: "북극해",
         season: "여름",
         animal: "무리를 이루는 북극곰",
-        description: "실패 속에 포기하고 싶지만 여럿이서 결과를 만드는 북극곰"
+        description: "실패 속에 포기하고 싶지만 여럿이서 결과를 만드는 북극곰",
+        image: "북극곰"
     },
     {
         ocean: "인도양",
         season: "겨울",
         animal: "여유로운 인도독수리",
-        description: "여유로운 휴식속에서 결과를 만드는 인도독수리"
+        description: "여유로운 휴식속에서 결과를 만드는 인도독수리",
+        image: "인도독수리"
     },
     {
         ocean: "남극해",
         season: "봄",
         animal: "새로운 길을 개척하는 리더 얼룩무늬물범",
-        description: "쉬지 않고 달려나가 새로운 길을 개척하는 얼룩무늬물범"
+        description: "쉬지 않고 달려나가 새로운 길을 개척하는 얼룩무늬물범",
+        image: "얼룩무늬물범"
     },
     {
         ocean: "북극해",
         season: "가을",
         animal: "상황을 지휘하는 전략가 북극여우",
-        description: "예리한 통찰력을 바탕으로 상황을 지휘하는 전략가 북극여우"
+        description: "예리한 통찰력을 바탕으로 상황을 지휘하는 전략가 북극여우",
+        image: "북극여우"
     },
     {
         ocean: "태평양",
         season: "겨울",
         animal: "모든 것을 새롭게 보는 시인 문어",
-        description: "삶의 중요한 의미를 다시 한 번 생각해보게 하는 시인 문어"
+        description: "삶의 중요한 의미를 다시 한 번 생각해보게 하는 시인 문어",
+        image: "문어"
     },
     {
         ocean: "남극해",
         season: "가을",
         animal: "남들이 부러워하는 알바트로스",
-        description: "성과가 쌓여 남들이 부러워할만큼 성장한 알바트로스"
+        description: "성과가 쌓여 남들이 부러워할만큼 성장한 알바트로스",
+        image: "알바트로스"
     }
 ];
 

@@ -74,8 +74,8 @@ const AllOceanTypesView: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 transition={{ delay: index * 0.05 }}
                                 className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-[#8b5a2b]/20 hover:border-[#8b5a2b]/40 transition-all hover:shadow-lg flex flex-col items-center gap-3"
                             >
-                                {/* Animal Image */}
-                                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#8b5a2b]/20 shadow-md bg-white">
+                                {/* Animal Image - Larger */}
+                                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[#8b5a2b]/30 shadow-lg bg-white">
                                     <img
                                         src={`/assets/${persona?.image}.png`}
                                         alt={persona?.animal}

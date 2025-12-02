@@ -123,7 +123,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                 </div>
 
                 {/* INSTRUMENTS SECTION: Side by Side */}
-                <div className="relative w-full bg-[#e8dcc5] border-b-2 border-[#8b5a2b]/30 flex items-center justify-center gap-4 py-3">
+                <div className="relative w-full bg-[#e8dcc5] border-b-2 border-[#8b5a2b]/30 flex items-center justify-center gap-4 py-0">
                     {/* Barometer */}
                     <div className="w-[120px] h-[120px]">
                         {scores && <Barometer season={seasonName} />}
@@ -150,8 +150,8 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                                     height: '0',
                                     borderLeft: '4px solid transparent',
                                     borderRight: '4px solid transparent',
-                                    borderBottom: '35px solid #c41e3a',
-                                    top: '-35px',
+                                    borderBottom: '25px solid #c41e3a',
+                                    top: '-25px',
                                     filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
                                 }}
                             />
@@ -162,7 +162,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                                     height: '0',
                                     borderLeft: '4px solid transparent',
                                     borderRight: '4px solid transparent',
-                                    borderTop: '35px solid #2a2a2a',
+                                    borderTop: '25px solid #2a2a2a',
                                     top: '0',
                                     filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
                                 }}
