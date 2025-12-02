@@ -40,9 +40,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
     <div className="w-full flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10 relative z-20">
       <motion.div
         className="glass-panel p-6 sm:p-8 md:p-10 rounded-3xl w-full text-center shadow-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl relative overflow-hidden"
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
       >
         <h2 className="text-2xl md:text-3xl font-serif font-medium text-white leading-relaxed drop-shadow-md relative z-10">
           {question.question}
@@ -58,21 +58,20 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
             <motion.button
               key={option.id}
               onClick={() => handleAnswer(option.id)}
-              initial={{ x: -20, opacity: 0 }}
+              initial={{ opacity: 0 }}
               animate={{
-                x: 0,
                 opacity: isOtherSelected ? 0.5 : 1,
                 borderColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.1)",
                 backgroundColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.05)",
-                scale: isSelected ? 0.95 : 1, // Slight contraction for "pop" feel
+                scale: isSelected ? 0.95 : 1,
                 boxShadow: isSelected ? "none" : "0 0 0 0 rgba(0,0,0,0)"
               }}
               transition={{
-                duration: 0.4,
-                borderColor: { duration: 0.15 }, // Instant vanish
+                opacity: { duration: 0.3 },
+                borderColor: { duration: 0.15 },
                 backgroundColor: { duration: 0.15 },
                 boxShadow: { duration: 0.15 },
-                scale: { duration: 0.2, ease: "easeIn" } // Quick contraction
+                scale: { duration: 0.2, ease: "easeIn" }
               }}
               whileHover={!selectedOptionId ? {
                 scale: 1.02,

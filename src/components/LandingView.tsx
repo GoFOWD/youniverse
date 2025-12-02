@@ -23,13 +23,13 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
             transition={{ duration: 4, repeat: Infinity }}
           />
           <h1 className="relative text-4xl sm:text-5xl md:text-6xl font-serif font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-teal-100 to-teal-300 drop-shadow-lg">
-            너의 바다를
+            나의 바다를
             <br />
             찾아서
             {/* <span className="text-4xl md:text-5xl font-light text-teal-100/80">찾아서</span> */}
           </h1>
         </div>
-        
+
         <p className="text-teal-200/60 text-lg font-light tracking-[0.2em] uppercase" style={{ marginTop: '25px' }}>
           심해에서 시작되는 당신의 이야기
         </p>
@@ -43,11 +43,11 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
       >
         <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-teal-500/20 to-cyan-500/20 backdrop-blur-md border border-teal-500/30 group-hover:border-teal-400/50 transition-colors duration-300" />
         <div className="absolute inset-0 w-full h-full bg-teal-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
+
         <span className="relative z-10 text-teal-50 text-lg font-medium tracking-widest group-hover:text-white transition-colors">
           탐험 시작하기
         </span>
-        
+
         {/* Button Glow */}
         <motion.div
           className="absolute -inset-2 bg-teal-400/20 blur-lg rounded-full opacity-0 group-hover:opacity-100"
@@ -55,9 +55,9 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
         />
       </motion.button>
       <p className="text-teal-200/60 text-lg font-light tracking-[0.2em] uppercase" style={{ marginBottom: 0 }}>
-          당신의 모험성향과 
-          <br />
-          행동성향을 확인해 보세요
+        당신의 모험성향과
+        <br />
+        행동성향을 확인해 보세요
       </p>
     </div>
   );

@@ -8,8 +8,10 @@ import LandingView from './LandingView';
 import QuestionView from './QuestionView';
 import LoadingView from './LoadingView';
 import ResultView from './ResultView';
-import ProgressBar from './ProgressBar';
+import VerticalProgressBar from './VerticalProgressBar';
 import { audioManager } from '../utils/audioManager';
+
+import { questions as hardcodedQuestions } from '../data/questions';
 
 // Define types matching the API response
 interface Question {
@@ -41,7 +43,8 @@ interface ResultData {
 export default function ClientApp() {
   const [step, setStep] = useState<'splash' | 'landing' | 'question' | 'loading' | 'result'>('splash');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  // Use hardcoded questions directly
+  const [questions] = useState<Question[]>(hardcodedQuestions);
   const [answers, setAnswers] = useState<UserAnswerDetail[]>([]);
   const [result, setResult] = useState<ResultData | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -50,29 +53,11 @@ export default function ClientApp() {
 
   // Timing tracking
   const questionStartTime = useRef<number>(0);
-  
+
   // Ref to prevent rapid clicks (more reliable than state)
   const isProcessingAnswer = useRef<boolean>(false);
 
-  useEffect(() => {
-    // Fetch questions on mount (or when starting)
-    const fetchQuestions = async () => {
-      setIsLoadingQuestions(true);
-      try {
-        const res = await fetch('/api/test/start');
-        if (!res.ok) throw new Error('Failed to fetch questions');
-        const data = await res.json();
-        setQuestions(data);
-      } catch (error) {
-        console.error(error);
-        // Fallback or error state could be handled here
-      } finally {
-        setIsLoadingQuestions(false);
-      }
-    };
-
-    fetchQuestions();
-  }, []);
+  // Removed fetchQuestions useEffect as we use hardcoded data
 
   // Session Storage & Dropout Detection
   // Session Storage Restoration (Run once on mount)
@@ -139,13 +124,28 @@ export default function ClientApp() {
     setStep('question');
   };
 
+  const handleBack = () => {
+    if (currentQuestionIndex > 0) {
+      audioManager.playSwoosh();
+      setCurrentQuestionIndex(prev => prev - 1);
+      setAnswers(prev => prev.slice(0, -1)); // Remove last answer
+      setIsTransitioning(false);
+      isProcessingAnswer.current = false;
+    } else {
+      // If at first question, go back to landing? Or just do nothing?
+      // Let's go back to landing for now
+      setStep('landing');
+      setAnswers([]);
+    }
+  };
+
   const handleAnswer = async (choiceIndex: number) => {
     // CRITICAL: Use ref for immediate blocking (state updates are async)
     if (isProcessingAnswer.current || isTransitioning) {
       console.log('⚠️ Click blocked - already processing answer');
       return;
     }
-    
+
     // Lock immediately to prevent race conditions
     isProcessingAnswer.current = true;
     setIsTransitioning(true);
@@ -174,18 +174,16 @@ export default function ClientApp() {
         audioManager.playSwoosh();
         setIsFalling(true); // Start bubble fall
         setCurrentQuestionIndex(prev => prev + 1); // Start card fall (exit)
-        
+
         // Wait for fall animation to complete (approx 800ms) before unlocking
         setTimeout(() => {
           setIsFalling(false); // Reset bubbles to rising
           setIsTransitioning(false); // Unlock input
           isProcessingAnswer.current = false; // Unlock ref
         }, 800);
-      }, 800); 
+      }, 800);
     } else {
-      // Last question answered - also delay to show burst?
-      // For consistency, let's delay slightly or keep immediate if preferred.
-      // User didn't specify, but let's keep existing logic for now to avoid breaking submit flow.
+      // Last question answered
       setTimeout(() => {
         setStep('loading');
 
@@ -198,25 +196,25 @@ export default function ClientApp() {
             const res = await fetch('/api/test/submit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ answers: newAnswers }),
+              body: JSON.stringify({ answers: newAnswers, isDropout: false })
             });
 
             if (!res.ok) throw new Error('Failed to submit test');
 
-            const resultData = await res.json();
-            setResult(resultData);
+            const data: ResultData = await res.json();
+            setResult(data);
 
-            // Minimum loading time for UX
+            // Wait 4 seconds before showing result page
             setTimeout(() => {
               setStep('result');
               setIsTransitioning(false);
-              isProcessingAnswer.current = false; // Unlock ref
-            }, 3000);
+              isProcessingAnswer.current = false;
+            }, 4000);
+
           } catch (error) {
-            console.error('Submission error:', error);
-            // Handle error (maybe show an error screen or retry)
+            console.error('Error submitting test:', error);
             setIsTransitioning(false);
-            isProcessingAnswer.current = false; // Unlock ref on error
+            isProcessingAnswer.current = false;
           }
         })();
       }, 800); // Added delay for consistency
@@ -237,11 +235,20 @@ export default function ClientApp() {
 
   const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
 
-  // Ascent Transition Variants
+  // Page transition variants - Optimized for smooth performance
   const pageVariants = {
-    initial: { opacity: 0, y: '-100vh' }, // Start from top
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: '100vh', transition: { duration: 0.8, ease: "easeIn" as const } } // Fall down to bottom
+    initial: {
+      y: 30,
+      opacity: 0,
+    },
+    animate: {
+      y: 0,
+      opacity: 1,
+    },
+    exit: {
+      y: -30,
+      opacity: 0,
+    },
   };
 
   // Map API question format to QuestionView props
@@ -284,14 +291,27 @@ export default function ClientApp() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.8, ease: "easeInOut" }} // Slower, smoother transition
-            className="w-full flex flex-col items-center"
+            transition={{ duration: 0.4, ease: "easeInOut" }} // Optimized timing
+            className="w-full flex flex-col items-center relative"
           >
-            <ProgressBar progress={progress} />
-            <QuestionView
-              question={currentQuestionData}
-              onAnswer={(id) => handleAnswer(parseInt(id))}
-            />
+            {/* Vertical Progress Bar - Fixed position, won't shift */}
+            <VerticalProgressBar progress={progress} />
+
+            {/* Back Button - Fixed position, won't shift */}
+            <button
+              onClick={handleBack}
+              className="fixed left-6 top-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all text-sm flex items-center gap-2"
+            >
+              <span>←</span> 이전
+            </button>
+
+            {/* Question Content - with padding for left progress bar */}
+            <div className="w-full pl-16 md:pl-24">
+              <QuestionView
+                question={currentQuestionData}
+                onAnswer={(id) => handleAnswer(parseInt(id))}
+              />
+            </div>
           </motion.div>
         )}
 
@@ -309,8 +329,16 @@ export default function ClientApp() {
             className="w-full"
           >
             <ResultView
-              result={result}
-              onRestart={handleRestart}
+              result={{
+                ...result,
+                id: result.id || '',
+                advice: result.advice || '',
+                scores: {
+                  P: result.score.positivity,
+                  E: result.score.energy,
+                  C: result.score.curiosity
+                }
+              }}
             />
           </motion.div>
         )}
