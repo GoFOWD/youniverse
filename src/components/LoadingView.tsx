@@ -7,12 +7,6 @@ const LoadingView: React.FC = () => {
 
   return (
     <>
-      {/* Gradient Background */}
-      <div className="fixed inset-0 w-screen h-screen bg-gradient-to-b from-blue-900 via-cyan-600 to-teal-500 z-0" />
-      
-      {/* Subtle overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-      
       {/* Loading text overlay */}
       <motion.div
         className="absolute inset-0 flex items-center justify-center px-6 z-10"

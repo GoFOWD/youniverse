@@ -9,7 +9,10 @@ import QuestionView from './QuestionView';
 import LoadingView from './LoadingView';
 import ResultView from './ResultView';
 import VerticalProgressBar from './VerticalProgressBar';
+import dynamic from 'next/dynamic';
 import { audioManager } from '../utils/audioManager';
+
+const DeepSeaEffect = dynamic(() => import('./DeepSeaEffect'), { ssr: false });
 
 import { questions as hardcodedQuestions } from '../data/questions';
 
@@ -302,7 +305,18 @@ export default function ClientApp() {
 
   return (
     <div className="w-full min-h-[100dvh] bg-[#050505] text-white overflow-hidden relative selection:bg-teal-500/30">
-      <Layout step={step} progress={progress} ocean={result?.ocean} isTransitioning={isFalling}>
+      <Layout
+        step={step}
+        progress={progress}
+        ocean={result?.ocean}
+        isTransitioning={isFalling}
+        backgroundComponent={
+          (step === 'question' && currentQuestionIndex === 17) ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
+            step === 'landing' ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
+              step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" /> :
+                null
+        }
+      >
         <AnimatePresence mode="popLayout">
           {step === 'splash' && (
             <SplashView key="splash" onComplete={handleSplashComplete} />

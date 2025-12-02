@@ -38,7 +38,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                 scale: 2,
                 useCORS: true,
                 backgroundColor: null,
-            });
+            } as any);
 
             const link = document.createElement('a');
             link.download = `my_voyage_log_${new Date().getTime()}.jpg`;

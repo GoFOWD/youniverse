@@ -13,6 +13,7 @@ interface LayoutProps {
   ocean?: string; // For result screen video
   className?: string;
   isTransitioning?: boolean; // New prop for burst effect
+  backgroundComponent?: React.ReactNode;
 }
 
 // Ocean video mapping
@@ -48,7 +49,7 @@ const interpolateColor = (color1: string, color2: string, factor: number): strin
 
 
 
-const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, className = '', isTransitioning = false }) => {
+const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, className = '', isTransitioning = false, backgroundComponent }) => {
   // Calculate bubble density based on progress (more bubbles as we rise)
   const bubbleCount = Math.round(5 + (progress / 100) * 10); // 5 to 15 bubbles (Optimized)
   const bubbleSpeed = 10 + (progress / 100) * 10; // Faster as we rise
@@ -67,11 +68,11 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
     // For landing, loading, and result - use predefined colors
     if (step === 'landing') {
       return {
-        background: 'linear-gradient(to bottom right, #0a1a1f, #050f12, #020a0d)'
+        background: '#000000'
       };
     } else if (step === 'loading') {
       return {
-        background: 'linear-gradient(to bottom right, rgb(96 165 250), rgb(6 182 212), rgb(20 184 166))'
+        background: '#000000'
       };
     } else if (step === 'result') {
       return {
@@ -129,26 +130,14 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
         animate={{ opacity: 1 }}
       />
 
-      {/* Video Background for Landing Screen */}
-      {step === 'landing' && (
-        <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0 bg-black">
-          <motion.video
-            className="w-full h-full object-cover object-center"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5 }}
-          >
-            <source src="/assets/main.mp4" type="video/mp4" />
-          </motion.video>
-          {/* Overlay for readability */}
-          <div className="absolute inset-0 bg-black/30" />
+      {/* Custom Background Component (e.g. DeepSeaEffect) */}
+      {backgroundComponent && (
+        <div className="absolute inset-0 z-0">
+          {backgroundComponent}
         </div>
       )}
+
+
 
       {/* Video Background for Result Screen */}
       {step === 'result' && videoFile && (
