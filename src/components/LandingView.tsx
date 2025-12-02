@@ -22,7 +22,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 4, repeat: Infinity }}
           />
-          <h1 className="relative text-4xl sm:text-5xl md:text-6xl font-serif font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-teal-100 to-teal-300 drop-shadow-lg">
+          <h1 className="relative text-4xl sm:text-5xl md:text-6xl font-sans font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-teal-100 to-teal-300 drop-shadow-lg">
             나의 바다를
             <br />
             찾아서
@@ -30,7 +30,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           </h1>
         </div>
 
-        <p className="text-teal-200/60 text-lg font-light tracking-[0.2em] uppercase" style={{ marginTop: '25px' }}>
+        <p className="text-teal-200/90 text-lg font-medium tracking-[0.2em] uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" style={{ marginTop: '25px' }}>
           심해에서 시작되는 당신의 이야기
         </p>
       </motion.div>
@@ -54,7 +54,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           transition={{ duration: 0.3 }}
         />
       </motion.button>
-      <p className="text-teal-200/60 text-lg font-light tracking-[0.2em] uppercase" style={{ marginBottom: 0 }}>
+      <p className="text-teal-200/90 text-lg font-medium tracking-[0.2em] uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" style={{ marginBottom: 0 }}>
         당신의 모험성향과
         <br />
         행동성향을 확인해 보세요

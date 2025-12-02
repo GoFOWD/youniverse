@@ -24,8 +24,7 @@ interface Question {
 interface UserAnswerDetail {
   questionId: number;
   choice: string;
-  startTime: number;
-  endTime: number;
+
 }
 
 interface ResultData {
@@ -51,9 +50,9 @@ export default function ClientApp() {
   const [isFalling, setIsFalling] = useState(false); // Controls visual falling effect
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
-  // Timing tracking
+  /* Timing tracking 중도이탈률 계산 선언
   const questionStartTime = useRef<number>(0);
-
+   */
   // Timeout refs for cleanup
   const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -105,13 +104,14 @@ export default function ClientApp() {
     };
   }, [step, questions, answers, currentQuestionIndex]);
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
+  // Cleanup timeouts on unmount 중도이탈률 계산 
+  /*useEffect(() => { 
     return () => {
       if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
       if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     };
   }, []);
+  */
 
   // Save progress to session storage whenever it changes
   useEffect(() => {
@@ -120,15 +120,15 @@ export default function ClientApp() {
       sessionStorage.setItem('test_answers', JSON.stringify(answers));
     }
   }, [currentQuestionIndex, answers, step]);
-
-  useEffect(() => {
-    if (step === 'question') {
-      questionStartTime.current = Date.now();
-      // Scroll to top when question changes
-      window.scrollTo(0, 0);
-    }
-  }, [step, currentQuestionIndex]);
-
+  /*
+    useEffect(() => {
+      if (step === 'question') {
+        questionStartTime.current = Date.now();
+        // Scroll to top when question changes
+        window.scrollTo(0, 0);
+      }
+    }, [step, currentQuestionIndex]);
+  */
   const handleSplashComplete = () => {
     setStep('landing');
   };
@@ -185,8 +185,6 @@ export default function ClientApp() {
     const newAnswer: UserAnswerDetail = {
       questionId: currentQuestion.id,
       choice: choiceChar,
-      startTime: questionStartTime.current,
-      endTime: endTime
     };
 
     const newAnswers = [...answers, newAnswer];
