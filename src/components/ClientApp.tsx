@@ -102,11 +102,16 @@ export default function ClientApp() {
     window.addEventListener('beforeunload', handleUnload);
     return () => {
       window.removeEventListener('beforeunload', handleUnload);
-      // Clear timeouts on unmount
+    };
+  }, [step, questions, answers, currentQuestionIndex]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
       if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
       if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     };
-  }, [step, questions, answers, currentQuestionIndex]);
+  }, []);
 
   // Save progress to session storage whenever it changes
   useEffect(() => {
@@ -205,40 +210,53 @@ export default function ClientApp() {
       }, 400);
     } else {
       // Last question answered
-      setTimeout(() => {
-        setStep('loading');
+      // Wait for burst animation (400ms), then trigger fall
+      transitionTimeoutRef.current = setTimeout(() => {
+        audioManager.playSwoosh();
+        setIsFalling(true); // Start bubble fall (exit animation)
 
-        // Clear session storage on completion
-        sessionStorage.removeItem('test_progress_index');
-        sessionStorage.removeItem('test_answers');
+        // Wait for exit animation (500ms) before showing loading
+        setTimeout(() => {
+          setStep('loading');
 
-        (async () => {
-          try {
-            const res = await fetch('/api/test/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ answers: newAnswers, isDropout: false })
-            });
+          // Clear session storage on completion
+          sessionStorage.removeItem('test_progress_index');
+          sessionStorage.removeItem('test_answers');
 
-            if (!res.ok) throw new Error('Failed to submit test');
+          (async () => {
+            try {
+              const res = await fetch('/api/test/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: newAnswers, isDropout: false })
+              });
 
-            const data: ResultData = await res.json();
-            setResult(data);
+              if (!res.ok) throw new Error('Failed to submit test');
 
-            // Wait 4 seconds before showing result page
-            setTimeout(() => {
-              setStep('result');
+              const data: ResultData = await res.json();
+              setResult(data);
+
+              // Wait 4 seconds before showing result page
+              setTimeout(() => {
+                setStep('result');
+                setIsTransitioning(false);
+                isProcessingAnswer.current = false;
+                setIsFalling(false); // Reset falling state
+              }, 4000);
+
+            } catch (error) {
+              console.error('Error submitting test:', error);
+              // If error, maybe go back to landing or show error?
+              // For now, reset state so they can try again or go back
               setIsTransitioning(false);
               isProcessingAnswer.current = false;
-            }, 4000);
-
-          } catch (error) {
-            console.error('Error submitting test:', error);
-            setIsTransitioning(false);
-            isProcessingAnswer.current = false;
-          }
-        })();
-      }, 800); // Added delay for consistency
+              setIsFalling(false);
+              setStep('question'); // Go back to question to retry? Or stay in loading?
+              alert('결과 제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+          })();
+        }, 500);
+      }, 400);
     }
   };
 
@@ -330,6 +348,7 @@ export default function ClientApp() {
                   <QuestionView
                     question={currentQuestionData}
                     onAnswer={(id) => handleAnswer(parseInt(id))}
+                    disabled={isTransitioning}
                   />
                 </div>
               </motion.div>

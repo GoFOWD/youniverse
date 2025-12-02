@@ -129,6 +129,27 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
         animate={{ opacity: 1 }}
       />
 
+      {/* Video Background for Landing Screen */}
+      {step === 'landing' && (
+        <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0 bg-black">
+          <motion.video
+            className="w-full h-full object-cover object-center"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
+          >
+            <source src="/assets/main.mp4" type="video/mp4" />
+          </motion.video>
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 bg-black/30" />
+        </div>
+      )}
+
       {/* Video Background for Result Screen */}
       {step === 'result' && videoFile && (
         <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0 bg-black">

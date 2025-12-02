@@ -17,13 +17,14 @@ interface Question {
 interface QuestionViewProps {
   question: Question;
   onAnswer: (id: string) => void;
+  disabled?: boolean;
 }
 
-const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
+const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer, disabled }) => {
   const [selectedOptionId, setSelectedOptionId] = React.useState<string | null>(null);
 
   const handleAnswer = (id: string) => {
-    if (selectedOptionId) return; // Prevent multiple clicks
+    if (selectedOptionId || disabled) return; // Prevent multiple clicks or interaction when disabled
     setSelectedOptionId(id);
 
     // Call onAnswer immediately so sound plays right away
@@ -37,7 +38,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
   }, [question.id]);
 
   return (
-    <div className="w-full flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10 relative z-20">
+    <div className={`w-full flex flex-col items-center space-y-6 sm:space-y-8 md:space-y-10 relative z-20 ${disabled ? 'pointer-events-none' : ''}`}>
       <motion.div
         className="glass-panel p-6 sm:p-8 md:p-10 rounded-3xl w-full text-center shadow-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl relative overflow-hidden"
         initial={{ opacity: 0 }}
@@ -58,6 +59,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer }) => {
             <motion.button
               key={option.id}
               onClick={() => handleAnswer(option.id)}
+              disabled={disabled}
               initial={{ opacity: 0 }}
               animate={{
                 opacity: isOtherSelected ? 0.5 : 1,
