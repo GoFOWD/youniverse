@@ -81,7 +81,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
   const keywords = [result.season, 'Voyager', 'Deep Ocean', result.ocean];
 
   return (
-    <div className="w-full min-h-screen pb-20 relative z-10">
+    <div className="w-full min-h-[100dvh] pb-20 relative z-10">
       <AdPopup isOpen={isAdOpen} onClose={handleAdClose} />
 
       {/* All Ocean Types Modal */}
@@ -165,6 +165,75 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Feedback Section - Fixed at bottom */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+        >
+          <h3 className="text-lg font-serif text-white mb-4 text-center">이번 항해는 어떠셨나요?</h3>
+
+          {!feedbackSubmitted ? (
+            <div className="space-y-4">
+              {/* Star Rating */}
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className="text-3xl transition-all hover:scale-110"
+                  >
+                    {star <= rating ? '⭐' : '☆'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Comment Input */}
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="소중한 의견을 남겨주세요..."
+                className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40 resize-none"
+                rows={3}
+              />
+
+              {/* Submit Button */}
+              <button
+                onClick={handleFeedbackSubmit}
+                disabled={isSubmitting || rating === 0}
+                className="w-full py-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg font-medium hover:from-teal-600 hover:to-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? '전송 중...' : '피드백 보내기'}
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-white/80 mb-2">✨ 소중한 의견 감사합니다! ✨</p>
+              <p className="text-white/60 text-sm">더 나은 항해를 위해 노력하겠습니다.</p>
+            </div>
+          )}
+        </motion.section>
+
+        {/* Ad Banner Section - Fixed at bottom */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-gradient-to-br from-[#2c1810]/80 to-[#3e2723]/80 backdrop-blur-md rounded-2xl p-8 border-2 border-[#8b5a2b]/30 relative overflow-hidden"
+        >
+          {/* Vintage paper texture overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#f4e4bc]/5 to-transparent opacity-30" />
+
+          <div className="relative text-center space-y-3">
+            <div className="text-[#8b5a2b] text-xs font-serif tracking-widest uppercase">Advertisement</div>
+            <div className="h-32 flex items-center justify-center border-2 border-dashed border-[#8b5a2b]/30 rounded-lg">
+              <p className="text-[#f4e4bc]/60 font-serif">광고 배너 영역</p>
+            </div>
+            <p className="text-[#f4e4bc]/40 text-xs font-serif">Your ad could be here</p>
+          </div>
+        </motion.section>
 
       </div>
     </div>

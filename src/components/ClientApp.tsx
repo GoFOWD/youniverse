@@ -54,6 +54,10 @@ export default function ClientApp() {
   // Timing tracking
   const questionStartTime = useRef<number>(0);
 
+  // Timeout refs for cleanup
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Ref to prevent rapid clicks (more reliable than state)
   const isProcessingAnswer = useRef<boolean>(false);
 
@@ -69,6 +73,8 @@ export default function ClientApp() {
       setCurrentQuestionIndex(parseInt(savedIndex));
       setAnswers(JSON.parse(savedAnswers));
       setStep('question');
+      // Initialize audio on restore (might be suspended, but context created)
+      audioManager.init();
     }
   }, []);
 
@@ -96,6 +102,9 @@ export default function ClientApp() {
     window.addEventListener('beforeunload', handleUnload);
     return () => {
       window.removeEventListener('beforeunload', handleUnload);
+      // Clear timeouts on unmount
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     };
   }, [step, questions, answers, currentQuestionIndex]);
 
@@ -110,6 +119,8 @@ export default function ClientApp() {
   useEffect(() => {
     if (step === 'question') {
       questionStartTime.current = Date.now();
+      // Scroll to top when question changes
+      window.scrollTo(0, 0);
     }
   }, [step, currentQuestionIndex]);
 
@@ -126,10 +137,15 @@ export default function ClientApp() {
 
   const handleBack = () => {
     if (currentQuestionIndex > 0) {
+      // Clear any pending transitions if user clicks back quickly
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+
       audioManager.playSwoosh();
       setCurrentQuestionIndex(prev => prev - 1);
       setAnswers(prev => prev.slice(0, -1)); // Remove last answer
       setIsTransitioning(false);
+      setIsFalling(false); // Reset falling state
       isProcessingAnswer.current = false;
     } else {
       // If at first question, go back to landing? Or just do nothing?
@@ -149,6 +165,9 @@ export default function ClientApp() {
     // Lock immediately to prevent race conditions
     isProcessingAnswer.current = true;
     setIsTransitioning(true);
+
+    // Ensure audio context is running (resume if suspended)
+    audioManager.resume();
 
     // Play sound immediately on click
     audioManager.playBubble();
@@ -170,18 +189,20 @@ export default function ClientApp() {
 
     if (currentQuestionIndex < questions.length - 1) {
       // Wait for burst animation (800ms), then trigger fall
-      setTimeout(() => {
+      // Wait for burst animation (400ms), then trigger fall
+      transitionTimeoutRef.current = setTimeout(() => {
         audioManager.playSwoosh();
         setIsFalling(true); // Start bubble fall
         setCurrentQuestionIndex(prev => prev + 1); // Start card fall (exit)
 
-        // Wait for fall animation to complete (approx 800ms) before unlocking
-        setTimeout(() => {
-          setIsFalling(false); // Reset bubbles to rising
-          setIsTransitioning(false); // Unlock input
-          isProcessingAnswer.current = false; // Unlock ref
-        }, 800);
-      }, 800);
+        // Wait for exit animation (400ms) to complete before unlocking
+        // This prevents clicking the fading-out options of the previous question
+        resetTimeoutRef.current = setTimeout(() => {
+          setIsFalling(false);
+          setIsTransitioning(false);
+          isProcessingAnswer.current = false;
+        }, 500);
+      }, 400);
     } else {
       // Last question answered
       setTimeout(() => {
@@ -264,85 +285,91 @@ export default function ClientApp() {
   } : null;
 
   return (
-    <Layout step={step} progress={progress} ocean={result?.ocean} isTransitioning={isFalling}>
-      <AnimatePresence mode="popLayout">
-        {step === 'splash' && (
-          <SplashView key="splash" onComplete={handleSplashComplete} />
-        )}
+    <div className="w-full min-h-[100dvh] bg-[#050505] text-white overflow-hidden relative selection:bg-teal-500/30">
+      <Layout step={step} progress={progress} ocean={result?.ocean} isTransitioning={isFalling}>
+        <AnimatePresence mode="popLayout">
+          {step === 'splash' && (
+            <SplashView key="splash" onComplete={handleSplashComplete} />
+          )}
 
-        {step === 'landing' && (
-          <motion.div
-            key="landing"
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full"
-          >
-            <LandingView onStart={handleStart} />
-          </motion.div>
-        )}
-
-        {step === 'question' && currentQuestionData && (
-          <motion.div
-            key={`question-${currentQuestionIndex}`}
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.4, ease: "easeInOut" }} // Optimized timing
-            className="w-full flex flex-col items-center relative"
-          >
-            {/* Vertical Progress Bar - Fixed position, won't shift */}
-            <VerticalProgressBar progress={progress} />
-
-            {/* Back Button - Fixed position, won't shift */}
-            <button
-              onClick={handleBack}
-              className="fixed left-6 top-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all text-sm flex items-center gap-2"
+          {step === 'landing' && (
+            <motion.div
+              key="landing"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="w-full"
             >
-              <span>←</span> 이전
-            </button>
+              <LandingView onStart={handleStart} />
+            </motion.div>
+          )}
 
-            {/* Question Content - with padding for left progress bar */}
-            <div className="w-full pl-16 md:pl-24">
-              <QuestionView
-                question={currentQuestionData}
-                onAnswer={(id) => handleAnswer(parseInt(id))}
+          {step === 'question' && currentQuestionData && (
+            <>
+              {/* Back Button - Fixed position, outside animation */}
+              <button
+                onClick={handleBack}
+                className="fixed left-6 top-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all text-sm flex items-center gap-2"
+              >
+                <span>←</span> 이전
+              </button>
+
+              <motion.div
+                key={`question-${currentQuestionIndex}`}
+                variants={pageVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="w-full flex flex-col items-center relative"
+              >
+                {/* Question Content - with padding for left progress bar */}
+                <div className="w-full pl-16 md:pl-24">
+                  <QuestionView
+                    question={currentQuestionData}
+                    onAnswer={(id) => handleAnswer(parseInt(id))}
+                  />
+                </div>
+              </motion.div>
+            </>
+          )}
+
+          {step === 'loading' && (
+            <LoadingView key="loading" />
+          )}
+
+          {step === 'result' && result && (
+            <motion.div
+              key="result"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="w-full"
+            >
+              <ResultView
+                result={{
+                  ...result,
+                  id: result.id || '',
+                  advice: result.advice || '',
+                  scores: {
+                    P: result.score.positivity,
+                    E: result.score.energy,
+                    C: result.score.curiosity
+                  }
+                }}
               />
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {step === 'loading' && (
-          <LoadingView key="loading" />
+        {/* Vertical Progress Bar - Persistent outside animation, only visible during question step */}
+        {step === 'question' && (
+          <VerticalProgressBar progress={progress} />
         )}
-
-        {step === 'result' && result && (
-          <motion.div
-            key="result"
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="w-full"
-          >
-            <ResultView
-              result={{
-                ...result,
-                id: result.id || '',
-                advice: result.advice || '',
-                scores: {
-                  P: result.score.positivity,
-                  E: result.score.energy,
-                  C: result.score.curiosity
-                }
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Layout>
+      </Layout>
+    </div>
   );
 }

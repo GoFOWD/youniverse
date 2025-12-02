@@ -26,7 +26,7 @@ const Barometer: React.FC<BarometerProps> = ({ season }) => {
     const rotation = getRotation(season);
 
     return (
-        <div className="relative w-full aspect-square max-w-[250px] mx-auto">
+        <div className="relative w-full aspect-square mx-auto">
             {/* Barometer Background Image - Full width */}
             <img
                 src="/assets/barometer_bg.png"

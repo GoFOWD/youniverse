@@ -127,7 +127,8 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                 </div>
 
                 {/* 3. Dashboard Section - Full Width Instruments */}
-                <div className="p-6 pt-10 bg-[#e8dcc5]">
+                {/* 3. Dashboard Section - Full Width Instruments */}
+                <div className="px-[10px] py-10 bg-[#e8dcc5]">
 
                     {/* Dashboard Instruments - Side by Side, Full Width */}
                     <div className="grid grid-cols-2 gap-2 mb-6">
@@ -139,7 +140,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
 
                         {/* Compass - Right */}
                         <div className="flex flex-col items-center justify-center">
-                            <div className="relative w-full aspect-square max-w-[250px] mx-auto">
+                            <div className="relative w-full aspect-square mx-auto">
                                 {/* Compass Background - Provided Image */}
                                 <img
                                     src="/assets/compass_bg.png"
