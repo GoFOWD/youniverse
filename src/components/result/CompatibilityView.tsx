@@ -35,7 +35,12 @@ const CompatibilityView: React.FC<CompatibilityViewProps> = ({ ocean, season }) 
 
     return (
         <div className="w-full space-y-6 text-center">
-            <h3 className="text-xl font-serif text-white/80"><strong>2026년</strong> <br></br>베스트 항해 파트너</h3>
+            <div className="text-center space-y-2">
+                <h2 className="text-2xl font-serif font-bold text-white drop-shadow-lg">
+                    2026년<br />베스트 항해 파트너
+                </h2>
+                <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
+            </div>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
                 <div className="text-xs text-white/50 uppercase tracking-widest mb-1"><strong>나의 친구가 되라!</strong></div>

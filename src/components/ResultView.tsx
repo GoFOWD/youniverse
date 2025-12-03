@@ -143,7 +143,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
                 </div>
 
                 {/* Block 1: Barometer + Graph */}
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-6">
+                <div className="flex flex-col items-center gap-6">
                   <div className="w-full max-w-[200px] transform scale-110">
                     <Barometer season={result.season} />
                   </div>
@@ -159,18 +159,19 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
                   </h2>
                   <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
                 </div>
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl py-6 px-4 border border-white/10 flex flex-col items-center gap-6">
 
+                {/* Compass - Outside Box */}
+                <div className="flex justify-center">
                   <div className="w-full max-w-[200px] transform scale-110">
-
                     <Compass score={result.scores.C} />
-
                   </div>
+                </div>
 
-                  {/* Letter Content */}
+                {/* Letter Content - Inside Box */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl py-6 px-4 border border-white/10 flex flex-col items-center gap-6">
                   <div className="w-full text-center space-y-4">
                     <h3 className="text-lg font-serif text-amber-100/80">To. Voyager</h3>
-                    <p className="text-white/90 leading-loose font-light whitespace-pre-wrap">
+                    <p className="text-white font-medium leading-loose whitespace-pre-wrap">
                       {formatText(result.description)}
                     </p>
                     {result.advice && (

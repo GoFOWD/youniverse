@@ -68,7 +68,9 @@ const StatChart: React.FC<StatChartProps> = ({ scores }) => {
             </div>
 
             <div className="text-xs text-white/40 text-center mt-4 pt-4 border-t border-white/5">
-                * Analysis based on your navigation choices
+                행동성향에서 드러나는 긍정성, 에너지, 호기심을 수치화한 지표입니다.
+                높고 낮음은 좋고 나쁨이 아닌, 개인의 고유한 성향을 나타냅니다.
+                성향에 따른 행동지향을 이해하는 참고자료로 활용하세요.
             </div>
         </div>
     );
