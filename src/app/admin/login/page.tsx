@@ -30,8 +30,8 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black text-green-500 font-mono">
-            <div className="w-full max-w-md p-8 space-y-6 bg-black border-2 border-green-800 shadow-[0_0_20px_rgba(0,255,0,0.2)]">
+        <div className="min-h-screen flex items-center justify-center bg-black text-green-500 font-mono px-4">
+            <div className="w-full max-w-full sm:max-w-2xl lg:max-w-4xl p-6 sm:p-8 space-y-6 bg-black border-2 border-green-800 shadow-[0_0_20px_rgba(0,255,0,0.2)]">
                 <div className="text-center space-y-2">
                     <div className="text-4xl font-bold tracking-tighter">
                         <span className="mr-2 animate-pulse">█</span>

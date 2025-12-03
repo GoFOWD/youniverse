@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 export const metadata: Metadata = {
   title: '나의 바다를 찾아서',
@@ -61,10 +62,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-[#1a1a1a] flex justify-center min-h-screen">
-        <div className="w-full max-w-[430px] min-h-screen bg-black relative shadow-2xl overflow-hidden">
-          {children}
-        </div>
+      <body>
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );
