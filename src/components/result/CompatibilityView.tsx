@@ -42,17 +42,25 @@ const CompatibilityView: React.FC<CompatibilityViewProps> = ({ ocean, season }) 
                 <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
-                <div className="text-xs text-white/50 uppercase tracking-widest mb-1"><strong>나의 친구가 되라!</strong></div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-6">
+                {/* Speech Bubble */}
+                <div className="relative bg-white/90 rounded-2xl px-6 py-3 shadow-lg">
+                    <div className="text-sm font-bold text-gray-800 tracking-wide">나의 친구가 되라!</div>
+                    {/* Speech bubble tail */}
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[12px] border-t-white/90" />
+                </div>
 
-                {/* Animal Image */}
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-lg bg-black/20">
+                {/* Animal Image - No circular background */}
+                <div className="w-[200px] h-[200px] flex items-center justify-center">
                     <img
                         src={`/assets/${bestMatchPersona?.image}.png`}
                         alt={bestMatchPersona?.animal}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain drop-shadow-xl"
+                        style={{
+                            filter: 'brightness(1.05) contrast(1.1)'
+                        }}
                         onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/assets/ship_icon.png'; // Fallback
+                            (e.target as HTMLImageElement).src = '/assets/ship_icon.png';
                         }}
                     />
                 </div>
