@@ -92,21 +92,31 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Measure actual card height after render
+    // Measure actual card height dynamically using ResizeObserver
     useEffect(() => {
-        if (cardRef.current) {
-            const height = cardRef.current.offsetHeight;
-            setCardHeight(height);
-        }
+        if (!cardRef.current) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            // Use offsetHeight to include padding/borders and ensure full height is captured
+            if (cardRef.current) {
+                setCardHeight(cardRef.current.offsetHeight);
+            }
+        });
+
+        resizeObserver.observe(cardRef.current);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
     }, []);
 
     return (
         <div className="flex flex-col items-center space-y-6 w-full mx-auto overflow-hidden">
             {/* Wrapper to center and handle scaling space */}
             <div
-                className="relative flex justify-center items-center w-full"
+                className="relative flex justify-center items-center w-full transition-all duration-300 ease-out"
                 style={{
-                    height: `${cardHeight * scale}px`, // Reserve exact scaled height
+                    height: `${(cardHeight * scale) + 40}px`, // Reserve scaled height + 40px buffer to prevent overlap
                 }}
             >
                 {/* Capture Area (The Card) - Fixed 360x640 (9:16) */}
@@ -248,10 +258,10 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                                 src="/assets/올해의선원프레임.png"
                                 alt="Frame"
                                 className="absolute inset-0 w-full h-full object-contain z-20"
+                                loading="eager"
                             />
 
                             {/* Animal Image - Positioned inside the frame */}
-                            {/* Adjust size and position to fit the specific frame opening */}
                             <div className="w-[110px] h-[110px] relative z-10 rounded-full overflow-hidden bg-[#faf8f3] -rotate-3">
                                 <img
                                     src={`/assets/${persona?.image}.png`}
@@ -283,7 +293,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col w-full gap-3 px-4 max-w-[400px]">
+            <div className="flex flex-col w-full gap-5 px-4 max-w-[400px] mt-[70px] z-10">
                 <button
                     onClick={handleDownload}
                     className="w-full py-4 bg-[#2c1810] text-[#f4e4bc] font-serif text-lg rounded-lg shadow-lg hover:bg-[#3e2723] transition-all active:scale-95 flex items-center justify-center gap-2"

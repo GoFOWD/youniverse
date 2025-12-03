@@ -130,7 +130,7 @@ export const PERSONA_DATA: PersonaData[] = [
 
         // I will just dump the data as is and add a fallback or "Unknown" if not found.
         // I'll fix "대평양" to "태평양".
-        description: "여러가지 기회가 다가오는 해마",
+        description: "때론 다가가긴 어렵지만 모두를 공감해주는 북극늑대",
         image: "북극늑대"
     },
     {

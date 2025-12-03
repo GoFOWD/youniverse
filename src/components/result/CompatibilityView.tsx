@@ -38,7 +38,7 @@ const CompatibilityView: React.FC<CompatibilityViewProps> = ({ ocean, season }) 
             <h3 className="text-xl font-serif text-white/80"><strong>2026년</strong> <br></br>베스트 항해 파트너</h3>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
-                <div className="text-xs text-white/50 uppercase tracking-widest mb-1"><strong>나의 동료가 되라!</strong></div>
+                <div className="text-xs text-white/50 uppercase tracking-widest mb-1"><strong>나의 친구가 되라!</strong></div>
 
                 {/* Animal Image */}
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-lg bg-black/20">
