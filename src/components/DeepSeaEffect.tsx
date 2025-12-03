@@ -118,25 +118,36 @@ interface DeepSeaEffectProps {
 }
 
 export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.0 }: DeepSeaEffectProps) {
-    const [isLoading, setIsLoading] = React.useState(true);
+    const [opacity, setOpacity] = React.useState(0);
+
+    React.useEffect(() => {
+        // Fade in after a short delay
+        const timer = setTimeout(() => {
+            setOpacity(1);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [videoSrc]);
 
     return (
         <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* Black background fallback while video loads */}
+            {/* Black background fallback */}
             <div className="absolute inset-0 bg-black" />
 
-            <Canvas
-                camera={{ position: [0, 0, 5], fov: 75 }}
-                gl={{ antialias: false }}
-                onCreated={() => {
-                    // Small delay to ensure video starts loading
-                    setTimeout(() => setIsLoading(false), 100);
-                }}
+            {/* Video with fade-in */}
+            <div
+                className="absolute inset-0 transition-opacity duration-1000 ease-out"
+                style={{ opacity }}
             >
-                <React.Suspense fallback={null}>
-                    <VideoBackground videoSrc={videoSrc} zoom={zoom} />
-                </React.Suspense>
-            </Canvas>
+                <Canvas
+                    camera={{ position: [0, 0, 5], fov: 75 }}
+                    gl={{ antialias: false }}
+                >
+                    <React.Suspense fallback={null}>
+                        <VideoBackground videoSrc={videoSrc} zoom={zoom} />
+                    </React.Suspense>
+                </Canvas>
+            </div>
         </div>
     );
 }
