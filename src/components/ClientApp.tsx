@@ -51,6 +51,29 @@ export default function ClientApp() {
   const [result, setResult] = useState<ResultData | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isFalling, setIsFalling] = useState(false); // Controls visual falling effect
+
+  // Preload videos to prevent flash
+  useEffect(() => {
+    const videosToPreload = [
+      '/assets/main.mp4',
+      '/assets/main3.mp4',
+      '/assets/Arctic1.mp4',
+      '/assets/Atlantic1.mp4',
+      '/assets/indian1.mp4',
+      '/assets/southern1.mp4',
+      '/assets/pacific1.mp4',
+    ];
+
+    videosToPreload.forEach(src => {
+      const video = document.createElement('video');
+      video.preload = 'auto';
+      video.muted = true;
+      video.playsInline = true;
+      video.src = src;
+      // Start loading but don't play
+      video.load();
+    });
+  }, []);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   /* Timing tracking 중도이탈률 계산 선언
