@@ -35,7 +35,7 @@ const ParticleOverlay: React.FC<ParticleOverlayProps> = ({ count = 15, isTransit
   const activeParticles = particles.slice(0, count);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Floating Bubbles */}
       {activeParticles.map((p) => (
         <FloatingBubble

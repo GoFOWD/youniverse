@@ -17,7 +17,7 @@ const VerticalProgressBar: React.FC<VerticalProgressBarProps> = ({ progress }) =
     const depthMarkers = [0, 2500, 5000, 7500, 10000, 11000];
 
     return (
-        <div className="fixed left-4 md:left-8 top-1/2 -translate-y-1/2 h-[70vh] w-12 z-50 flex flex-col items-center">
+        <div className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 h-[70vh] w-12 z-50 flex flex-col items-center">
             {/* Track Background */}
             <div className="absolute inset-y-0 w-[2px] bg-white/10 left-1/2 -translate-x-1/2 rounded-full" />
 
