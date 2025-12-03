@@ -160,7 +160,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                         Say 260px height for map.
                     */}
                     {/* MAP SECTION: Reduced height, Instruments Overlay */}
-                    <div className="relative w-full h-[220px] overflow-hidden shrink-0">
+                    <div className="relative w-full h-[220px] overflow-visible shrink-0">
                         <div
                             className="absolute inset-0 w-full h-full"
                             style={{
