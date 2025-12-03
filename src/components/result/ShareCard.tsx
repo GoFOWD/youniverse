@@ -52,7 +52,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
         }
     };
 
-    // Ship positioning logic (Adjusted for 4:3 Aspect Ratio)
+    // Ship positioning logic (Adjusted for 16:9 Aspect Ratio)
     const getShipPosition = (ocean: string) => {
         switch (ocean) {
             case '태평양': return { top: '50%', left: '85%' }; // Right Center (below Japan)
@@ -68,10 +68,10 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
 
     return (
         <div className="flex flex-col items-center space-y-6 w-full max-w-md mx-auto">
-            {/* Capture Area (The Card) - 9:16 Aspect Ratio */}
+            {/* Capture Area (The Card) */}
             <div
                 ref={cardRef}
-                className="relative w-full aspect-[9/16] bg-[#e8dcc5] text-[#2c1810] overflow-hidden shadow-2xl rounded-sm flex flex-col"
+                className="relative w-full bg-[#e8dcc5] text-[#2c1810] overflow-hidden shadow-2xl rounded-sm flex flex-col"
             >
                 {/* HEADER SECTION: Title */}
                 <div className="relative w-full bg-gradient-to-b from-[#d4c5a9] to-[#e8dcc5] border-b-2 border-[#8b5a2b]/30 py-3 px-6">
@@ -87,14 +87,14 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                     </div>
                 </div>
 
-                {/* MAP SECTION: 4:5 Ratio */}
-                <div className="relative w-full aspect-[4/5] overflow-hidden border-b-2 border-[#8b5a2b]/30">
+                {/* MAP SECTION: Square Ratio for balance */}
+                <div className="relative w-full aspect-square flex-shrink-0 overflow-hidden border-b-2 border-[#8b5a2b]/30">
                     <div
                         className="absolute inset-0 w-full h-full"
                         style={{
                             backgroundImage: 'url(/assets/vintage_world_map.png)',
                             backgroundSize: 'cover',
-                            backgroundPosition: 'center',
+                            backgroundPosition: `${shipPos.left} ${shipPos.top}`,
                         }}
                     >
                         {/* Overlays */}
@@ -103,7 +103,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
 
                         {/* Ship Marker */}
                         <div
-                            className="absolute w-20 h-20 transition-all duration-1000 ease-out z-10"
+                            className="absolute w-[15%] aspect-square max-w-[5rem] transition-all duration-1000 ease-out z-10"
                             style={{
                                 top: shipPos.top,
                                 left: shipPos.left,
@@ -125,12 +125,12 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                 {/* INSTRUMENTS SECTION: Side by Side */}
                 <div className="relative w-full bg-[#e8dcc5] border-b-2 border-[#8b5a2b]/30 flex items-center justify-center gap-4 py-0">
                     {/* Barometer */}
-                    <div className="w-[120px] h-[120px]">
+                    <div className="w-24 h-24">
                         {scores && <Barometer season={seasonName} />}
                     </div>
 
                     {/* Compass */}
-                    <div className="w-[120px] h-[120px] relative">
+                    <div className="w-24 h-24 relative">
                         <img
                             src="/assets/compass_bg.png"
                             alt="Compass"
@@ -202,7 +202,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                             style={{ borderImage: 'linear-gradient(315deg, #8b5a2b, #d4a574) 1' }} />
 
                         {/* Large Featured Portrait */}
-                        <div className="relative w-40 h-40 bg-[#f5f0e8] p-3 shadow-2xl"
+                        <div className="relative w-32 h-32 bg-[#f5f0e8] p-3 shadow-2xl"
                             style={{
                                 border: '6px double #8b5a2b',
                                 boxShadow: 'inset 0 0 30px rgba(139, 90, 43, 0.15), 0 6px 20px rgba(0,0,0,0.4)'
@@ -256,9 +256,15 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
 
                 <button
                     onClick={onReadMore}
-                    className="w-full py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-light rounded-lg hover:bg-white/20 transition-all text-sm animate-pulse"
+                    className="group relative w-full py-4 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] hover:scale-[1.02] active:scale-98 transition-all duration-300 border border-white/20 overflow-hidden"
                 >
-                    상세 분석 결과 확인하기 ↓
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+                    <div className="relative flex items-center justify-center gap-2 drop-shadow-md">
+                        <span className="tracking-wide">✨ 상세 분석 결과 확인하기</span>
+                        <svg className="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
                 </button>
             </div>
         </div>

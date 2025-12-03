@@ -84,6 +84,18 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
   // Mock keywords based on result (could be added to DB later)
   const keywords = [result.season, 'Voyager', 'Deep Ocean', result.ocean];
 
+  // Helper function to parse **text** and return bold elements
+  const formatText = (text: string) => {
+    if (!text) return null;
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index} className="font-bold">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="w-full min-h-[100dvh] pb-20 relative z-10">
       <AdPopup isOpen={isAdOpen} onClose={handleAdClose} />
@@ -141,21 +153,21 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
                 </div>
 
                 {/* Block 2: Compass + Letter */}
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col items-center gap-6">
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl py-6 px-4 border border-white/10 flex flex-col items-center gap-6">
                   <div className="w-full max-w-[200px] transform scale-110">
                     <Compass score={result.scores.C} />
                   </div>
 
                   {/* Letter Content */}
-                  <div className="w-full text-center space-y-4 bg-black/20 p-6 rounded-xl border border-white/5">
+                  <div className="w-full text-center space-y-4">
                     <h3 className="text-lg font-serif text-amber-100/80">To. Voyager</h3>
                     <p className="text-white/90 leading-loose font-light whitespace-pre-wrap">
-                      {result.description}
+                      {formatText(result.description)}
                     </p>
                     {result.advice && (
                       <div className="pt-4 border-t border-white/10">
                         <p className="text-cyan-200/90 text-sm leading-relaxed">
-                          💡 {result.advice}
+                          💡 {formatText(result.advice)}
                         </p>
                       </div>
                     )}
