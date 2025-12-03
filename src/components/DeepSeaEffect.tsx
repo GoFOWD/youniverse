@@ -80,12 +80,34 @@ const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: st
         const video = document.createElement('video');
 
         // Critical iOS settings
+        // 'defaultMuted' is crucial for iOS autoplay without interaction
+        video.defaultMuted = true;
+        video.muted = true;
+        video.preload = 'auto'; // Force preload
+
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.setAttribute('crossorigin', 'anonymous');
+        video.setAttribute('muted', '');
+        video.setAttribute('autoplay', '');
+        video.setAttribute('loop', '');
+
         video.crossOrigin = 'anonymous';
         video.playsInline = true;
-        video.muted = true;
         video.loop = true;
         video.autoplay = true;
+
         video.src = videoSrc;
+
+        // Attach to DOM but hide it (helps with iOS autoplay policies sometimes)
+        // Must be "visible" (size > 0) for some browsers to allow playback
+        video.style.position = 'absolute';
+        video.style.width = '1px';
+        video.style.height = '1px';
+        video.style.opacity = '0.01'; // Not fully 0
+        video.style.pointerEvents = 'none';
+        video.style.zIndex = '-1';
+        document.body.appendChild(video);
 
         // Create texture immediately
         const texture = new THREE.VideoTexture(video);
@@ -98,9 +120,29 @@ const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: st
         // Attempt to play
         const playVideo = async () => {
             try {
+                video.muted = true; // Ensure muted again before play
                 await video.play();
             } catch (err) {
-                console.warn("Video autoplay failed, retrying on interaction", err);
+                console.warn("Video autoplay failed, waiting for interaction", err);
+            }
+        };
+
+        // Global interaction fallback & Unmute logic
+        const handleInteraction = () => {
+            // 1. If video is paused, try to play
+            if (video.paused) {
+                // Try playing with sound first
+                video.muted = false;
+                video.play().catch((err) => {
+                    console.log("Unmuted play failed, falling back to muted", err);
+                    // Fallback: Play muted if unmuted fails
+                    video.muted = true;
+                    video.play().catch(() => { });
+                });
+            }
+            // 2. If video is already playing but muted, try to unmute
+            else if (video.muted) {
+                video.muted = false;
             }
         };
 
@@ -113,14 +155,24 @@ const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: st
         video.addEventListener('canplay', handleCanPlay);
         video.addEventListener('loadeddata', handleCanPlay);
 
+        // Add global listeners for interaction (persist until unmuted)
+        window.addEventListener('touchstart', handleInteraction);
+        window.addEventListener('click', handleInteraction);
+
         // Force load
         video.load();
 
         return () => {
             video.removeEventListener('canplay', handleCanPlay);
             video.removeEventListener('loadeddata', handleCanPlay);
+            window.removeEventListener('touchstart', handleInteraction);
+            window.removeEventListener('click', handleInteraction);
+
             video.pause();
             video.src = '';
+            if (document.body.contains(video)) {
+                document.body.removeChild(video);
+            }
             texture.dispose();
         };
     }, [videoSrc, onVideoLoaded]);

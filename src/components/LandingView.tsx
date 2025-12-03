@@ -15,7 +15,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="pt-20 sm:pt-24 md:pt-32 relative z-20 text-center"
+        className="pt-2 sm:pt-6 md:pt-10 relative z-20 text-center flex flex-col items-center space-y-6 sm:space-y-8"
       >
         <div className="relative inline-block">
           <motion.div
@@ -29,20 +29,21 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
             찾아서
           </h1>
         </div>
-      </motion.div>
 
-      {/* Content Section - Centered in the remaining space */}
-      <div className="flex-1 flex flex-col items-center justify-center w-full space-y-8 sm:space-y-12 md:space-y-16 pb-20">
+        {/* Subtitle moved here to stay with Title */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 1.5 }}
         >
-          <p className="text-teal-200/90 text-lg font-medium tracking-[0.2em] uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+          <p className="text-teal-200/90 text-sm sm:text-base md:text-lg font-medium tracking-[0.2em] uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] whitespace-nowrap">
             심해에서 시작되는 당신의 이야기
           </p>
         </motion.div>
+      </motion.div>
 
+      {/* Content Section - Button and Bottom Text */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full space-y-8 sm:space-y-12 md:space-y-16 pb-20 pt-24">
         <motion.button
           onClick={onStart}
           whileHover={{ scale: 1.05 }}
