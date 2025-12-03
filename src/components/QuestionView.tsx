@@ -38,7 +38,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer, disable
   }, [question.id]);
 
   return (
-    <div className={`w-full flex flex-col items-center space-y-4 sm:space-y-5 md:space-y-6 relative z-20 ${disabled ? 'pointer-events-none' : ''}`}>
+    <div className={`w-full flex flex-col items-center space-y-5 sm:space-y-6 md:space-y-7 relative z-20 ${disabled ? 'pointer-events-none' : ''}`}>
       <motion.div
         className="glass-panel p-4 sm:p-5 md:p-6 rounded-2xl w-full text-center shadow-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl relative overflow-hidden"
         initial={{ opacity: 0 }}
@@ -50,7 +50,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer, disable
         </h2>
       </motion.div>
 
-      <div className="w-full space-y-2 sm:space-y-3 md:space-y-3">
+      <div className="w-full space-y-2.5 sm:space-y-3 md:space-y-3.5">
         {question.options.map((option, index) => {
           const isSelected = selectedOptionId === option.id;
           const isOtherSelected = selectedOptionId !== null && !isSelected;

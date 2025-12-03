@@ -351,10 +351,10 @@ export default function ClientApp() {
 
           {step === 'question' && currentQuestionData && (
             <>
-              {/* Back Button - Bottom left to avoid overlap */}
+              {/* Back Button - Bottom right */}
               <button
                 onClick={handleBack}
-                className="fixed left-4 bottom-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all text-sm flex items-center gap-2 shadow-lg"
+                className="fixed right-4 bottom-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all text-sm flex items-center gap-2 shadow-lg"
               >
                 <span>←</span> 이전
               </button>

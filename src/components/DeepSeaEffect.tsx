@@ -75,14 +75,23 @@ const VideoBackground = ({ videoSrc, zoom = 1.0 }: { videoSrc: string; zoom?: nu
     const materialRef = useRef<any>(null);
 
     const texture = useVideoTexture(videoSrc, {
+        unsuspend: 'canplay',
         start: true,
         loop: true,
         muted: true,
         playsInline: true,
+        crossOrigin: 'anonymous',
     });
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.format = THREE.RGBAFormat;
+
+    // Ensure texture is configured properly
+    React.useEffect(() => {
+        if (texture) {
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBAFormat;
+            texture.needsUpdate = true;
+        }
+    }, [texture]);
 
     useFrame(() => {
         if (materialRef.current) {
@@ -109,9 +118,21 @@ interface DeepSeaEffectProps {
 }
 
 export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.0 }: DeepSeaEffectProps) {
+    const [isLoading, setIsLoading] = React.useState(true);
+
     return (
         <div className="absolute inset-0 z-0 pointer-events-none">
-            <Canvas camera={{ position: [0, 0, 5], fov: 75 }} gl={{ antialias: false }}>
+            {/* Black background fallback while video loads */}
+            <div className="absolute inset-0 bg-black" />
+
+            <Canvas
+                camera={{ position: [0, 0, 5], fov: 75 }}
+                gl={{ antialias: false }}
+                onCreated={() => {
+                    // Small delay to ensure video starts loading
+                    setTimeout(() => setIsLoading(false), 100);
+                }}
+            >
                 <React.Suspense fallback={null}>
                     <VideoBackground videoSrc={videoSrc} zoom={zoom} />
                 </React.Suspense>
