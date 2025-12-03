@@ -70,9 +70,10 @@ const VideoMaterial = shaderMaterial(
 
 extend({ VideoMaterial });
 
-const VideoBackground = ({ videoSrc, zoom = 1.0 }: { videoSrc: string; zoom?: number }) => {
+const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: string; zoom?: number; onVideoLoaded?: () => void }) => {
     const { size, viewport } = useThree();
     const materialRef = useRef<any>(null);
+    const videoLoadedRef = useRef(false);
 
     const texture = useVideoTexture(videoSrc, {
         unsuspend: 'canplay',
@@ -90,8 +91,14 @@ const VideoBackground = ({ videoSrc, zoom = 1.0 }: { videoSrc: string; zoom?: nu
             texture.magFilter = THREE.LinearFilter;
             texture.format = THREE.RGBAFormat;
             texture.needsUpdate = true;
+
+            // Check if video is loaded and playing
+            if (texture.image && texture.image.readyState >= 2 && !videoLoadedRef.current) {
+                videoLoadedRef.current = true;
+                onVideoLoaded?.();
+            }
         }
-    }, [texture]);
+    }, [texture, onVideoLoaded]);
 
     useFrame(() => {
         if (materialRef.current) {
@@ -99,6 +106,12 @@ const VideoBackground = ({ videoSrc, zoom = 1.0 }: { videoSrc: string; zoom?: nu
 
             if (texture.image && texture.image.videoWidth && texture.image.videoHeight) {
                 materialRef.current.uVideoAspect = texture.image.videoWidth / texture.image.videoHeight;
+
+                // Trigger fade when video is ready
+                if (texture.image.readyState >= 2 && !videoLoadedRef.current) {
+                    videoLoadedRef.current = true;
+                    onVideoLoaded?.();
+                }
             }
         }
     });
@@ -120,13 +133,14 @@ interface DeepSeaEffectProps {
 export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.0 }: DeepSeaEffectProps) {
     const [opacity, setOpacity] = React.useState(0);
 
-    React.useEffect(() => {
-        // Fade in after a short delay
-        const timer = setTimeout(() => {
-            setOpacity(1);
-        }, 300);
+    const handleVideoLoaded = React.useCallback(() => {
+        // Fade in immediately when video is loaded
+        setOpacity(1);
+    }, []);
 
-        return () => clearTimeout(timer);
+    // Reset opacity when video source changes
+    React.useEffect(() => {
+        setOpacity(0);
     }, [videoSrc]);
 
     return (
@@ -136,7 +150,7 @@ export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.
 
             {/* Video with fade-in */}
             <div
-                className="absolute inset-0 transition-opacity duration-1000 ease-out"
+                className="absolute inset-0 transition-opacity duration-700 ease-out"
                 style={{ opacity }}
             >
                 <Canvas
@@ -144,7 +158,7 @@ export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.
                     gl={{ antialias: false }}
                 >
                     <React.Suspense fallback={null}>
-                        <VideoBackground videoSrc={videoSrc} zoom={zoom} />
+                        <VideoBackground videoSrc={videoSrc} zoom={zoom} onVideoLoaded={handleVideoLoaded} />
                     </React.Suspense>
                 </Canvas>
             </div>
