@@ -25,10 +25,10 @@ export async function GET() {
         // 3. Recent Comments (Last 20 with comments)
         const recentComments = await prisma.userResponse.findMany({
             where: {
-                comment: {
-                    not: null,
-                    not: ''
-                }
+                AND: [
+                    { comment: { not: null } },
+                    { comment: { not: '' } }
+                ]
             },
             take: 20,
             orderBy: {
@@ -79,9 +79,12 @@ export async function GET() {
         });
 
         return NextResponse.json({
-            totalUsers,
+            totalUsers: Number(totalUsers), // Convert BigInt to Number
             averageRating: Number(averageRating.toFixed(2)),
-            recentComments,
+            recentComments: recentComments.map(comment => ({
+                ...comment,
+                id: Number(comment.id) // Convert BigInt id to Number
+            })),
             dailyData,
         });
 
