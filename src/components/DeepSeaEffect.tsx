@@ -82,7 +82,7 @@ interface DeepSeaEffectProps {
 
 export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4' }: DeepSeaEffectProps) {
     return (
-        <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 z-0 pointer-events-none">
             <Canvas camera={{ position: [0, 0, 5], fov: 75 }} gl={{ antialias: false }}>
                 <React.Suspense fallback={null}>
                     <VideoBackground videoSrc={videoSrc} />
