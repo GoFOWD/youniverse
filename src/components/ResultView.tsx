@@ -93,7 +93,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
         {showAllOceans && <AllOceanTypesView onClose={() => setShowAllOceans(false)} />}
       </AnimatePresence>
 
-      <div className="max-w-md mx-auto px-4 space-y-12 pt-8">
+      <div className="w-full mx-auto px-4 space-y-12 pt-8">
 
         {/* 1. Viral Share Card (Vintage Logbook) */}
         <motion.section

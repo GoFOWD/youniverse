@@ -33,7 +33,7 @@ export default function SplashView({ onComplete }: SplashViewProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
       transition={{ duration: 0.8, ease: 'easeInOut' }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+      className="absolute inset-0 z-50 flex items-center justify-center bg-black"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
