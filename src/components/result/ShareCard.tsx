@@ -111,7 +111,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
     }, []);
 
     return (
-        <div className="flex flex-col items-center w-full mx-auto px-[5%] max-w-[400px] overflow-hidden">
+        <div className="flex flex-col items-center w-full mx-auto px-[3%] max-w-[400px] overflow-hidden">
             {/* Wrapper to center and handle scaling space */}
             <div
                 className="relative flex justify-center items-center w-full transition-all duration-300 ease-out"
@@ -122,10 +122,10 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                 {/* Capture Area (The Card) - Fixed 360x640 (9:16) */}
                 <div
                     ref={cardRef}
-                    className="absolute bg-[#e8dcc5] text-[#2c1810] overflow-visible shadow-2xl rounded-lg flex flex-col"
+                    className="absolute bg-[#e8dcc5] text-[#2c1810] overflow-visible shadow-2xl rounded-lg flex flex-col aspect-[9/16]"
                     style={{
                         width: '360px',
-                        minHeight: '640px',
+                        height: '640px',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
                         willChange: 'transform'
