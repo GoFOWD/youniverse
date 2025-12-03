@@ -125,7 +125,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
               <section className="space-y-12">
                 <div className="text-center space-y-2">
                   <h2 className="text-2xl font-serif font-bold text-white drop-shadow-lg">
-                    항해 분석 (Navigation Analysis)
+                    감정 기압 측정 결과
                   </h2>
                   <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
                 </div>
