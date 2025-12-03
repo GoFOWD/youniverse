@@ -319,7 +319,7 @@ export default function ClientApp() {
         isTransitioning={isFalling}
         backgroundComponent={
           step === 'landing' ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
-            step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" /> :
+            step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" zoom={1.3} /> :
               step === 'ocean_transition' && result ? (
                 <DeepSeaEffect videoSrc={`/assets/${result.ocean === '북극해' ? 'Arctic1' :
                   result.ocean === '대서양' ? 'Atlantic1' :
@@ -351,10 +351,10 @@ export default function ClientApp() {
 
           {step === 'question' && currentQuestionData && (
             <>
-              {/* Back Button - Fixed position, outside animation */}
+              {/* Back Button - Bottom left to avoid overlap */}
               <button
                 onClick={handleBack}
-                className="fixed left-6 top-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all text-sm flex items-center gap-2"
+                className="fixed left-4 bottom-6 z-50 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-all text-sm flex items-center gap-2 shadow-lg"
               >
                 <span>←</span> 이전
               </button>

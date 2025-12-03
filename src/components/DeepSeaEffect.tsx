@@ -26,33 +26,60 @@ const VideoMaterial = shaderMaterial(
     varying vec2 vUv;
 
     void main() {
-      // Cover mode - fill screen completely
+      // Responsive mode: cover for mobile, contain for desktop
       float screenAspect = uResolution.x / uResolution.y;
       vec2 uv = vUv;
       
-      if (screenAspect > uVideoAspect) {
-        // Screen is wider -> crop top/bottom
-        float scale = screenAspect / uVideoAspect;
-        uv.y = (uv.y - 0.5) / scale + 0.5;
-      } else {
-        // Screen is taller -> crop sides
-        float scale = uVideoAspect / screenAspect;
-        uv.x = (uv.x - 0.5) / scale + 0.5;
-      }
+      // Detect mobile: width < 768px
+      bool isMobile = uResolution.x < 768.0;
       
-      vec4 color = texture2D(uTexture, uv);
-      gl_FragColor = color;
+      if (isMobile) {
+        // COVER MODE for mobile - fill screen
+        if (screenAspect > uVideoAspect) {
+          float scale = screenAspect / uVideoAspect;
+          uv.y = (uv.y - 0.5) / scale + 0.5;
+        } else {
+          float scale = uVideoAspect / screenAspect;
+          uv.x = (uv.x - 0.5) / scale + 0.5;
+        }
+        
+        vec4 color = texture2D(uTexture, uv);
+        gl_FragColor = color;
+      } else {
+        // CONTAIN MODE for desktop - show full video
+        if (screenAspect > uVideoAspect) {
+          float scale = uVideoAspect / screenAspect;
+          uv.x = (uv.x - 0.5) / scale + 0.5;
+        } else {
+          float scale = screenAspect / uVideoAspect;
+          uv.y = (uv.y - 0.5) / scale + 0.5;
+        }
+        
+        // Check bounds for letterbox/pillarbox
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+          gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+          return;
+        }
+        
+        vec4 color = texture2D(uTexture, uv);
+        gl_FragColor = color;
+      }
     }
   `
 );
 
 extend({ VideoMaterial });
 
-const VideoBackground = ({ videoSrc }: { videoSrc: string }) => {
+const VideoBackground = ({ videoSrc, zoom = 1.0 }: { videoSrc: string; zoom?: number }) => {
     const { size, viewport } = useThree();
     const materialRef = useRef<any>(null);
 
-    const texture = useVideoTexture(videoSrc);
+    const texture = useVideoTexture(videoSrc, {
+        start: true,
+        loop: true,
+        muted: true,
+        playsInline: true,
+    });
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
     texture.format = THREE.RGBAFormat;
@@ -68,7 +95,7 @@ const VideoBackground = ({ videoSrc }: { videoSrc: string }) => {
     });
 
     return (
-        <mesh scale={[viewport.width, viewport.height, 1]}>
+        <mesh scale={[viewport.width * zoom, viewport.height * zoom, 1]}>
             <planeGeometry args={[1, 1]} />
             {/* @ts-ignore */}
             <videoMaterial ref={materialRef} uTexture={texture} transparent />
@@ -78,14 +105,15 @@ const VideoBackground = ({ videoSrc }: { videoSrc: string }) => {
 
 interface DeepSeaEffectProps {
     videoSrc?: string;
+    zoom?: number;
 }
 
-export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4' }: DeepSeaEffectProps) {
+export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.0 }: DeepSeaEffectProps) {
     return (
         <div className="fixed inset-0 z-0 pointer-events-none">
             <Canvas camera={{ position: [0, 0, 5], fov: 75 }} gl={{ antialias: false }}>
                 <React.Suspense fallback={null}>
-                    <VideoBackground videoSrc={videoSrc} />
+                    <VideoBackground videoSrc={videoSrc} zoom={zoom} />
                 </React.Suspense>
             </Canvas>
         </div>
