@@ -68,6 +68,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
 
     // Calculate scale based on window width to fit the fixed 360px card
     const [scale, setScale] = useState(1);
+    const [cardHeight, setCardHeight] = useState(640);
 
     useEffect(() => {
         const handleResize = () => {
@@ -91,25 +92,32 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Measure actual card height after render
+    useEffect(() => {
+        if (cardRef.current) {
+            const height = cardRef.current.offsetHeight;
+            setCardHeight(height);
+        }
+    }, []);
+
     return (
         <div className="flex flex-col items-center space-y-6 w-full mx-auto overflow-hidden">
             {/* Wrapper to center and handle scaling space */}
             <div
-                className="relative flex justify-center items-center"
+                className="relative flex justify-center items-center w-full"
                 style={{
-                    width: '100%',
-                    height: `${640 * scale}px` // Reserve height based on scaled size
+                    height: `${cardHeight * scale}px`, // Reserve exact scaled height
                 }}
             >
                 {/* Capture Area (The Card) - Fixed 360x640 (9:16) */}
                 <div
                     ref={cardRef}
-                    className="absolute bg-[#e8dcc5] text-[#2c1810] overflow-hidden shadow-2xl rounded-sm flex flex-col origin-top"
+                    className="absolute bg-[#e8dcc5] text-[#2c1810] overflow-hidden shadow-2xl rounded-lg flex flex-col"
                     style={{
                         width: '360px',
-                        height: '640px',
+                        minHeight: '640px',
                         transform: `scale(${scale})`,
-                        // Force hardware acceleration for smoother scaling
+                        transformOrigin: 'top center',
                         willChange: 'transform'
                     }}
                 >
@@ -141,7 +149,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                         Let's use a fixed height for map section to ensure it fits.
                         Say 260px height for map.
                     */}
-                    <div className="relative w-full h-[280px] overflow-hidden border-b-2 border-[#8b5a2b]/30 shrink-0">
+                    <div className="relative w-full h-[240px] overflow-hidden border-b-2 border-[#8b5a2b]/30 shrink-0">
                         <div
                             className="absolute inset-0 w-full h-full"
                             style={{
@@ -231,10 +239,10 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                     </div>
 
                     {/* FEATURED SAILOR SECTION: "Sailor of the Year" Style */}
-                    <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] to-[#d4c5a9] flex flex-col items-center justify-center px-4 py-2">
+                    <div className="relative w-full bg-gradient-to-b from-[#e8dcc5] to-[#d4c5a9] flex flex-col items-center justify-center px-6 py-4">
 
                         {/* Large Portrait Frame with Image */}
-                        <div className="relative mb-1 w-[360px] h-[240px] flex items-center justify-center">
+                        <div className="relative mb-2 w-full max-w-[200px] h-[200px] flex items-center justify-center">
                             {/* Frame Image */}
                             <img
                                 src="/assets/올해의선원프레임.png"
@@ -261,7 +269,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                         </div>
 
                         {/* Name Plate */}
-                        <div className="text-center w-full bg-[#8b5a2b]/10 py-1.5 px-4 rounded border border-[#8b5a2b]/30 mt-auto mb-4">
+                        <div className="text-center w-full bg-[#8b5a2b]/10 py-1.5 px-4 rounded border border-[#8b5a2b]/30 mt-2">
                             <h3 className="text-base font-bold text-[#2c1810] font-serif leading-tight mb-0.5">
                                 {persona?.animal || '신비로운 바다 생물'}
                             </h3>
