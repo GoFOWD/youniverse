@@ -153,14 +153,16 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
                 </div>
 
                 {/* Block 2: Compass + Letter */}
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-serif font-bold text-white drop-shadow-lg">
+                    나침반이 알려주는 방향
+                  </h2>
+                  <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
+                </div>
                 <div className="bg-white/5 backdrop-blur-md rounded-2xl py-6 px-4 border border-white/10 flex flex-col items-center gap-6">
-                  <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-serif font-bold text-white drop-shadow-lg">
-                      나침반이 알려주는 방향
-                    </h2>
-                    <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
-                  </div>
+
                   <div className="w-full max-w-[200px] transform scale-110">
+
                     <Compass score={result.scores.C} />
 
                   </div>
