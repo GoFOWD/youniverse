@@ -73,54 +73,76 @@ extend({ VideoMaterial });
 const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: string; zoom?: number; onVideoLoaded?: () => void }) => {
     const { size, viewport } = useThree();
     const materialRef = useRef<any>(null);
-    const videoLoadedRef = useRef(false);
+    const [videoTexture, setVideoTexture] = React.useState<THREE.VideoTexture | null>(null);
 
-    const texture = useVideoTexture(videoSrc, {
-        unsuspend: 'canplay',
-        start: true,
-        loop: true,
-        muted: true,
-        playsInline: true,
-        crossOrigin: 'anonymous',
-    });
-
-    // Ensure texture is configured properly
     React.useEffect(() => {
-        if (texture) {
-            texture.minFilter = THREE.LinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-            texture.format = THREE.RGBAFormat;
-            texture.needsUpdate = true;
+        // Manual video element creation for better iOS control
+        const video = document.createElement('video');
 
-            // Check if video is loaded and playing
-            if (texture.image && texture.image.readyState >= 2 && !videoLoadedRef.current) {
-                videoLoadedRef.current = true;
-                onVideoLoaded?.();
+        // Critical iOS settings
+        video.crossOrigin = 'anonymous';
+        video.playsInline = true;
+        video.muted = true;
+        video.loop = true;
+        video.autoplay = true;
+        video.src = videoSrc;
+
+        // Create texture immediately
+        const texture = new THREE.VideoTexture(video);
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.format = THREE.RGBAFormat;
+
+        setVideoTexture(texture);
+
+        // Attempt to play
+        const playVideo = async () => {
+            try {
+                await video.play();
+            } catch (err) {
+                console.warn("Video autoplay failed, retrying on interaction", err);
             }
-        }
-    }, [texture, onVideoLoaded]);
+        };
+
+        // Event listeners
+        const handleCanPlay = () => {
+            playVideo();
+            onVideoLoaded?.();
+        };
+
+        video.addEventListener('canplay', handleCanPlay);
+        video.addEventListener('loadeddata', handleCanPlay);
+
+        // Force load
+        video.load();
+
+        return () => {
+            video.removeEventListener('canplay', handleCanPlay);
+            video.removeEventListener('loadeddata', handleCanPlay);
+            video.pause();
+            video.src = '';
+            texture.dispose();
+        };
+    }, [videoSrc, onVideoLoaded]);
 
     useFrame(() => {
-        if (materialRef.current) {
+        if (materialRef.current && videoTexture) {
             materialRef.current.uResolution.set(size.width, size.height);
 
-            if (texture.image && texture.image.videoWidth && texture.image.videoHeight) {
-                materialRef.current.uVideoAspect = texture.image.videoWidth / texture.image.videoHeight;
-
-                // Trigger fade when video is ready
-                if (texture.image.readyState >= 2 && !videoLoadedRef.current) {
-                    videoLoadedRef.current = true;
-                    onVideoLoaded?.();
-                }
+            if (videoTexture.image && videoTexture.image.videoWidth && videoTexture.image.videoHeight) {
+                materialRef.current.uVideoAspect = videoTexture.image.videoWidth / videoTexture.image.videoHeight;
+                videoTexture.needsUpdate = true;
             }
         }
     });
+
+    if (!videoTexture) return null;
 
     return (
         <mesh scale={[viewport.width * zoom, viewport.height * zoom, 1]}>
             <planeGeometry args={[1, 1]} />
             {/* @ts-ignore */}
-            <videoMaterial ref={materialRef} uTexture={texture} transparent />
+            <videoMaterial ref={materialRef} uTexture={videoTexture} transparent />
         </mesh>
     );
 };
