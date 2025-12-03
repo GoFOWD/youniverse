@@ -121,7 +121,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
   const videoFile = ocean ? OceanVideoMap[ocean] : null;
 
   return (
-    <div className={`relative h-[100dvh] w-full ${step === 'result' ? 'overflow-y-auto' : 'overflow-hidden'} text-white`}>
+    <div className="relative h-[100dvh] w-full overflow-hidden text-white">
       {/* Dynamic Background Layer */}
       <motion.div
         className={`absolute inset-0 transition-colors duration-[4000ms] ${progress > 44 ? 'animate-gradient' : ''}`}
@@ -141,7 +141,7 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
 
       {/* Video Background for Result Screen */}
       {step === 'result' && videoFile && (
-        <div className="fixed inset-0 w-screen h-screen overflow-hidden z-0 bg-black">
+        <div className="absolute inset-0 w-full h-full overflow-hidden z-0 bg-black">
           <motion.video
             key={videoFile} // Force reload when video changes
             className="w-full h-full object-cover"
@@ -269,9 +269,11 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
       {isBrowser && step !== 'result' && <ParticleOverlay count={bubbleCount} isTransitioning={isTransitioning} />}
 
       {/* Main Content Container */}
-      <main className={`relative z-10 flex flex-col items-center ${step === 'result' ? 'justify-start min-h-full' : 'justify-center h-full'} px-4 py-6 pb-8 sm:py-6 md:py-8 mx-auto w-full ${className}`}>
-        {children}
-      </main>
+      <div className={`absolute inset-0 z-10 w-full h-full ${step === 'result' ? 'overflow-y-auto no-scrollbar' : 'overflow-hidden'}`}>
+        <main className={`flex flex-col items-center ${step === 'result' ? 'justify-start min-h-full' : 'justify-center h-full'} px-4 py-6 pb-8 sm:py-6 md:py-8 mx-auto w-full ${className}`}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 };

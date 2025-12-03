@@ -52,7 +52,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
         }
     };
 
-    // Ship positioning logic (Adjusted for 4:3 Aspect Ratio)
+    // Ship positioning logic (Adjusted for 16:9 Aspect Ratio)
     const getShipPosition = (ocean: string) => {
         switch (ocean) {
             case '태평양': return { top: '50%', left: '85%' }; // Right Center (below Japan)
@@ -228,75 +228,81 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                                 />
                             </div>
                         </div>
-                    </div>
 
-                    {/* FEATURED SAILOR SECTION: "Sailor of the Year" Style */}
-                    <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] to-[#d4c5a9] flex flex-col items-center justify-start px-6 py-2">
-                        {/* Award-style Header */}
-                        <div className="text-center mb-2">
-                            <div className="text-[10px] text-[#8b5a2b] font-serif uppercase tracking-[0.2em] mb-0.5 opacity-80">
-                                ⚓ 내가 만약 동물로 변한다면? ⚓
+                        {/* FEATURED SAILOR SECTION: "Sailor of the Year" Style */}
+                        <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] to-[#d4c5a9] flex flex-col items-center justify-start px-6 py-2">
+                            {/* Award-style Header */}
+                            <div className="text-center mb-2">
+                                <div className="text-[10px] text-[#8b5a2b] font-serif uppercase tracking-[0.2em] mb-0.5 opacity-80">
+                                    ⚓ 내가 만약 동물로 변한다면? ⚓
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Large Portrait Frame with Image */}
-                        <div className="relative mb-2 w-[280px] h-[160px] flex items-center justify-center">
-                            {/* Frame Image */}
-                            <img
-                                src="/assets/올해의선원프레임.png"
-                                alt="Frame"
-                                className="absolute inset-0 w-full h-full object-contain z-20"
-                            />
-
-                            {/* Animal Image - Positioned inside the frame */}
-                            {/* Adjust size and position to fit the specific frame opening */}
-                            <div className="w-[100px] h-[100px] relative z-10 rounded-full overflow-hidden bg-[#faf8f3]">
+                            {/* Large Portrait Frame with Image */}
+                            <div className="relative mb-2 w-[280px] h-[160px] flex items-center justify-center">
+                                {/* Frame Image */}
                                 <img
-                                    src={`/assets/${persona?.image}.png`}
-                                    alt={persona?.animal}
-                                    className="w-full h-full object-cover"
-                                    style={{
-                                        mixBlendMode: 'multiply',
-                                        opacity: 0.95
-                                    }}
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = '/assets/ship_icon.png';
-                                    }}
+                                    src="/assets/올해의선원프레임.png"
+                                    alt="Frame"
+                                    className="absolute inset-0 w-full h-full object-contain z-20"
                                 />
-                            </div>
-                        </div>
 
-                        {/* Name Plate */}
-                        <div className="text-center w-full bg-[#8b5a2b]/10 py-1.5 px-4 rounded border border-[#8b5a2b]/30 mt-auto mb-4">
-                            <h3 className="text-base font-bold text-[#2c1810] font-serif leading-tight mb-0.5">
-                                {persona?.animal || '신비로운 바다 생물'}
-                            </h3>
-                            <p className="text-[10px] text-[#5d4037] font-serif leading-relaxed break-keep opacity-90 italic">
-                                {persona?.description || description}
-                            </p>
+                                {/* Animal Image - Positioned inside the frame */}
+                                {/* Adjust size and position to fit the specific frame opening */}
+                                <div className="w-[100px] h-[100px] relative z-10 rounded-full overflow-hidden bg-[#faf8f3]">
+                                    <img
+                                        src={`/assets/${persona?.image}.png`}
+                                        alt={persona?.animal}
+                                        className="w-full h-full object-cover"
+                                        style={{
+                                            mixBlendMode: 'multiply',
+                                            opacity: 0.95
+                                        }}
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = '/assets/ship_icon.png';
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Name Plate */}
+                            <div className="text-center w-full bg-[#8b5a2b]/10 py-1.5 px-4 rounded border border-[#8b5a2b]/30 mt-auto mb-4">
+                                <h3 className="text-base font-bold text-[#2c1810] font-serif leading-tight mb-0.5">
+                                    {persona?.animal || '신비로운 바다 생물'}
+                                </h3>
+                                <p className="text-[10px] text-[#5d4037] font-serif leading-relaxed break-keep opacity-90 italic">
+                                    {persona?.description || description}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Actions */}
-            <div className="flex flex-col w-full gap-3 px-4 max-w-[400px]">
-                <button
-                    onClick={handleDownload}
-                    className="w-full py-4 bg-[#2c1810] text-[#f4e4bc] font-serif text-lg rounded-lg shadow-lg hover:bg-[#3e2723] transition-all active:scale-95 flex items-center justify-center gap-2"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    항해 일지 저장 (갤러리)
-                </button>
+                {/* Actions */}
+                <div className="flex flex-col w-full gap-3 px-4 max-w-[400px]">
+                    <button
+                        onClick={handleDownload}
+                        className="w-full py-4 bg-[#2c1810] text-[#f4e4bc] font-serif text-lg rounded-lg shadow-lg hover:bg-[#3e2723] transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        항해 일지 저장 (갤러리)
+                    </button>
 
-                <button
-                    onClick={onReadMore}
-                    className="w-full py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-light rounded-lg hover:bg-white/20 transition-all text-sm animate-pulse"
-                >
-                    상세 분석 결과 확인하기 ↓
-                </button>
+                    <button
+                        onClick={onReadMore}
+                        className="group relative w-full py-4 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] hover:scale-[1.02] active:scale-98 transition-all duration-300 border border-white/20 overflow-hidden"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+                        <div className="relative flex items-center justify-center gap-2 drop-shadow-md">
+                            <span className="tracking-wide">✨ 상세 분석 결과 확인하기</span>
+                            <svg className="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
     );
