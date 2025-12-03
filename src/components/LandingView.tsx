@@ -36,7 +36,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 1.5 }}
         >
-          <p className="text-teal-200/90 text-sm sm:text-base md:text-lg font-medium tracking-[0.2em] uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] whitespace-nowrap">
+          <p className="translate-y-20 text-teal-200/90 text-sm sm:text-base md:text-lg font-medium tracking-[0.2em] uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] whitespace-nowrap">
             심해에서 시작되는 당신의 이야기
           </p>
         </motion.div>
