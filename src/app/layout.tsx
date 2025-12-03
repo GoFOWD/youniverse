@@ -61,7 +61,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body className="bg-[#1a1a1a] flex justify-center min-h-screen">
+        <div className="w-full max-w-[430px] min-h-screen bg-black relative shadow-2xl overflow-hidden">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

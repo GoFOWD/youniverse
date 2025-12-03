@@ -15,10 +15,10 @@ const LoadingView: React.FC = () => {
         transition={{ duration: 1 }}
       >
         <div className="text-center">
-          <h3 className="text-xl sm:text-2xl font-serif text-white tracking-wide drop-shadow-lg mb-2">
+          <h3 className="text-xl sm:text-2xl font-serif text-white tracking-wide mb-2" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8), 0 4px 16px rgba(0,0,0,0.6)' }}>
             수면 위로 올라가는 중...
           </h3>
-          <p className="text-sm text-white/80 font-light tracking-widest uppercase drop-shadow">
+          <p className="text-sm text-white/90 font-light tracking-widest uppercase" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.8), 0 3px 12px rgba(0,0,0,0.6)' }}>
             잠시만 기다려주세요
           </p>
         </div>
