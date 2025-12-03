@@ -111,7 +111,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
     }, []);
 
     return (
-        <div className="flex flex-col items-center space-y-6 w-full mx-auto overflow-hidden">
+        <div className="flex flex-col items-center w-full mx-auto px-[5%] max-w-[400px] overflow-hidden">
             {/* Wrapper to center and handle scaling space */}
             <div
                 className="relative flex justify-center items-center w-full transition-all duration-300 ease-out"
@@ -306,7 +306,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col w-full gap-5 px-4 max-w-[400px] mt-6 z-10">
+            <div className="flex flex-col w-full gap-5 mt-[10px] z-10">
                 <button
                     onClick={handleDownload}
                     className="w-full py-4 bg-[#2c1810] text-[#f4e4bc] font-serif text-lg rounded-lg shadow-lg hover:bg-[#3e2723] transition-all active:scale-95 flex items-center justify-center gap-2"
