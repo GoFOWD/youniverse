@@ -268,17 +268,27 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-gradient-to-br from-[#2c1810]/80 to-[#3e2723]/80 backdrop-blur-md rounded-2xl p-8 border-2 border-[#8b5a2b]/30 relative overflow-hidden"
+          className="bg-gradient-to-br from-[#2c1810]/80 to-[#3e2723]/80 backdrop-blur-md rounded-2xl p-8 border-2 border-[#8b5a2b]/30 relative overflow-hidden flex justify-center items-center min-h-[200px]"
         >
           {/* Vintage paper texture overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#f4e4bc]/5 to-transparent opacity-30" />
 
-          <div className="relative text-center space-y-3">
-            <div className="text-[#8b5a2b] text-xs font-serif tracking-widest uppercase">Advertisement</div>
-            <div className="h-32 flex items-center justify-center border-2 border-dashed border-[#8b5a2b]/30 rounded-lg">
-              <p className="text-[#f4e4bc]/60 font-serif">광고 배너 영역</p>
+          <div className="relative text-center w-full">
+            <div className="text-[#8b5a2b] text-xs font-serif tracking-widest uppercase mb-2">Advertisement</div>
+            {/* Google AdSense */}
+            <div className="w-full overflow-hidden">
+              <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2243110505553175"
+                crossOrigin="anonymous"></script>
+              {/* Result Page Ad */}
+              <ins className="adsbygoogle"
+                style={{ display: 'block' }}
+                data-ad-client="ca-pub-2243110505553175"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+              <script>
+                {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+              </script>
             </div>
-            <p className="text-[#f4e4bc]/40 text-xs font-serif">Your ad could be here</p>
           </div>
         </motion.section>
 
