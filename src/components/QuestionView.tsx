@@ -40,12 +40,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer, disable
   return (
     <div className={`w-full flex flex-col items-center space-y-5 sm:space-y-6 md:space-y-7 relative z-20 ${disabled ? 'pointer-events-none' : ''}`}>
       <motion.div
-        className="glass-panel p-4 sm:p-5 md:p-6 rounded-2xl w-full text-center shadow-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl relative overflow-hidden"
+        className="glass-panel p-4 sm:p-5 md:p-6 rounded-2xl w-full text-center shadow-2xl border border-white/10 bg-black/60 backdrop-blur-3xl relative overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-medium text-white leading-relaxed drop-shadow-md relative z-10">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-medium text-white leading-relaxed drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] relative z-10">
           {question.question}
         </h2>
       </motion.div>
@@ -63,10 +63,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer, disable
               initial={{ opacity: 0 }}
               animate={{
                 opacity: isOtherSelected ? 0.5 : 1,
-                borderColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.1)",
-                backgroundColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.05)",
+                borderColor: isSelected ? "rgba(255,255,255,0)" : "rgba(255, 255, 255, 0.2)",
+                backgroundColor: isSelected ? "rgba(255,255,255,0)" : "rgba(0, 0, 0, 0.4)",
                 scale: isSelected ? 0.95 : 1,
-                boxShadow: isSelected ? "none" : "0 0 0 0 rgba(0,0,0,0)"
+                boxShadow: isSelected ? "none" : "0 4px 6px rgba(0,0,0,0.3)"
               }}
               transition={{
                 opacity: { duration: 0.3 },
@@ -77,14 +77,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer, disable
               }}
               whileHover={!selectedOptionId ? {
                 scale: 1.02,
-                backgroundColor: "rgba(255, 255, 255, 0.15)",
-                borderColor: "rgba(255, 255, 255, 0.3)",
-                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.3)"
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
+                borderColor: "rgba(255, 255, 255, 0.4)",
+                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.5)"
               } : {}}
               whileTap={!selectedOptionId ? { scale: 0.98 } : {}}
               className="group w-full p-3 sm:p-4 md:p-4 rounded-xl border text-white text-base sm:text-lg font-light transition-all duration-300 hover:shadow-xl text-left relative overflow-visible cursor-pointer touch-manipulation z-30"
             >
-              <span className={`relative z-10 transition-all duration-300 ${isSelected ? 'font-medium text-teal-200' : 'group-hover:font-normal'}`}>
+              <span className={`relative z-10 transition-all duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${isSelected ? 'font-medium text-teal-200' : 'group-hover:font-normal'}`}>
                 {option.text}
               </span>
 

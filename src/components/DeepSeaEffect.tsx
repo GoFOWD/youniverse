@@ -9,6 +9,9 @@ const VideoMaterial = shaderMaterial(
         uTexture: new THREE.Texture(),
         uResolution: new THREE.Vector2(1, 1),
         uVideoAspect: 1.77,
+        uMouse: new THREE.Vector2(0.5, 0.5), // Mouse position (0-1)
+        uHasSpotlight: false, // Toggle spotlight
+        uBackgroundColor: new THREE.Color(0x000000), // Background color for spotlight mode
     },
     // Vertex Shader
     `
@@ -23,6 +26,9 @@ const VideoMaterial = shaderMaterial(
     uniform sampler2D uTexture;
     uniform vec2 uResolution;
     uniform float uVideoAspect;
+    uniform vec2 uMouse;
+    uniform bool uHasSpotlight;
+    uniform vec3 uBackgroundColor;
     varying vec2 vUv;
 
     void main() {
@@ -42,9 +48,6 @@ const VideoMaterial = shaderMaterial(
           float scale = uVideoAspect / screenAspect;
           uv.x = (uv.x - 0.5) / scale + 0.5;
         }
-        
-        vec4 color = texture2D(uTexture, uv);
-        gl_FragColor = color;
       } else {
         // CONTAIN MODE for desktop - show full video
         if (screenAspect > uVideoAspect) {
@@ -57,12 +60,38 @@ const VideoMaterial = shaderMaterial(
         
         // Check bounds for letterbox/pillarbox
         if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-          gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+          gl_FragColor = vec4(uBackgroundColor, 1.0);
           return;
         }
+      }
+      
+      vec4 videoColor = texture2D(uTexture, uv);
+      
+      // Spotlight Effect
+      if (uHasSpotlight) {
+        // Calculate distance from mouse to current pixel (corrected for aspect ratio)
+        vec2 aspectCorrectedUV = vUv;
+        aspectCorrectedUV.x *= screenAspect;
         
-        vec4 color = texture2D(uTexture, uv);
-        gl_FragColor = color;
+        vec2 aspectCorrectedMouse = uMouse;
+        aspectCorrectedMouse.x *= screenAspect;
+        
+        float dist = distance(aspectCorrectedUV, aspectCorrectedMouse);
+        
+        // Spotlight radius and softness
+        float radius = 0.25; // Size of the light
+        float softness = 0.2; // Edge softness
+        
+        // Create smooth vignette (1.0 at center, 0.0 at edge)
+        float vignette = smoothstep(radius, radius - softness, dist);
+        
+        // Mix between background color and video based on vignette
+        // vignette = 1.0 (center) -> show video
+        // vignette = 0.0 (outside) -> show background color
+        vec3 finalColor = mix(uBackgroundColor, videoColor.rgb, vignette);
+        gl_FragColor = vec4(finalColor, 1.0);
+      } else {
+        gl_FragColor = videoColor;
       }
     }
   `
@@ -70,10 +99,34 @@ const VideoMaterial = shaderMaterial(
 
 extend({ VideoMaterial });
 
-const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: string; zoom?: number; onVideoLoaded?: () => void }) => {
+const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded, spotlight = false, backgroundColor = '#000000' }: { videoSrc: string; zoom?: number; onVideoLoaded?: () => void; spotlight?: boolean; backgroundColor?: string }) => {
     const { size, viewport } = useThree();
     const materialRef = useRef<any>(null);
     const [videoTexture, setVideoTexture] = React.useState<THREE.VideoTexture | null>(null);
+    const mouseRef = useRef(new THREE.Vector2(0.5, 0.5));
+
+    React.useEffect(() => {
+        const handleMouseMove = (event: MouseEvent) => {
+            // Normalize mouse position to 0-1, flip Y
+            mouseRef.current.x = event.clientX / window.innerWidth;
+            mouseRef.current.y = 1.0 - (event.clientY / window.innerHeight);
+        };
+
+        const handleTouchMove = (event: TouchEvent) => {
+            if (event.touches.length > 0) {
+                mouseRef.current.x = event.touches[0].clientX / window.innerWidth;
+                mouseRef.current.y = 1.0 - (event.touches[0].clientY / window.innerHeight);
+            }
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('touchmove', handleTouchMove);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('touchmove', handleTouchMove);
+        };
+    }, []);
 
     React.useEffect(() => {
         // Manual video element creation for better iOS control
@@ -180,6 +233,9 @@ const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: st
     useFrame(() => {
         if (materialRef.current && videoTexture) {
             materialRef.current.uResolution.set(size.width, size.height);
+            materialRef.current.uMouse.lerp(mouseRef.current, 0.1); // Smooth mouse movement
+            materialRef.current.uHasSpotlight = spotlight;
+            materialRef.current.uBackgroundColor.set(backgroundColor);
 
             if (videoTexture.image && videoTexture.image.videoWidth && videoTexture.image.videoHeight) {
                 materialRef.current.uVideoAspect = videoTexture.image.videoWidth / videoTexture.image.videoHeight;
@@ -202,9 +258,11 @@ const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded }: { videoSrc: st
 interface DeepSeaEffectProps {
     videoSrc?: string;
     zoom?: number;
+    spotlight?: boolean;
+    backgroundColor?: string;
 }
 
-export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.0 }: DeepSeaEffectProps) {
+export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.0, spotlight = false, backgroundColor = '#000000' }: DeepSeaEffectProps) {
     const [opacity, setOpacity] = React.useState(0);
 
     const handleVideoLoaded = React.useCallback(() => {
@@ -232,7 +290,7 @@ export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.
                     gl={{ antialias: false }}
                 >
                     <React.Suspense fallback={null}>
-                        <VideoBackground videoSrc={videoSrc} zoom={zoom} onVideoLoaded={handleVideoLoaded} />
+                        <VideoBackground videoSrc={videoSrc} zoom={zoom} onVideoLoaded={handleVideoLoaded} spotlight={spotlight} backgroundColor={backgroundColor} />
                     </React.Suspense>
                 </Canvas>
             </div>

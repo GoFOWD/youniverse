@@ -42,6 +42,27 @@ interface ResultData {
   id?: string; // Added ID for feedback
 }
 
+// Helper function to interpolate between two hex colors
+const interpolateColor = (color1: string, color2: string, factor: number): string => {
+  const c1 = parseInt(color1.substring(1), 16);
+  const c2 = parseInt(color2.substring(1), 16);
+
+  const r1 = (c1 >> 16) & 0xff;
+  const g1 = (c1 >> 8) & 0xff;
+  const b1 = c1 & 0xff;
+
+  const r2 = (c2 >> 16) & 0xff;
+  const g2 = (c2 >> 8) & 0xff;
+  const b2 = c2 & 0xff;
+
+  const r = Math.round(r1 + (r2 - r1) * factor);
+  const g = Math.round(g1 + (g2 - g1) * factor);
+  const b = Math.round(b1 + (b2 - b1) * factor);
+
+  const toHex = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
 export default function ClientApp() {
   const [step, setStep] = useState<'splash' | 'landing' | 'question' | 'loading' | 'ocean_transition' | 'result'>('splash');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -52,11 +73,15 @@ export default function ClientApp() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isFalling, setIsFalling] = useState(false); // Controls visual falling effect
 
-  // Preload videos to prevent flash
   useEffect(() => {
     const videosToPreload = [
       '/assets/main.mp4',
       '/assets/main3.mp4',
+      '/assets/main4.mp4',
+      '/assets/main5.mp4',
+      '/assets/main6.mp4',
+      '/assets/main7.mp4',
+      '/assets/main8.mp4',
       '/assets/Arctic1.mp4',
       '/assets/Atlantic1.mp4',
       '/assets/indian1.mp4',
@@ -103,61 +128,42 @@ export default function ClientApp() {
     }
   }, []);
 
-  // Dropout Detection (Unload Handler) - REMOVED
-  // The user requested to remove admin connection features that might block the test.
-  /*
-  useEffect(() => {
-    const handleUnload = () => {
-      // Only report dropout if test is in progress and not completed
-      if (step === 'question' && questions.length > 0) {
-        const data = {
-          answers: answers, // Send current answers
-          isDropout: true,
-          questionProgress: currentQuestionIndex + 1,
-        };
+  // Helper to get video for current question
+  const getQuestionVideo = (index: number) => {
+    if (index < 4) return '/assets/main4.mp4';      // Q1-4
+    if (index < 8) return '/assets/main5.mp4';      // Q5-8
+    if (index < 12) return '/assets/main6.mp4';     // Q9-12
+    if (index < 16) return '/assets/main7.mp4';     // Q13-16
+    return '/assets/main8.mp4';                     // Q17-18
+  };
 
-        // Use fetch with keepalive for reliability on unload
-        fetch('/api/test/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-          keepalive: true,
-        });
-      }
-    };
+  // Helper to get background color for current question (matches Layout gradient logic)
+  const getQuestionBackgroundColor = (progress: number): string => {
+    const normalizedProgress = Math.min(Math.max(progress, 0), 100) / 100;
 
-    window.addEventListener('beforeunload', handleUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload);
-    };
-  }, [step, questions, answers, currentQuestionIndex]);
-  */
+    const darkStart = '#000000';   // Pure black for deepest ocean
+    const darkMid = '#030d0f';     // Almost black with hint of teal
+    const mediumStart = '#0f1f22'; // Very dark transition
+    const mediumMid = '#0a3a3f';   // Dark teal
+    const brightStart = '#06b6d4';  // cyan-500
+    const brightMid = '#2563eb';    // blue-600
 
-  // Cleanup timeouts on unmount 중도이탈률 계산 
-  /*useEffect(() => { 
-    return () => {
-      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-      if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
-    };
-  }, []);
-  */
+    let fromColor, viaColor;
 
-  // Save progress to session storage whenever it changes
-  useEffect(() => {
-    if (step === 'question') {
-      sessionStorage.setItem('test_progress_index', currentQuestionIndex.toString());
-      sessionStorage.setItem('test_answers', JSON.stringify(answers));
+    if (normalizedProgress < 0.5) {
+      const factor = normalizedProgress * 2;
+      fromColor = interpolateColor(darkStart, mediumStart, factor);
+      viaColor = interpolateColor(darkMid, mediumMid, factor);
+    } else {
+      const factor = (normalizedProgress - 0.5) * 2;
+      fromColor = interpolateColor(mediumStart, brightStart, factor);
+      viaColor = interpolateColor(mediumMid, brightMid, factor);
     }
-  }, [currentQuestionIndex, answers, step]);
-  /*
-    useEffect(() => {
-      if (step === 'question') {
-        questionStartTime.current = Date.now();
-        // Scroll to top when question changes
-        window.scrollTo(0, 0);
-      }
-    }, [step, currentQuestionIndex]);
-  */
+
+    // Return the middle color for a solid background
+    return viaColor;
+  };
+
   const handleSplashComplete = () => {
     setStep('landing');
   };
@@ -343,14 +349,15 @@ export default function ClientApp() {
         backgroundComponent={
           step === 'landing' ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
             step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" zoom={1.3} /> :
-              step === 'ocean_transition' && result ? (
-                <DeepSeaEffect videoSrc={`/assets/${result.ocean === '북극해' ? 'Arctic1' :
-                  result.ocean === '대서양' ? 'Atlantic1' :
-                    result.ocean === '인도양' ? 'indian1' :
-                      result.ocean === '남극해' ? 'southern1' :
-                        'pacific1' // 태평양
-                  }.mp4`} />
-              ) : null
+              step === 'question' ? <DeepSeaEffect videoSrc={getQuestionVideo(currentQuestionIndex)} spotlight={true} backgroundColor={getQuestionBackgroundColor(progress)} /> :
+                step === 'ocean_transition' && result ? (
+                  <DeepSeaEffect videoSrc={`/assets/${result.ocean === '북극해' ? 'Arctic1' :
+                    result.ocean === '대서양' ? 'Atlantic1' :
+                      result.ocean === '인도양' ? 'indian1' :
+                        result.ocean === '남극해' ? 'southern1' :
+                          'pacific1' // 태평양
+                    }.mp4`} />
+                ) : null
         }
       >
         <AnimatePresence mode="popLayout">
