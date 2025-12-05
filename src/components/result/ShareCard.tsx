@@ -37,11 +37,30 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
         if (!cardRef.current) return;
 
         try {
+            // Find the animal title element and temporarily adjust padding for html2canvas
+            const titleElement = cardRef.current.querySelector('h3') as HTMLElement;
+            const originalPaddingTop = titleElement?.style.paddingTop || '';
+            const originalPaddingBottom = titleElement?.style.paddingBottom || '';
+
+            if (titleElement) {
+                titleElement.style.paddingTop = '2px';
+                titleElement.style.paddingBottom = '18px';
+            }
+
             const canvas = await html2canvas(cardRef.current, {
                 scale: 2,
                 useCORS: true,
                 backgroundColor: null,
+                logging: false,
+                allowTaint: true,
+                foreignObjectRendering: false,
             } as any);
+
+            // Restore original padding
+            if (titleElement) {
+                titleElement.style.paddingTop = originalPaddingTop;
+                titleElement.style.paddingBottom = originalPaddingBottom;
+            }
 
             const link = document.createElement('a');
             link.download = `my_voyage_log_${new Date().getTime()}.jpg`;
@@ -127,7 +146,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                     className="absolute bg-[#e8dcc5] text-[#2c1810] overflow-visible shadow-2xl rounded-lg flex flex-col aspect-[4/5]"
                     style={{
                         width: '360px',
-                        height: '450px',
+                        height: '520px',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
                         willChange: 'transform'
@@ -147,9 +166,9 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                         </div>
                     </div>
                     {/* ANIMAL PERSONA SECTION: Simplified & Enlarged */}
-                    <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] via-[#d4c5a9] to-[#c9b896] flex flex-col items-center justify-center px-6 pt-2 pb-8 overflow-hidden">
+                    <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] via-[#d4c5a9] to-[#c9b896] flex flex-col items-center justify-start px-6 pt-4 pb-6 overflow-hidden">
                         {/* Animal Image - Large, No Frame */}
-                        <div className="relative mb-0 w-full max-w-[280px] h-[280px] flex items-center justify-center">
+                        <div className="w-full max-w-[280px] h-[280px] flex items-center justify-center flex-shrink-0">
                             <img
                                 src={`/assets/${persona?.image}.png`}
                                 alt={persona?.animal}
@@ -165,10 +184,21 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                         </div>
 
                         {/* Name and Description - No Box, Better Typography */}
-                        <div className="relative text-center w-full space-y-2 mt-[-10px] flex flex-col items-center">
-                            <h3 className="bg-[#2c1810] text-white text-lg md:text-xl font-bold font-sans leading-tight px-6 py-2 rounded-full shadow-md">
-                                {persona?.animal || '신비로운 바다 생물'}
-                            </h3>
+                        <div className="w-full text-center mt-2 flex-shrink-0">
+                            <div style={{ display: 'table', margin: '0 auto' }}>
+                                <h3
+                                    className="bg-[#2c1810] text-white text-lg md:text-xl font-bold font-sans px-6 py-2 rounded-full shadow-md"
+                                    style={{
+                                        display: 'table-cell',
+                                        verticalAlign: 'middle',
+                                        lineHeight: '1.2'
+                                    }}
+                                >
+                                    {persona?.animal || '신비로운 바다 생물'}
+                                </h3>
+                            </div>
+                        </div>
+                        <div className="w-full text-center mt-2 flex-shrink-0">
                             <p className="text-base md:text-lg text-[#2c1810] font-serif leading-relaxed break-keep px-4 font-semibold drop-shadow-sm">
                                 {persona?.description || description}
                             </p>
