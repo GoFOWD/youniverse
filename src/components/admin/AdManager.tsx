@@ -107,13 +107,7 @@ export default function AdManager() {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {ads.map((ad) => (
-                            <div key={ad.id} className="border border-green-900 p-4 relative group">
-                                <button
-                                    onClick={() => handleDeleteAd(ad.id)}
-                                    className="absolute top-2 right-2 text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    [DELETE]
-                                </button>
+                            <div key={ad.id} className="border border-green-900 p-4 relative">
                                 <div className="text-xs text-green-700 mb-2 font-mono">ID: {ad.id}</div>
                                 <div className="w-full h-40 bg-white/5 flex items-center justify-center overflow-hidden mb-2">
                                     <iframe
@@ -125,7 +119,23 @@ export default function AdManager() {
                                         className="transform scale-50 origin-center"
                                     />
                                 </div>
-                                <div className="text-xs text-green-600 truncate font-mono">{ad.src}</div>
+                                <div className="text-xs text-green-600 truncate font-mono mb-3">{ad.src}</div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => window.open(ad.src, '_blank')}
+                                        className="flex-1 bg-green-900 text-green-100 px-3 py-2 text-xs font-mono hover:bg-green-800 transition-colors"
+                                    >
+                                        [PREVIEW]
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteAd(ad.id)}
+                                        className="flex-1 bg-red-900 text-red-100 px-3 py-2 text-xs font-mono hover:bg-red-800 transition-colors"
+                                    >
+                                        [DELETE]
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

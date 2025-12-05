@@ -45,21 +45,7 @@ export default function RootLayout({
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2243110505553175" crossOrigin="anonymous"></script>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'WebApplication',
-              name: 'Deep Ocean, Soft Dawn',
-              description: '심해에서 시작되는 당신의 이야기. 18가지 질문을 통해 당신의 내면을 탐험하세요.',
-              applicationCategory: 'LifestyleApplication',
-              inLanguage: 'ko',
-              offers: {
-                '@type': 'Offer',
-                price: '0',
-                priceCurrency: 'KRW',
-              },
-            }),
-          }}
+
         />
       </head>
       <body>{children}</body>
