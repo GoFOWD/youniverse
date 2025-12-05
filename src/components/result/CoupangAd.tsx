@@ -12,17 +12,17 @@ interface AdItem {
 
 // List of ads to rotate
 const AD_LIST: AdItem[] = [
-    { id: 'ad1', src: 'https://coupa.ng/ckVTlN', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVVdU', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVX7a', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYeT', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYkJ', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYnS', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYry', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYtS', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '400' },
-    { id: 'ad2', src: 'https://link.coupang.com/a/da5hKP', width: '200', height: '400' },
+    { id: 'ad1', src: 'https://coupa.ng/ckVTlN', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVVdU', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVX7a', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYeT', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYkJ', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYnS', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYry', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYtS', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
+    { id: 'ad2', src: 'https://link.coupang.com/a/da5hKP', width: '200', height: '350' },
 
 ];
 
@@ -65,7 +65,7 @@ const CoupangAd: React.FC = () => {
 
     return (
         <div className="bg-white flex flex-col items-center justify-center p-0 text-center space-y-2">
-            <div className="w-[200px] h-[400px] overflow-hidden">
+            <div className="overflow-hidden" style={{ width: `${selectedAd.width}px`, height: `${selectedAd.height}px` }}>
                 <iframe
                     src={selectedAd.src}
                     width={selectedAd.width}
