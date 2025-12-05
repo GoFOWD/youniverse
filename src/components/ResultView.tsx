@@ -11,6 +11,7 @@ import LetterView from './result/LetterView';
 import AllOceanTypesView from './result/AllOceanTypesView';
 import CompatibilityView from './result/CompatibilityView';
 import { getPersona } from '../data/personaData';
+import { MAP_DESCRIPTIONS } from '../data/mapDescriptions';
 
 interface ResultData {
   id: string;
@@ -138,7 +139,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
                 {/* Title */}
                 <div className="text-center space-y-3">
                   <h2 className="text-3xl md:text-4xl font-serif font-bold text-white drop-shadow-lg">
-                    {result.ocean} · {result.season}
+                    2025 나의 항해 지도
                   </h2>
                   <div className="w-16 h-1 bg-white/40 mx-auto rounded-full" />
                 </div>
@@ -192,6 +193,39 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
                         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-12 h-2 bg-white/30 rounded-full blur-sm animate-pulse" />
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Description Block */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl py-6 px-4 border border-white/10 text-center">
+                  <div className="space-y-2">
+                    {(() => {
+                      const oceanDesc = MAP_DESCRIPTIONS[result.ocean];
+                      const desc = oceanDesc ? oceanDesc[result.season] : null;
+
+                      if (desc) {
+                        return (
+                          <>
+                            <h3 className="text-xl md:text-2xl text-white font-serif font-bold drop-shadow-lg mb-3">
+                              {result.ocean}의 {result.season}
+                            </h3>
+                            <p className="text-lg md:text-xl text-white/90 font-serif font-medium drop-shadow-md leading-relaxed">
+                              {desc[0]}
+                            </p>
+                            <p className="text-lg md:text-xl text-white/90 font-serif font-medium drop-shadow-md leading-relaxed">
+                              {desc[1]}
+                            </p>
+                          </>
+                        );
+                      }
+
+                      // Fallback
+                      return (
+                        <p className="text-xl md:text-2xl text-white/90 font-serif font-medium drop-shadow-md">
+                          {result.ocean}의 {result.season}
+                        </p>
+                      );
+                    })()}
                   </div>
                 </div>
               </section>

@@ -141,7 +141,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
 
                         <div className="text-center">
                             <div className="text-xs text-[#8b5a2b] font-serif uppercase tracking-widest mb-1">2025 나의 항해 일지</div>
-                            <h1 className="text-xl font-bold tracking-wider text-[#1a0f0a] drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)] font-serif">
+                            <h1 className="text-2xl font-extrabold tracking-wider text-[#1a0f0a] drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)] font-serif">
                                 {oceanName} · {seasonName}
                             </h1>
                         </div>
@@ -149,7 +149,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                     {/* ANIMAL PERSONA SECTION: Simplified & Enlarged */}
                     <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] via-[#d4c5a9] to-[#c9b896] flex flex-col items-center justify-center px-6 pt-2 pb-8 overflow-hidden">
                         {/* Animal Image - Large, No Frame */}
-                        <div className="relative mb-2 w-full max-w-[280px] h-[280px] flex items-center justify-center">
+                        <div className="relative mb-0 w-full max-w-[280px] h-[280px] flex items-center justify-center">
                             <img
                                 src={`/assets/${persona?.image}.png`}
                                 alt={persona?.animal}
@@ -165,11 +165,11 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                         </div>
 
                         {/* Name and Description - No Box, Better Typography */}
-                        <div className="relative text-center w-full space-y-1">
-                            <h3 className="text-xl md:text-2xl font-bold text-[#1a0f0a] font-serif leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
+                        <div className="relative text-center w-full space-y-2 mt-[-10px]">
+                            <h3 className="inline-block bg-[#2c1810] text-white text-lg md:text-xl font-bold font-sans leading-tight px-6 py-2 rounded-full shadow-md">
                                 {persona?.animal || '신비로운 바다 생물'}
                             </h3>
-                            <p className="text-base md:text-lg text-[#3e2723] font-serif leading-relaxed break-keep px-4 font-medium">
+                            <p className="text-base md:text-lg text-[#2c1810] font-serif leading-relaxed break-keep px-4 font-semibold drop-shadow-sm">
                                 {persona?.description || description}
                             </p>
                         </div>
