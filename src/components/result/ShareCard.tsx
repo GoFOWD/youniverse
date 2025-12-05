@@ -165,8 +165,8 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
                         </div>
 
                         {/* Name and Description - No Box, Better Typography */}
-                        <div className="relative text-center w-full space-y-2 mt-[-10px]">
-                            <h3 className="inline-block bg-[#2c1810] text-white text-lg md:text-xl font-bold font-sans leading-tight px-6 py-2 rounded-full shadow-md">
+                        <div className="relative text-center w-full space-y-2 mt-[-10px] flex flex-col items-center">
+                            <h3 className="bg-[#2c1810] text-white text-lg md:text-xl font-bold font-sans leading-tight px-6 py-2 rounded-full shadow-md">
                                 {persona?.animal || '신비로운 바다 생물'}
                             </h3>
                             <p className="text-base md:text-lg text-[#2c1810] font-serif leading-relaxed break-keep px-4 font-semibold drop-shadow-sm">

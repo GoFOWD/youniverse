@@ -21,8 +21,6 @@ const AD_LIST: AdItem[] = [
     { id: 'ad2', src: 'https://coupa.ng/ckVYry', width: '200', height: '350' },
     { id: 'ad2', src: 'https://coupa.ng/ckVYtS', width: '200', height: '350' },
     { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
-
 
 ];
 
@@ -64,7 +62,7 @@ const CoupangAd: React.FC = () => {
     if (!selectedAd) return null;
 
     return (
-        <div className="bg-white flex flex-col items-center justify-center p-0 text-center space-y-2">
+        <div className="bg-white flex flex-col items-center justify-center p-0 text-center">
             <div className="overflow-hidden" style={{ width: `${selectedAd.width}px`, height: `${selectedAd.height}px` }}>
                 <iframe
                     src={selectedAd.src}
@@ -77,7 +75,7 @@ const CoupangAd: React.FC = () => {
                     browsingTopics={true}
                 ></iframe>
             </div>
-            <p className="text-[10px] text-gray-400 leading-tight pb-2 px-2">
+            <p className="text-[9px] text-gray-400 leading-tight pb-1 px-2 pt-1">
                 이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
                 이에 따른 일정액의 수수료를 제공받습니다.
             </p>
