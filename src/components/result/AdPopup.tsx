@@ -45,7 +45,7 @@ const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
-                        className="bg-white w-auto max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl relative"
+                        className="bg-white w-auto rounded-2xl overflow-hidden shadow-2xl relative"
                     >
                         {/* Ad Content */}
                         <CoupangAd />

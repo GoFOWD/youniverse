@@ -61,22 +61,26 @@ const CoupangAd: React.FC = () => {
 
     if (!selectedAd) return null;
 
+    const baseWidth = 400; // Base width for 4:2.5 ratio
+    const calculatedHeight = (baseWidth * 2.5) / 4; // 4:2.5 ratio
+
     return (
-        <div className="bg-white flex flex-col items-center justify-center p-0 text-center">
-            <div className="overflow-hidden" style={{ width: `${selectedAd.width}px`, height: `${selectedAd.height}px` }}>
+        <div className="flex flex-col">
+            <div style={{ width: `${baseWidth}px`, height: `${calculatedHeight}px` }}>
                 <iframe
                     src={selectedAd.src}
-                    width={selectedAd.width}
-                    height={selectedAd.height}
+                    width="100%"
+                    height="100%"
                     frameBorder="0"
                     scrolling="no"
                     referrerPolicy="unsafe-url"
                     // @ts-ignore
                     browsingTopics={true}
+                    style={{ width: '100%', height: '100%', display: 'block' }}
                 ></iframe>
             </div>
-            <p className="text-[9px] text-gray-400 leading-tight pb-1 px-2 pt-1">
-                이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
+            <p className="text-[9px] text-gray-400 leading-tight py-1 px-2 bg-white text-center">
+                이 포스팅은 쿠팡 파트너스 활동의 일환으로,
                 이에 따른 일정액의 수수료를 제공받습니다.
             </p>
         </div>
