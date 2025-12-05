@@ -15,7 +15,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="pt-16 sm:pt-20 md:pt-24 relative z-20 text-center flex flex-col items-center space-y-16 sm:space-y-8"
+        className="pt-20 sm:pt-20 md:pt-24 relative z-20 text-center flex flex-col items-center space-y-10 sm:space-y-8"
       >
         <div className="relative inline-block">
           <motion.div
