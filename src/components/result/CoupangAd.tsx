@@ -22,7 +22,7 @@ const AD_LIST: AdItem[] = [
     { id: 'ad2', src: 'https://coupa.ng/ckVYtS', width: '200', height: '350' },
     { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
     { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://link.coupang.com/a/da5hKP', width: '200', height: '350' },
+
 
 ];
 
