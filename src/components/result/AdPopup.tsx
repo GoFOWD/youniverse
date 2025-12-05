@@ -62,7 +62,7 @@ const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
                                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                     }`}
                             >
-                                {canClose ? 'Close & View Result' : `Wait ${countdown}s`}
+                                {canClose ? '닫고 결과보기' : `Wait ${countdown}s`}
                             </button>
                         </div>
                     </motion.div>
