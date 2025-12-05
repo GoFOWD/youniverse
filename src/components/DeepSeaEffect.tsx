@@ -1,7 +1,22 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber';
 import { useVideoTexture, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
+import dynamic from 'next/dynamic';
+
+// Dynamically import SimpleFallbackVideo
+const SimpleFallbackVideo = dynamic(() => import('./SimpleFallbackVideo'), { ssr: false });
+
+// Detect WebGL support
+function detectWebGLSupport(): boolean {
+    try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        return !!gl;
+    } catch (e) {
+        return false;
+    }
+}
 
 // Simple video shader without effects
 const VideoMaterial = shaderMaterial(
@@ -136,7 +151,7 @@ const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded, spotlight = fals
         // 'defaultMuted' is crucial for iOS autoplay without interaction
         video.defaultMuted = true;
         video.muted = true;
-        video.preload = 'auto'; // Force preload
+        video.preload = 'metadata'; // Load metadata first for faster initial display
 
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
@@ -256,6 +271,12 @@ interface DeepSeaEffectProps {
 
 export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.0, spotlight = false, backgroundColor = '#000000' }: DeepSeaEffectProps) {
     const [opacity, setOpacity] = React.useState(0);
+    const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
+
+    // Detect WebGL support on mount
+    useEffect(() => {
+        setHasWebGL(detectWebGLSupport());
+    }, []);
 
     const handleVideoLoaded = React.useCallback(() => {
         // Fade in immediately when video is loaded
@@ -267,6 +288,18 @@ export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.
         setOpacity(0);
     }, [videoSrc]);
 
+    // Show nothing while detecting (prevents flash)
+    if (hasWebGL === null) {
+        return <div className="absolute inset-0 bg-black" />;
+    }
+
+    // Use fallback video for non-WebGL browsers (e.g., KakaoTalk)
+    if (!hasWebGL) {
+        console.log('WebGL not supported, using fallback video player');
+        return <SimpleFallbackVideo videoSrc={videoSrc} spotlight={spotlight} backgroundColor={backgroundColor} />;
+    }
+
+    // Use WebGL-based video for supported browsers
     return (
         <div className="absolute inset-0 z-0 pointer-events-none">
             {/* Black background fallback */}
