@@ -40,6 +40,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [showThankYouPopup, setShowThankYouPopup] = useState(false);
 
   const persona = getPersona(result.ocean, result.season);
 
@@ -66,7 +67,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userResponseId: result.id,
+          id: result.id, // Fixed: use id instead of userResponseId
           rating,
           comment
         }),
@@ -74,6 +75,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
 
       if (response.ok) {
         setFeedbackSubmitted(true);
+        setShowThankYouPopup(true); // Show popup
       }
     } catch (error) {
       console.error('Failed to submit feedback:', error);
@@ -100,6 +102,44 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
   return (
     <div className="w-full min-h-[100dvh] pb-20 relative z-10">
       <AdPopup isOpen={isAdOpen} onClose={handleAdClose} />
+
+      {/* Thank You Popup */}
+      <AnimatePresence>
+        {showThankYouPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowThankYouPopup(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#2c1810] border-2 border-[#8b5a2b] rounded-xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden"
+            >
+              {/* Vintage paper texture overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#f4e4bc]/10 to-transparent opacity-30 pointer-events-none" />
+
+              <div className="relative z-10 space-y-6">
+                <div className="text-4xl">✨</div>
+                <h3 className="text-xl font-serif font-bold text-[#f4e4bc] leading-relaxed">
+                  감사합니다.<br />
+                  행복한 2026년 되세요
+                </h3>
+                <button
+                  onClick={() => setShowThankYouPopup(false)}
+                  className="px-6 py-2 bg-[#8b5a2b] hover:bg-[#a06b35] text-[#f4e4bc] rounded-lg font-serif transition-colors"
+                >
+                  닫기
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* All Ocean Types Modal */}
       <AnimatePresence>
