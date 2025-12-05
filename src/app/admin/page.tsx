@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import AdManager from '../../components/admin/AdManager';
 
 interface Stats {
     totalUsers: number;
@@ -95,6 +96,9 @@ export default function AdminDashboard() {
                     })}
                 </div>
             </section>
+
+            {/* Ad Manager */}
+            <AdManager />
 
             {/* Recent Comments */}
             <section className="bg-black border border-green-800 p-4 sm:p-6 rounded-none">

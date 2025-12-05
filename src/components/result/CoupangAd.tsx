@@ -12,37 +12,53 @@ interface AdItem {
 
 // List of ads to rotate
 const AD_LIST: AdItem[] = [
-    {
-        id: 'ad1',
-        src: 'https://coupa.ng/ckVTlN',
-        width: '300',
-        height: '600'
-    },
-    { id: 'ad2', src: 'https://link.coupang.com/a/da4gE6', width: '300', height: '600' },
-    { id: 'ad3', src: 'https://link.coupang.com/a/da4r3l', width: '300', height: '600' },
-    { id: 'ad4', src: 'https://link.coupang.com/a/da4siu', width: '300', height: '600' },
-    { id: 'ad5', src: 'https://link.coupang.com/a/da4sGY', width: '300', height: '600' },
-    { id: 'ad6', src: 'https://link.coupang.com/a/da4txp', width: '300', height: '600' },
-    { id: 'ad7', src: 'https://link.coupang.com/a/da4tKU', width: '300', height: '600' },
-    { id: 'ad8', src: 'https://link.coupang.com/a/da4uBi', width: '300', height: '600' },
-    { id: 'ad9', src: 'https://link.coupang.com/a/da4vqu', width: '300', height: '600' },
-    { id: 'ad10', src: 'https://link.coupang.com/a/da4vCx', width: '300', height: '600' },
-    { id: 'ad11', src: 'https://link.coupang.com/a/da4v9U', width: '300', height: '600' },
-    { id: 'ad12', src: 'https://link.coupang.com/a/da4wt0', width: '300', height: '600' },
-    { id: 'ad13', src: 'https://link.coupang.com/a/da4wLt', width: '300', height: '600' },
-    { id: 'ad14', src: 'https://link.coupang.com/a/da4wYa', width: '300', height: '600' },
-    { id: 'ad15', src: 'https://link.coupang.com/a/da4x8T', width: '300', height: '600' },
-    { id: 'ad16', src: 'https://link.coupang.com/a/da4yDF', width: '300', height: '600' },
-    { id: 'ad17', src: 'https://link.coupang.com/a/da4yO5', width: '300', height: '600' },
+    { id: 'ad1', src: 'https://coupa.ng/ckVTlN', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVVdU', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVX7a', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYeT', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYkJ', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYnS', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYry', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYtS', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '300', height: '600' },
+    { id: 'ad2', src: 'https://link.coupang.com/a/da5hKP', width: '300', height: '600' },
+
 ];
 
 const CoupangAd: React.FC = () => {
     const [selectedAd, setSelectedAd] = useState<AdItem | null>(null);
 
     useEffect(() => {
-        // Randomly select an ad on mount
-        const randomIndex = Math.floor(Math.random() * AD_LIST.length);
-        setSelectedAd(AD_LIST[randomIndex]);
+        const fetchAndSelectAd = async () => {
+            let availableAds = [...AD_LIST];
+
+            try {
+                const res = await fetch('/api/admin/ads');
+                if (res.ok) {
+                    const dbAds = await res.json();
+                    if (dbAds && dbAds.length > 0) {
+                        // Map DB ads to AdItem format
+                        const formattedDbAds = dbAds.map((ad: any) => ({
+                            id: `db_${ad.id}`,
+                            src: ad.src,
+                            width: ad.width,
+                            height: ad.height
+                        }));
+                        // Combine or prioritize DB ads
+                        availableAds = [...formattedDbAds, ...AD_LIST];
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch dynamic ads:', error);
+            }
+
+            // Randomly select an ad
+            const randomIndex = Math.floor(Math.random() * availableAds.length);
+            setSelectedAd(availableAds[randomIndex]);
+        };
+
+        fetchAndSelectAd();
     }, []);
 
     if (!selectedAd) return null;

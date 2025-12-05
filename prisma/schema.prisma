@@ -83,3 +83,13 @@ model UserResponse {
   @@index([isDropout, rating])
   @@index([isValidComment])
 }
+
+// 5. 광고 관리 테이블
+model Ad {
+  id        Int      @id @default(autoincrement())
+  src       String   // 광고 링크 (iframe src)
+  width     String   @default("300")
+  height    String   @default("600")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
