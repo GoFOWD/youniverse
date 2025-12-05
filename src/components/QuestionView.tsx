@@ -82,7 +82,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({ question, onAnswer, disable
                 boxShadow: "0 10px 30px -10px rgba(0,0,0,0.5)"
               } : {}}
               whileTap={!selectedOptionId ? { scale: 0.98 } : {}}
-              className="group w-full p-3 sm:p-4 md:p-4 rounded-xl border text-white text-base sm:text-lg font-light transition-all duration-300 hover:shadow-xl text-left relative overflow-visible cursor-pointer touch-manipulation z-30"
+              className="group w-full p-3 sm:p-4 md:p-4 rounded-xl border text-white text-base sm:text-lg font-light transition-all duration-300 hover:shadow-xl text-left relative overflow-visible cursor-pointer touch-manipulation z-30 backdrop-blur-md"
             >
               <span className={`relative z-10 transition-all duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${isSelected ? 'font-medium text-teal-200' : 'group-hover:font-normal'}`}>
                 {option.text}

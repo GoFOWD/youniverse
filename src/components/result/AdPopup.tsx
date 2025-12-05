@@ -9,12 +9,12 @@ interface AdPopupProps {
 }
 
 const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
-    const [countdown, setCountdown] = useState(3);
+    const [countdown, setCountdown] = useState(5);
     const [canClose, setCanClose] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            setCountdown(3);
+            setCountdown(5);
             setCanClose(false);
             const timer = setInterval(() => {
                 setCountdown((prev) => {
@@ -43,17 +43,26 @@ const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
-                        className="bg-white w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl relative"
+                        className="bg-white w-auto max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl relative"
                     >
-                        {/* Fake Ad Content */}
-                        <div className="h-64 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white p-6 text-center">
-                            <div>
-                                <h3 className="text-2xl font-bold mb-2">Premium Voyage</h3>
-                                <p className="text-sm opacity-90">Unlock the deepest secrets of your ocean.</p>
-                                <div className="mt-4 px-4 py-2 bg-white text-indigo-600 font-bold rounded-full text-sm inline-block">
-                                    ADVERTISEMENT
-                                </div>
+                        {/* Ad Content */}
+                        <div className="bg-white flex flex-col items-center justify-center p-0 text-center space-y-2">
+                            <div className="w-[120px] h-[240px] overflow-hidden">
+                                <iframe
+                                    src="https://coupa.ng/ckVTlN"
+                                    width="120"
+                                    height="240"
+                                    frameBorder="0"
+                                    scrolling="no"
+                                    referrerPolicy="unsafe-url"
+                                    // @ts-ignore
+                                    browsingTopics={true}
+                                ></iframe>
                             </div>
+                            <p className="text-[10px] text-gray-400 leading-tight pb-2 px-2">
+                                이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
+                                이에 따른 일정액의 수수료를 제공받습니다.
+                            </p>
                         </div>
 
                         {/* Close Button Area */}
@@ -63,8 +72,8 @@ const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
                                 onClick={canClose ? onClose : undefined}
                                 disabled={!canClose}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${canClose
-                                        ? 'bg-gray-900 text-white hover:bg-black'
-                                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                    ? 'bg-gray-900 text-white hover:bg-black'
+                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                     }`}
                             >
                                 {canClose ? 'Close & View Result' : `Wait ${countdown}s`}
