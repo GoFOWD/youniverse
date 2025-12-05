@@ -120,6 +120,53 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
 
   const videoFile = ocean ? OceanVideoMap[ocean] : null;
 
+  // Background Audio Logic
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = React.useState(false);
+
+  React.useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const shouldPlay = step === 'landing' || step === 'question';
+
+    if (shouldPlay) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsAudioPlaying(true);
+          })
+          .catch((error) => {
+            console.log("Audio autoplay blocked:", error);
+            setIsAudioPlaying(false);
+          });
+      }
+    } else {
+      audio.pause();
+      setIsAudioPlaying(false);
+    }
+  }, [step]);
+
+  // Unlock audio on interaction
+  React.useEffect(() => {
+    const handleInteraction = () => {
+      const audio = audioRef.current;
+      if (audio && (step === 'landing' || step === 'question') && audio.paused) {
+        audio.play()
+          .then(() => setIsAudioPlaying(true))
+          .catch((e) => console.log("Audio play failed:", e));
+      }
+    };
+
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+    };
+  }, [step]);
+
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden text-white">
       {/* Dynamic Background Layer */}
@@ -274,6 +321,13 @@ const Layout: React.FC<LayoutProps> = ({ children, step, progress = 0, ocean, cl
           {children}
         </main>
       </div>
+      {/* Background Audio */}
+      <audio
+        ref={audioRef}
+        src="/assets/바다속소리.wav"
+        loop
+        preload="auto"
+      />
     </div>
   );
 };

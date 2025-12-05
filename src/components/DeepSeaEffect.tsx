@@ -180,22 +180,14 @@ const VideoBackground = ({ videoSrc, zoom = 1.0, onVideoLoaded, spotlight = fals
             }
         };
 
-        // Global interaction fallback & Unmute logic
+        // Global interaction fallback - Keep muted
         const handleInteraction = () => {
-            // 1. If video is paused, try to play
+            // 1. If video is paused, try to play (muted)
             if (video.paused) {
-                // Try playing with sound first
-                video.muted = false;
+                video.muted = true;
                 video.play().catch((err) => {
-                    console.log("Unmuted play failed, falling back to muted", err);
-                    // Fallback: Play muted if unmuted fails
-                    video.muted = true;
-                    video.play().catch(() => { });
+                    console.warn("Video play failed", err);
                 });
-            }
-            // 2. If video is already playing but muted, try to unmute
-            else if (video.muted) {
-                video.muted = false;
             }
         };
 
