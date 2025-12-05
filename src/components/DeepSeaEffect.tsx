@@ -2,13 +2,22 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree, extend } from '@react-three/fiber';
 import { useVideoTexture, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import dynamic from 'next/dynamic';
-
-// Dynamically import SimpleFallbackVideo
-const SimpleFallbackVideo = dynamic(() => import('./SimpleFallbackVideo'), { ssr: false });
+// Import directly regarding performance (small file size)
+import SimpleFallbackVideo from './SimpleFallbackVideo';
 
 // Detect WebGL support
 function detectWebGLSupport(): boolean {
+    if (typeof window === 'undefined') return false;
+
+    // 🚀 Fast path: Detect KakaoTalk immediately
+    const ua = window.navigator.userAgent;
+    const isKakaoTalk = /KAKAOTALK/i.test(ua);
+
+    if (isKakaoTalk) {
+        console.log('KakaoTalk detected - forcing fallback mode');
+        return false;
+    }
+
     try {
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
