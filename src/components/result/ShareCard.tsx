@@ -111,195 +111,72 @@ const ShareCard: React.FC<ShareCardProps> = ({ oceanName, seasonName, keywords, 
     }, []);
 
     return (
-        <div className="flex flex-col items-center w-full mx-auto px-[3%] max-w-[400px] overflow-hidden">
+        <div className="flex flex-col items-center w-full mx-auto px-[3%] max-w-[400px] overflow-visible">
             {/* Wrapper to center and handle scaling space */}
             <div
                 className="relative flex justify-center items-center w-full transition-all duration-300 ease-out"
                 style={{
-                    height: `${(cardHeight * scale) + 40}px`, // Reserve scaled height + 40px buffer to prevent overlap
+                    height: `${(cardHeight * scale) + 60}px`, // Reserve scaled height + 60px buffer to prevent overlap
+                    paddingTop: '20px',
+                    paddingBottom: '20px'
                 }}
             >
                 {/* Capture Area (The Card) - Fixed 360x640 (9:16) */}
                 <div
                     ref={cardRef}
-                    className="absolute bg-[#e8dcc5] text-[#2c1810] overflow-visible shadow-2xl rounded-lg flex flex-col aspect-[9/16]"
+                    className="absolute bg-[#e8dcc5] text-[#2c1810] overflow-visible shadow-2xl rounded-lg flex flex-col aspect-[4/5]"
                     style={{
                         width: '360px',
-                        height: '640px',
+                        height: '450px',
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
                         willChange: 'transform'
                     }}
                 >
                     {/* HEADER SECTION: Title */}
-                    <div className="relative w-full bg-gradient-to-b from-[#d4c5a9] to-[#e8dcc5] border-b-2 border-[#8b5a2b]/30 py-3 px-6 shrink-0 z-10">
+                    <div className="relative w-full bg-gradient-to-b from-[#d4c5a9] to-[#e8dcc5] py-3 px-6 shrink-0 z-10">
                         {/* Decorative Corner Elements */}
                         <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-[#8b5a2b]/40" />
                         <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-[#8b5a2b]/40" />
 
                         <div className="text-center">
                             <div className="text-xs text-[#8b5a2b] font-serif uppercase tracking-widest mb-1">2025 나의 항해 일지</div>
-                            <h1 className="text-xl font-bold tracking-wider text-[#1a0f0a] drop-shadow-sm font-serif">
+                            <h1 className="text-xl font-bold tracking-wider text-[#1a0f0a] drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)] font-serif">
                                 {oceanName} · {seasonName}
                             </h1>
                         </div>
                     </div>
-
-                    {/* MAP SECTION: Fixed Height to maintain ratio within fixed container */}
-                    {/* 360px width. 4:5 ratio map would be 360 * 1.25 = 450px height. 
-                        But we have limited space. 
-                        Total height 640. 
-                        Header ~70px. 
-                        Instruments ~120px. 
-                        Footer ~150px.
-                        Map needs to fit remaining. 
-                        Let's keep the map aspect ratio but maybe contain it? 
-                        Or just set a fixed height that looks good.
-                        Previous code used aspect-[4/5]. 360 * 1.25 = 450px. Too tall for 640px total.
-                        Let's use a fixed height for map section to ensure it fits.
-                        Say 260px height for map.
-                    */}
-                    {/* MAP SECTION: Reduced height, Instruments Overlay */}
-                    <div className="relative w-full h-[220px] overflow-visible shrink-0">
-                        <div
-                            className="absolute inset-0 w-full h-full"
-                            style={{
-                                backgroundImage: 'url(/assets/vintage_world_map.png)',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                            }}
-                        >
-                            {/* Overlays */}
-                            <div className="absolute inset-0 bg-[#5d4037]/10 mix-blend-multiply pointer-events-none" />
-
-                            {/* Ship Marker */}
-                            <div
-                                className="absolute w-20 h-20 transition-all duration-1000 ease-out z-10"
-                                style={{
-                                    top: shipPos.top,
-                                    left: shipPos.left,
-                                    transform: 'translate(-50%, -50%)'
-                                }}
-                            >
-                                <div className="relative w-full h-full animate-float">
-                                    <img
-                                        src="/assets/ship_vintage.png"
-                                        alt="Ship"
-                                        className="w-full h-full object-contain drop-shadow-lg opacity-90"
-                                    />
-                                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-white/30 rounded-full blur-sm animate-pulse" />
-                                </div>
-                            </div>
-
-                            {/* INSTRUMENTS OVERLAY - Overlapping Title Section */}
-                            {/* Barometer - Top Left (40% overlap with title) */}
-                            <div className="absolute -top-12 left-3 w-[80px] h-[80px] z-30 drop-shadow-[0_10px_15px_rgba(0,0,0,0.7)] filter hover:scale-105 transition-transform">
-                                {scores && <Barometer season={seasonName} />}
-                            </div>
-
-                            {/* Compass - Top Right (40% overlap with title) */}
-                            <div className="absolute -top-12 right-3 w-[80px] h-[80px] z-30 drop-shadow-[0_10px_15px_rgba(0,0,0,0.7)] filter hover:scale-105 transition-transform">
-                                <img
-                                    src="/assets/compass_bg.png"
-                                    alt="Compass"
-                                    className="w-full h-full object-cover rounded-full"
-                                />
-                                <div
-                                    className="absolute top-1/2 left-1/2 transition-transform duration-700 ease-out"
-                                    style={{
-                                        transform: `translate(-50%, -50%) rotate(${compassRotation}deg)`,
-                                        transformOrigin: 'center center'
-                                    }}
-                                >
-                                    <div
-                                        className="absolute left-1/2 -translate-x-1/2"
-                                        style={{
-                                            width: '0',
-                                            height: '0',
-                                            borderLeft: '3px solid transparent',
-                                            borderRight: '3px solid transparent',
-                                            borderBottom: '20px solid #c41e3a',
-                                            top: '-20px',
-                                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                                        }}
-                                    />
-                                    <div
-                                        className="absolute left-1/2 -translate-x-1/2"
-                                        style={{
-                                            width: '0',
-                                            height: '0',
-                                            borderLeft: '3px solid transparent',
-                                            borderRight: '3px solid transparent',
-                                            borderTop: '20px solid #2a2a2a',
-                                            top: '0',
-                                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                                        }}
-                                    />
-                                    <div
-                                        className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 z-10"
-                                        style={{
-                                            boxShadow: '0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.3)'
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* FEATURED SAILOR SECTION: Expanded & Main Focus with Decorations */}
-                    <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] via-[#d4c5a9] to-[#c9b896] flex flex-col items-center justify-center px-6 py-6 overflow-hidden">
-                        {/* Decorative Corner Elements */}
-                        <div className="absolute top-3 left-3 w-8 h-8 border-t-2 border-l-2 border-[#8b5a2b]/40 rounded-tl-lg" />
-                        <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-[#8b5a2b]/40 rounded-tr-lg" />
-                        <div className="absolute bottom-3 left-3 w-8 h-8 border-b-2 border-l-2 border-[#8b5a2b]/40 rounded-bl-lg" />
-                        <div className="absolute bottom-3 right-3 w-8 h-8 border-b-2 border-r-2 border-[#8b5a2b]/40 rounded-br-lg" />
-
-                        {/* Sparkle Effects */}
-                        <div className="absolute top-12 right-12 text-amber-400/30 text-2xl animate-pulse">✨</div>
-                        <div className="absolute bottom-12 left-12 text-amber-400/30 text-xl animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
-
-                        {/* Large Portrait Frame with Image */}
-                        <div className="relative mb-4 w-full max-w-[280px] h-[280px] flex items-center justify-center">
-                            {/* Glow Effect Behind Frame */}
-                            <div className="absolute inset-0 bg-gradient-radial from-amber-200/20 to-transparent rounded-full blur-2xl" />
-
-                            {/* Frame Image */}
+                    {/* ANIMAL PERSONA SECTION: Simplified & Enlarged */}
+                    <div className="relative w-full flex-1 bg-gradient-to-b from-[#e8dcc5] via-[#d4c5a9] to-[#c9b896] flex flex-col items-center justify-center px-6 pt-2 pb-8 overflow-hidden">
+                        {/* Animal Image - Large, No Frame */}
+                        <div className="relative mb-2 w-full max-w-[280px] h-[280px] flex items-center justify-center">
                             <img
-                                src="/assets/올해의선원프레임.png"
-                                alt="Frame"
-                                className="absolute inset-0 w-full h-full object-contain z-20 drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
-                                loading="eager"
+                                src={`/assets/${persona?.image}.png`}
+                                alt={persona?.animal}
+                                className="w-full h-full object-contain drop-shadow-2xl"
+                                style={{
+                                    filter: 'brightness(1.05) contrast(1.1) drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+                                    opacity: 1
+                                }}
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/assets/ship_icon.png';
+                                }}
                             />
-
-                            {/* Animal Image - Positioned inside the frame */}
-                            <div className="w-[180px] h-[180px] relative z-10 bg-gradient-to-br from-[#faf8f3] to-[#f0e8dc] -rotate-3 flex items-center justify-center">
-                                <img
-                                    src={`/assets/${persona?.image}.png`}
-                                    alt={persona?.animal}
-                                    className="w-full h-full object-contain drop-shadow-lg"
-                                    style={{
-                                        filter: 'brightness(1.05) contrast(1.1)',
-                                        opacity: 1
-                                    }}
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = '/assets/ship_icon.png';
-                                    }}
-                                />
-                            </div>
                         </div>
 
-                        {/* Name Plate - Enhanced */}
-                        <div className="relative text-center w-full bg-gradient-to-br from-[#8b5a2b]/15 to-[#8b5a2b]/5 py-3 px-6 rounded-xl border-2 border-[#8b5a2b]/40 mt-2 shadow-lg">
-                            {/* Decorative Top Accent */}
-                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-transparent via-amber-600/60 to-transparent rounded-full" />
-
-                            <h3 className="text-xl font-bold text-[#2c1810] font-serif leading-tight mb-2 drop-shadow-sm">
+                        {/* Name and Description - No Box, Better Typography */}
+                        <div className="relative text-center w-full space-y-1">
+                            <h3 className="text-xl md:text-2xl font-bold text-[#1a0f0a] font-serif leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
                                 {persona?.animal || '신비로운 바다 생물'}
                             </h3>
-                            <p className="text-sm text-[#5d4037] font-serif leading-relaxed break-keep opacity-95 italic">
+                            <p className="text-base md:text-lg text-[#3e2723] font-serif leading-relaxed break-keep px-4 font-medium">
                                 {persona?.description || description}
                             </p>
                         </div>
+
+                        {/* Decorative Bottom Corner Elements */}
+                        <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-[#8b5a2b]/40" />
+                        <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-[#8b5a2b]/40" />
                     </div>
                 </div>
 

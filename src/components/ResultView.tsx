@@ -133,6 +133,69 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
               transition={{ duration: 0.8 }}
               className="space-y-16"
             >
+              {/* NEW SECTION: Ocean + Season Title with Map */}
+              <section className="space-y-8">
+                {/* Title */}
+                <div className="text-center space-y-3">
+                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-white drop-shadow-lg">
+                    {result.ocean} · {result.season}
+                  </h2>
+                  <div className="w-16 h-1 bg-white/40 mx-auto rounded-full" />
+                </div>
+
+                {/* Map Section */}
+                <div className="relative w-full max-w-2xl mx-auto aspect-[4/3] rounded-2xl overflow-hidden">
+                  <div
+                    className="absolute inset-0 w-full h-full"
+                    style={{
+                      backgroundImage: 'url(/assets/vintage_world_map.png)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  >
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-[#5d4037]/10 mix-blend-multiply pointer-events-none" />
+
+                    {/* Ship Marker */}
+                    <div
+                      className="absolute w-24 h-24 md:w-32 md:h-32 transition-all duration-1000 ease-out z-10"
+                      style={{
+                        top: (() => {
+                          switch (result.ocean) {
+                            case '태평양': return '50%';
+                            case '대서양': return '35%';
+                            case '인도양': return '60%';
+                            case '남극해': return '80%';
+                            case '북극해': return '15%';
+                            default: return '50%';
+                          }
+                        })(),
+                        left: (() => {
+                          switch (result.ocean) {
+                            case '태평양': return '85%';
+                            case '대서양': return '35%';
+                            case '인도양': return '65%';
+                            case '남극해': return '50%';
+                            case '북극해': return '50%';
+                            default: return '50%';
+                          }
+                        })(),
+                        transform: 'translate(-50%, -50%)'
+                      }}
+                    >
+                      <div className="relative w-full h-full animate-float">
+                        <img
+                          src="/assets/ship_vintage.png"
+                          alt="Ship"
+                          className="w-full h-full object-contain drop-shadow-lg opacity-90"
+                        />
+                        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-12 h-2 bg-white/30 rounded-full blur-sm animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               {/* SECTION 2: Navigation Analysis - Split Layout */}
               <section className="space-y-12">
                 <div className="text-center space-y-2">
