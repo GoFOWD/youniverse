@@ -274,7 +274,7 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
           <div className="absolute inset-0 bg-gradient-to-br from-[#f4e4bc]/5 to-transparent opacity-30" />
 
           <div className="relative text-center w-full">
-            <div className="text-[#8b5a2b] text-xs font-serif tracking-widest uppercase mb-2">Advertisement</div>
+            <div className="text-[#8b5a2b] text-xs font-serif tracking-widest uppercase mb-2"></div>
             {/* Google AdSense */}
             <div className="w-full overflow-hidden">
               <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2243110505553175"

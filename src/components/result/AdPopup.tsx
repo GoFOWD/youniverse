@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import CoupangAd from './CoupangAd';
+
 interface AdPopupProps {
     isOpen: boolean;
     onClose: () => void;
@@ -46,24 +48,8 @@ const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
                         className="bg-white w-auto max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl relative"
                     >
                         {/* Ad Content */}
-                        <div className="bg-white flex flex-col items-center justify-center p-0 text-center space-y-2">
-                            <div className="w-[120px] h-[240px] overflow-hidden">
-                                <iframe
-                                    src="https://coupa.ng/ckVTlN"
-                                    width="120"
-                                    height="240"
-                                    frameBorder="0"
-                                    scrolling="no"
-                                    referrerPolicy="unsafe-url"
-                                    // @ts-ignore
-                                    browsingTopics={true}
-                                ></iframe>
-                            </div>
-                            <p className="text-[10px] text-gray-400 leading-tight pb-2 px-2">
-                                이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br />
-                                이에 따른 일정액의 수수료를 제공받습니다.
-                            </p>
-                        </div>
+                        <CoupangAd />
+
 
                         {/* Close Button Area */}
                         <div className="p-4 bg-gray-50 flex justify-between items-center">
