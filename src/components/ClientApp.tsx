@@ -74,30 +74,43 @@ export default function ClientApp() {
   const [isFalling, setIsFalling] = useState(false); // Controls visual falling effect
 
   useEffect(() => {
-    const videosToPreload = [
-      '/assets/main.mp4',
-      '/assets/main3.mp4',
-      '/assets/main4.mp4',
-      '/assets/main5.mp4',
-      '/assets/main6.mp4',
-      '/assets/main7.mp4',
-      '/assets/main8.mp4',
-      '/assets/Arctic1.mp4',
-      '/assets/Atlantic1.mp4',
-      '/assets/indian1.mp4',
-      '/assets/southern1.mp4',
-      '/assets/pacific1.mp4',
-    ];
+    // Priority load: Load main.mp4 FIRST before all other videos
+    const firstVideo = document.createElement('video');
+    firstVideo.preload = 'auto';
+    firstVideo.muted = true;
+    firstVideo.playsInline = true;
+    firstVideo.src = '/assets/main.mp4';
+    firstVideo.load();
 
-    videosToPreload.forEach(src => {
-      const video = document.createElement('video');
-      video.preload = 'auto';
-      video.muted = true;
-      video.playsInline = true;
-      video.src = src;
-      // Start loading but don't play
-      video.load();
-    });
+    // Wait for first video to start loading before loading others
+    // This ensures main.mp4 gets bandwidth priority
+    const loadOtherVideos = () => {
+      const otherVideos = [
+        '/assets/main3.mp4',
+        '/assets/main4.mp4',
+        '/assets/main5.mp4',
+        '/assets/main6.mp4',
+        '/assets/main7.mp4',
+        '/assets/main8.mp4',
+        '/assets/Arctic1.mp4',
+        '/assets/Atlantic1.mp4',
+        '/assets/indian1.mp4',
+        '/assets/southern1.mp4',
+        '/assets/pacific1.mp4',
+      ];
+
+      otherVideos.forEach(src => {
+        const video = document.createElement('video');
+        video.preload = 'auto';
+        video.muted = true;
+        video.playsInline = true;
+        video.src = src;
+        video.load();
+      });
+    };
+
+    // Load other videos after a short delay to give main.mp4 priority
+    setTimeout(loadOtherVideos, 100);
   }, []);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 

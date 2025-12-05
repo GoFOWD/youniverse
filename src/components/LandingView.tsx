@@ -15,7 +15,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="pt-2 sm:pt-6 md:pt-10 relative z-20 text-center flex flex-col items-center space-y-6 sm:space-y-8"
+        className="pt-16 sm:pt-20 md:pt-24 relative z-20 text-center flex flex-col items-center space-y-8 sm:space-y-8"
       >
         <div className="relative inline-block">
           <motion.div
@@ -23,7 +23,7 @@ const LandingView: React.FC<LandingViewProps> = ({ onStart }) => {
             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 4, repeat: Infinity }}
           />
-          <h1 className="relative text-4xl sm:text-5xl md:text-6xl font-bold tracking-wider text-white" style={{ fontFamily: "'Playfair Display', serif", textShadow: '0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2)' }}>
+          <h1 className=" relative text-4xl sm:text-5xl md:text-6xl font-bold tracking-wider text-white" style={{ fontFamily: "'Playfair Display', serif", textShadow: '0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2)' }}>
             나의 바다를
             <br />
             찾아서

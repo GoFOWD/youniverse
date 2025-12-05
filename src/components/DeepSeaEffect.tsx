@@ -274,7 +274,7 @@ export default function DeepSeaEffect({ videoSrc = '/assets/main.mp4', zoom = 1.
 
             {/* Video with fade-in */}
             <div
-                className="absolute inset-0 transition-opacity duration-700 ease-out"
+                className="absolute inset-0 transition-opacity duration-300 ease-out"
                 style={{ opacity }}
             >
                 <Canvas
