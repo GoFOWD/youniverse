@@ -65,7 +65,7 @@ const CoupangAd: React.FC = () => {
 
     return (
         <div className="bg-white flex flex-col items-center justify-center p-0 text-center space-y-2">
-            <div className="w-[300px] h-[600px] overflow-hidden">
+            <div className="w-[200px] h-[400px] overflow-hidden">
                 <iframe
                     src={selectedAd.src}
                     width={selectedAd.width}
