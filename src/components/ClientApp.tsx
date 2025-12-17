@@ -74,30 +74,60 @@ export default function ClientApp() {
   const [isFalling, setIsFalling] = useState(false); // Controls visual falling effect
 
   useEffect(() => {
-    const videosToPreload = [
-      '/assets/main.mp4',
-      '/assets/main3.mp4',
-      '/assets/main4.mp4',
-      '/assets/main5.mp4',
-      '/assets/main6.mp4',
-      '/assets/main7.mp4',
-      '/assets/main8.mp4',
-      '/assets/Arctic1.mp4',
-      '/assets/Atlantic1.mp4',
-      '/assets/indian1.mp4',
-      '/assets/southern1.mp4',
-      '/assets/pacific1.mp4',
+    // 🚀 STAGE 1: Critical videos - Load FULLY and IMMEDIATELY
+    const criticalVideos = [
+      '/assets/main.mp4',      // Landing page (user sees first)
+      '/assets/main3.mp4',     // Loading page (user sees next)
     ];
 
-    videosToPreload.forEach(src => {
+    criticalVideos.forEach(src => {
       const video = document.createElement('video');
-      video.preload = 'auto';
+      video.preload = 'auto'; // Full load for instant playback
       video.muted = true;
       video.playsInline = true;
       video.src = src;
-      // Start loading but don't play
       video.load();
     });
+
+    // ⚡ STAGE 2: Question videos - Load metadata after critical videos (500ms delay)
+    setTimeout(() => {
+      const questionVideos = [
+        '/assets/main4.mp4',   // Questions 1-4
+        '/assets/main5.mp4',   // Questions 5-8
+        '/assets/main6.mp4',   // Questions 9-12
+        '/assets/main7.mp4',   // Questions 13-16
+        '/assets/main8.mp4',   // Questions 17-18
+      ];
+
+      questionVideos.forEach(src => {
+        const video = document.createElement('video');
+        video.preload = 'metadata'; // Just metadata, streams when needed
+        video.muted = true;
+        video.playsInline = true;
+        video.src = src;
+        video.load();
+      });
+    }, 500);
+
+    // 🌊 STAGE 3: Ocean videos - Load last (2 seconds delay)
+    setTimeout(() => {
+      const oceanVideos = [
+        '/assets/Arctic1.mp4',
+        '/assets/Atlantic1.mp4',
+        '/assets/indian1.mp4',
+        '/assets/southern1.mp4',
+        '/assets/pacific1.mp4',
+      ];
+
+      oceanVideos.forEach(src => {
+        const video = document.createElement('video');
+        video.preload = 'metadata'; // Just metadata
+        video.muted = true;
+        video.playsInline = true;
+        video.src = src;
+        video.load();
+      });
+    }, 2000);
   }, []);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 

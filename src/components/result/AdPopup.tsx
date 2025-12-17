@@ -45,15 +45,15 @@ const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.9, opacity: 0 }}
-                        className="bg-white w-auto max-w-[90vw] rounded-2xl overflow-hidden shadow-2xl relative"
+                        className="bg-white w-auto rounded-2xl overflow-hidden shadow-2xl relative"
                     >
                         {/* Ad Content */}
                         <CoupangAd />
 
 
                         {/* Close Button Area */}
-                        <div className="p-4 bg-gray-50 flex justify-between items-center">
-                            <span className="text-xs text-gray-400">Sponsored</span>
+                        <div className="py-3 px-4 bg-gray-50 flex justify-between items-center">
+                            <span className="text-xs text-gray-400">광고 눌러주세요.ㅠㅠ</span>
                             <button
                                 onClick={canClose ? onClose : undefined}
                                 disabled={!canClose}
@@ -62,7 +62,7 @@ const AdPopup: React.FC<AdPopupProps> = ({ isOpen, onClose }) => {
                                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                     }`}
                             >
-                                {canClose ? '닫고 결과보기' : `Wait ${countdown}s`}
+                                {canClose ? '결과보기' : `광고 닫고 결과보기 ${countdown}초`}
                             </button>
                         </div>
                     </motion.div>
