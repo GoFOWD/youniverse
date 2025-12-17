@@ -269,7 +269,7 @@ export default function ClientApp() {
               const data: ResultData = await res.json();
               setResult(data);
 
-              // Wait 4 seconds on loading page before ocean transition
+              // Wait 2 seconds on loading page before ocean transition
               setTimeout(() => {
                 setStep('ocean_transition');
                 // Then wait 3 more seconds for ocean video before showing result
@@ -279,7 +279,7 @@ export default function ClientApp() {
                   isProcessingAnswer.current = false;
                   setIsFalling(false); // Reset falling state
                 }, 3000);
-              }, 4000);
+              }, 2000);
 
             } catch (error) {
               console.error('Error submitting test:', error);
