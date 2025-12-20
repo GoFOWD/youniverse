@@ -4,6 +4,8 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ShareCard from './result/ShareCard';
 import AdPopup from './result/AdPopup';
+import CoupangAd from './result/CoupangAd';
+import CoupangDynamicBanner from './result/CoupangDynamicBanner';
 import StatChart from './result/StatChart';
 import Barometer from './result/Barometer';
 import Compass from './result/Compass';
@@ -405,26 +407,14 @@ const ResultView: React.FC<ResultViewProps> = ({ result }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-gradient-to-br from-[#2c1810]/80 to-[#3e2723]/80 backdrop-blur-md rounded-2xl p-8 border-2 border-[#8b5a2b]/30 relative overflow-hidden flex justify-center items-center min-h-[200px]"
+          className="w-full flex justify-center items-center min-h-[140px] mt-8"
         >
-          {/* Vintage paper texture overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#f4e4bc]/5 to-transparent opacity-30" />
-
           <div className="relative text-center w-full">
             <div className="text-[#8b5a2b] text-xs font-serif tracking-widest uppercase mb-2"></div>
             {/* Google AdSense */}
-            <div className="w-full overflow-hidden">
-              <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2243110505553175"
-                crossOrigin="anonymous"></script>
-              {/* Result Page Ad */}
-              <ins className="adsbygoogle"
-                style={{ display: 'block' }}
-                data-ad-client="ca-pub-2243110505553175"
-                data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
-              <script>
-                {`(adsbygoogle = window.adsbygoogle || []).push({});`}
-              </script>
+            {/* Coupang Partners Banner */}
+            <div className="w-full overflow-hidden flex justify-center">
+              <CoupangDynamicBanner />
             </div>
           </div>
         </motion.section>

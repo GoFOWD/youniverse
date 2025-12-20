@@ -11,6 +11,7 @@ import ResultView from './ResultView';
 import VerticalProgressBar from './VerticalProgressBar';
 import dynamic from 'next/dynamic';
 import { audioManager } from '../utils/audioManager';
+import AdPopup from './result/AdPopup';
 
 const DeepSeaEffect = dynamic(() => import('./DeepSeaEffect'), { ssr: false });
 
@@ -72,6 +73,7 @@ export default function ClientApp() {
   const [result, setResult] = useState<ResultData | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isFalling, setIsFalling] = useState(false); // Controls visual falling effect
+  const [isTransitionAdOpen, setIsTransitionAdOpen] = useState(false);
 
   useEffect(() => {
     // 🚀 STAGE 1: Critical videos - Load FULLY and IMMEDIATELY
@@ -302,13 +304,11 @@ export default function ClientApp() {
               // Wait 2 seconds on loading page before ocean transition
               setTimeout(() => {
                 setStep('ocean_transition');
-                // Then wait 3 more seconds for ocean video before showing result
+                // Then wait 2 seconds for ocean video before showing ad
                 setTimeout(() => {
-                  setStep('result');
-                  setIsTransitioning(false);
-                  isProcessingAnswer.current = false;
-                  setIsFalling(false); // Reset falling state
-                }, 3000);
+                  // Show Ad Popup instead of going directly to result
+                  setIsTransitionAdOpen(true);
+                }, 2000);
               }, 2000);
 
             } catch (error) {
@@ -468,6 +468,18 @@ export default function ClientApp() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Transition Ad Popup */}
+        <AdPopup
+          isOpen={isTransitionAdOpen}
+          onClose={() => {
+            setIsTransitionAdOpen(false);
+            setStep('result');
+            setIsTransitioning(false);
+            isProcessingAnswer.current = false;
+            setIsFalling(false);
+          }}
+        />
 
         {/* Vertical Progress Bar - Persistent outside animation, only visible during question step */}
         {step === 'question' && (
