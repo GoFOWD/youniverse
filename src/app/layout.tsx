@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     description: '심해에서 시작되는 당신의 이야기. 18가지 질문을 통해 당신의 내면을 탐험하세요.',
     type: 'website',
     locale: 'ko_KR',
-    siteName: 'Deep Ocean, Soft Dawn',
+    siteName: '나의 바다를 찾아서',
   },
   twitter: {
     card: 'summary_large_image',
