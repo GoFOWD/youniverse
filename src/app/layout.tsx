@@ -28,6 +28,9 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
+  icons: {
+    icon: '/icon.jpg', // Explicitly pointing to the generated icon path
+  },
 
 };
 
