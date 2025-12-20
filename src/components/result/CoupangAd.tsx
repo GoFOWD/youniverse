@@ -14,14 +14,14 @@ interface AdItem {
 const AD_LIST: AdItem[] = [
     { id: 'ad1', src: 'https://coupa.ng/ckVTlN', width: '200', height: '350' },
     { id: 'ad2', src: 'https://coupa.ng/ckVVdU', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVX7a', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYeT', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYkJ', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYnS', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYry', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYtS', width: '200', height: '350' },
-    { id: 'ad2', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
-
+    { id: 'ad3', src: 'https://coupa.ng/ckVX7a', width: '200', height: '350' },
+    { id: 'ad4', src: 'https://coupa.ng/ckYVeT', width: '200', height: '350' },
+    { id: 'ad5', src: 'https://coupa.ng/ckVYkJ', width: '200', height: '350' },
+    { id: 'ad6', src: 'https://coupa.ng/ckVYnS', width: '200', height: '350' },
+    { id: 'ad7', src: 'https://coupa.ng/ckVYry', width: '200', height: '350' },
+    { id: 'ad8', src: 'https://coupa.ng/ckVYtS', width: '200', height: '350' },
+    { id: 'ad9', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
+    { id: 'ad10', src: 'https://coupa.ng/ck5tNV', width: '200', height: '350' },
 ];
 
 const CoupangAd: React.FC = () => {
@@ -32,23 +32,25 @@ const CoupangAd: React.FC = () => {
             let availableAds = [...AD_LIST];
 
             try {
-                const res = await fetch('/api/admin/ads');
-                if (res.ok) {
+                // Ensure the API endpoint exists before relying on it, or handle 404 gracefully
+                const res = await fetch('/api/admin/ads').catch(() => null);
+
+                if (res && res.ok) {
                     const dbAds = await res.json();
-                    if (dbAds && dbAds.length > 0) {
+                    if (Array.isArray(dbAds) && dbAds.length > 0) {
                         // Map DB ads to AdItem format
                         const formattedDbAds = dbAds.map((ad: any) => ({
                             id: `db_${ad.id}`,
                             src: ad.src,
-                            width: ad.width,
-                            height: ad.height
+                            width: ad.width || '200',
+                            height: ad.height || '350'
                         }));
                         // Combine or prioritize DB ads
                         availableAds = [...formattedDbAds, ...AD_LIST];
                     }
                 }
             } catch (error) {
-                console.error('Failed to fetch dynamic ads:', error);
+                console.warn('Failed to fetch dynamic ads, using default list:', error);
             }
 
             // Randomly select an ad
@@ -74,8 +76,6 @@ const CoupangAd: React.FC = () => {
                     frameBorder="0"
                     scrolling="no"
                     referrerPolicy="unsafe-url"
-                    // @ts-ignore
-                    browsingTopics={true}
                     style={{ width: '100%', height: '100%', display: 'block' }}
                 ></iframe>
             </div>
