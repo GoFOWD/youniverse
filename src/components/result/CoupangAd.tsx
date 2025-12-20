@@ -22,6 +22,7 @@ const AD_LIST: AdItem[] = [
     { id: 'ad8', src: 'https://coupa.ng/ckVYtS', width: '200', height: '350' },
     { id: 'ad9', src: 'https://coupa.ng/ckVYxn', width: '200', height: '350' },
     { id: 'ad10', src: 'https://coupa.ng/ck5tNV', width: '200', height: '350' },
+    { id: 'ad11', src: 'https://coupa.ng/ck5uL2', width: '200', height: '350' },
 ];
 
 const CoupangAd: React.FC = () => {
