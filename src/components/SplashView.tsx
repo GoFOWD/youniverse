@@ -46,14 +46,14 @@ export default function SplashView({ onComplete }: SplashViewProps) {
           ease: 'easeOut',
           delay: 0.2
         }}
-        className="relative w-64 h-64 md:w-80 md:h-80"
+        className="relative w-full h-full"
       >
         <Image
           src="/assets/landing_splash.jpg"
           alt="Logo"
           fill
           priority
-          className="object-contain"
+          className="object-cover"
         />
       </motion.div>
     </motion.div>
