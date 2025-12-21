@@ -37,19 +37,19 @@ export default function SplashView({ onComplete }: SplashViewProps) {
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ 
-          opacity: fadeOut ? 0 : 1, 
-          scale: fadeOut ? 1.1 : 1 
+        animate={{
+          opacity: fadeOut ? 0 : 1,
+          scale: fadeOut ? 1.1 : 1
         }}
-        transition={{ 
-          duration: 0.8, 
+        transition={{
+          duration: 0.8,
           ease: 'easeOut',
-          delay: 0.2 
+          delay: 0.2
         }}
         className="relative w-64 h-64 md:w-80 md:h-80"
       >
         <Image
-          src="/logo.jpg"
+          src="/assets/landing_splash.jpg"
           alt="Logo"
           fill
           priority

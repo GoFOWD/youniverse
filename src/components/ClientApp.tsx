@@ -377,16 +377,7 @@ export default function ClientApp() {
         ocean={result?.ocean}
         isTransitioning={isFalling}
         backgroundComponent={
-          step === 'landing' ? (
-            <div className="absolute inset-0 z-0">
-              <img
-                src="/assets/landing_splash.jpg"
-                alt="Background"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/30" /> {/* Dimming overlay for readability */}
-            </div>
-          ) :
+          step === 'landing' ? <DeepSeaEffect videoSrc="/assets/main.mp4" /> :
             step === 'loading' ? <DeepSeaEffect videoSrc="/assets/main3.mp4" zoom={1.3} /> :
               step === 'question' ? <DeepSeaEffect videoSrc={getQuestionVideo(currentQuestionIndex)} spotlight={true} backgroundColor={getQuestionBackgroundColor(progress)} /> :
                 step === 'ocean_transition' && result ? (
